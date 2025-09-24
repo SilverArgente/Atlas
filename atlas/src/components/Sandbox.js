@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
-import { initializeCanvas } from '../modules/view.js';
+import { initializeCanvas } from '../scripts/view_sandbox.js';
 
 export default function Sandbox() {
 
