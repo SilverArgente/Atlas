@@ -40,7 +40,7 @@ export class Canvas {
             this.ctx.lineTo(this.canvas.width * 2, y);
             this.ctx.stroke();
         }
-        
+
     }
 
 
@@ -99,6 +99,11 @@ export class Canvas {
             this.draw();
         });
 
+    }
+
+    drawToolbar() 
+    {
+        // ryan pls implement this :D
     }
 
 
