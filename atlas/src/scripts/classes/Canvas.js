@@ -1,3 +1,5 @@
+import { CanvasInteractable2D } from "./CanvasInteractable2D";
+
 // Global canvas/sandbox display
 
 export class Canvas {
@@ -14,7 +16,8 @@ export class Canvas {
 
         this.is_dragging = is_dragging; 
         this.scale_factor = scale_factor; // Default zoom level
-
+        this.show_toolbar = true;
+        this.interactables = []; // List of CanvasInteractables2Ds
     }
 
 
@@ -62,6 +65,8 @@ export class Canvas {
 
         this.ctx.restore();
 
+        // stationary elements placed after restore()
+        this.drawToolbar();
     }
 
 
@@ -98,12 +103,45 @@ export class Canvas {
 
             this.draw();
         });
-
+        for(let interactable of this.interactables) {
+            interactable.activateEventListeners();
+        }
     }
 
     drawToolbar() 
     {
         // ryan pls implement this :D
+        // if you say so big dog ~ryan
+        
+        // Draw parameters.
+        const toolbarMargin = 10;
+        const toolbarPadding = 16;
+        const toolbarWidth = window.innerWidth * 0.2;
+        const toolbarHeight = window.innerHeight - toolbarMargin * 2;
+        const toolbarOffsetX = window.innerWidth - toolbarWidth - toolbarMargin;
+        const toolbarOffsetY = toolbarMargin; // Redundant obviously, but here for completion sake.
+        const titleTextSize = 36;
+    
+        // Draw background box.
+        this.ctx.fillStyle = "white";
+        this.ctx.fillRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
+        this.ctx.strokeRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
+
+        // Draw title text.
+        //this.ctx.fillStyle = "black";
+        //this.ctx.font = `${titleTextSize}px Arial`;
+        //this.ctx.fillText("Atlas Toolbar", toolbarOffsetX + toolbarPadding, toolbarOffsetY + toolbarPadding + titleTextSize);
+
+        //Create buttons.
+
+        // As of this moment, Amogh told me to use HTML elements instead.
+        // Even though, he told me to work in this function. The Canvas class for drawing Canvas Items.
+        // I've commented out the above code, and just left the background of the toolbar.
+        // This is why I stick to backend.
+
+        /*const addNodeButton = new CanvasInteractable2D(this);
+        const addEdgeButton = new CanvasInteractable2D(this);
+        addNodeButton.addEventListener("")*/ // The inciting incident.
     }
 
 
