@@ -1,4 +1,5 @@
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
+import { Node } from "./Node";
 
 // Global canvas/sandbox display
 
@@ -9,6 +10,8 @@ export class Canvas {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");;
 
+        this.mousepos_x = 0;
+        this.mousepos_y = 0;
         this.x_offset = x_offset;
         this.y_offset = y_offset;
         this.prev_x = prev_x;
@@ -18,6 +21,7 @@ export class Canvas {
         this.scale_factor = scale_factor; // Default zoom level
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
+        this.nodes = [];
     }
 
 
@@ -63,6 +67,10 @@ export class Canvas {
         this.ctx.font = "24px Arial";
         this.ctx.fillText("Zoom and Pan the canvas!", 150, 150); // This text will also zoom and pan
 
+        for(let node of this.nodes) {
+            node.drawNode();
+        }
+
         this.ctx.restore();
 
         // stationary elements placed after restore()
@@ -81,6 +89,9 @@ export class Canvas {
             this.prev_y = e.clientY;
         });
         this.canvas.addEventListener("mousemove", (e) => {
+            const rect = this.canvas.getBoundingClientRect()
+            this.mousepos_x = e.clientX - rect.left;
+            this.mousepos_y = e.clientY - rect.top;
             if (!this.is_dragging) 
                 return;
 
@@ -106,6 +117,12 @@ export class Canvas {
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
+    }
+
+    addNode(){
+        let newNode = new Node(this, 400,400,25);
+        this.nodes.push(newNode);
+        this.draw();
     }
 
     drawToolbar() 

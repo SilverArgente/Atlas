@@ -6,6 +6,7 @@ import { initializeCanvas } from '../scripts/view_sandbox.js';
 export default function Sandbox() {
 
     const canvas_ref = useRef(null);
+    let canvasObject;
 
     const parsed_pdf = {
         "Quantum Mechanics": {
@@ -49,7 +50,7 @@ export default function Sandbox() {
     useEffect(() => {
 
         const canvas = canvas_ref.current;
-        initializeCanvas(canvas, parsed_pdf);
+        canvasObject = initializeCanvas(canvas, parsed_pdf);
 
     }, [])
 
@@ -65,7 +66,7 @@ export default function Sandbox() {
             />
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
-                <button id="addNodeButton" onClick={()=>{alert("Add Node Clicked!")}}>Add Node</button>
+                <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>
                 <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
             </div>
         </div>
