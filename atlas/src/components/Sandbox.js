@@ -63,6 +63,11 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
+            <div id="toolbar">
+                <h1>Atlas Toolbar</h1>
+                <button id="addNodeButton" onClick={()=>{alert("Add Node Clicked!")}}>Add Node</button>
+                <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
+            </div>
         </div>
     )
 }
