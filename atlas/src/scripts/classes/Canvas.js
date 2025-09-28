@@ -1,9 +1,15 @@
+import { Graph } from './Graph.js';
+
 // Global canvas/sandbox display
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor) {
+    constructor(canvas, graph, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor) 
+    {
         
+        this.graph = graph;
+        //console.log(graph);
+
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");;
 
@@ -53,7 +59,9 @@ export class Canvas {
 
         this.ctx.translate(this.x_offset, this.y_offset);
 
+        
         this.drawWireframe();
+        // this.initGraph();
 
         // Example text
         this.ctx.fillStyle = "red";
@@ -104,6 +112,47 @@ export class Canvas {
     drawToolbar() 
     {
         // ryan pls implement this :D
+    }
+
+
+
+
+    // Force directed algorithm to initialize vertex positions in canvas
+    initGraph()
+    {
+
+        /* 
+        const epsilon = 0.001;
+        const max_iterations = 1000;
+
+        let t = 0;
+
+        const c_rep = 2.0;
+        const c_spring = 1;
+
+        // Intialize forces
+
+
+        while (t < max_iterations && max_force(F) > epsilon) {
+            
+            
+            t++;
+        }
+        */
+/*
+        for (const [vertex, neighbors] in this.graph) {
+            console.log(vertex);
+        }*/
+
+
+        for (const [vertex, neighbors] of this.graph.adjacency_list) {
+            this.drawNode(vertex);
+        }
+
+        // console.log(this.graph);
+        // console.log(this.graph instanceof Graph);
+        // wconsole.log(this.graph.adjacency_list);
+
     }
 
 
