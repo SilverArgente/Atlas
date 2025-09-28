@@ -1,11 +1,12 @@
 import React from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
-import { initializeCanvas } from '../modules/view.js';
+import { initializeCanvas } from '../scripts/view_sandbox.js';
 
 export default function Sandbox() {
 
     const canvas_ref = useRef(null);
+    let canvasObject;
 
     const parsed_pdf = {
         "Quantum Mechanics": {
@@ -49,7 +50,7 @@ export default function Sandbox() {
     useEffect(() => {
 
         const canvas = canvas_ref.current;
-        initializeCanvas(canvas, parsed_pdf);
+        canvasObject = initializeCanvas(canvas, parsed_pdf);
 
     }, [])
 
@@ -63,6 +64,11 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
+            <div id="toolbar">
+                <h1>Atlas Toolbar</h1>
+                <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>
+                <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
+            </div>
         </div>
     )
 }
