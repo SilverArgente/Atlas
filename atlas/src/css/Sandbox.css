@@ -1,4 +1,7 @@
 body {
     margin: 0;
+    /*
+    Commenting property out for now since it causes all pages to be unscrollable
     overflow: hidden;
+    */
 }
