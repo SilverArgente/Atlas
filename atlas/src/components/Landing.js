@@ -1,7 +1,10 @@
 import React from 'react';
-import { LayoutBox } from "./LayoutBox.tsx";
+import { useNavigate } from 'react-router-dom';
+import { LayoutBox } from './LayoutBox.jsx';
 
 export default function Landing() {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -11,11 +14,15 @@ export default function Landing() {
             <div className="h-6 w-32 bg-gray-400 rounded"></div>
             <nav className="flex space-x-6">
               <div className="h-4 w-20 bg-gray-300 rounded"></div>
-              <div className="h-4 w-20 bg-gray-300 rounded"></div>
               <div className="h-4 w-28 bg-gray-300 rounded"></div>
             </nav>
           </div>
-          <div className="h-8 w-16 bg-gray-400 rounded"></div>
+        <button 
+          onClick={() => navigate('/login')} 
+          className="h-8 w-16 bg-gray-400 rounded text-white font-bold"
+        >
+          Login
+        </button>
         </div>
       </LayoutBox>
 
@@ -34,56 +41,8 @@ export default function Landing() {
           </div>
           
           {/* Login Form */}
-          <LayoutBox label="Quick Login" className="w-64 m-6 bg-white">
-            <div className="space-y-4">
-              <div className="h-4 w-16 bg-gray-400 rounded"></div>
-              <div className="h-10 w-full bg-gray-200 rounded"></div>
-              <div className="h-9 w-full bg-gray-400 rounded"></div>
-            </div>
-          </LayoutBox>
         </div>
       </LayoutBox>
-
-      {/* Services Section */}
-      <div className="p-8">
-        <LayoutBox label="Services Section" className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Main Service Card */}
-            <div className="md:col-span-1">
-              <LayoutBox label="Primary Service" className="h-48">
-                <div className="space-y-3">
-                  <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
-                  <div className="h-5 w-32 bg-gray-400 rounded"></div>
-                  <div className="h-5 w-24 bg-gray-400 rounded"></div>
-                  <div className="space-y-2 mt-4">
-                    <div className="h-3 w-full bg-gray-300 rounded"></div>
-                    <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
-                    <div className="h-3 w-3/4 bg-gray-300 rounded"></div>
-                  </div>
-                </div>
-              </LayoutBox>
-            </div>
-
-            {/* Service Cards */}
-            {["Personal Banking", "Business Banking", "Private Banking"].map((service, index) => (
-              <div key={index}>
-                <LayoutBox label={service} className="h-48">
-                  <div className="space-y-3">
-                    <div className="h-16 w-full bg-gray-300 rounded"></div>
-                    <div className="h-4 w-3/4 bg-gray-400 rounded"></div>
-                    <div className="space-y-2">
-                      <div className="h-3 w-full bg-gray-300 rounded"></div>
-                      <div className="h-3 w-5/6 bg-gray-300 rounded"></div>
-                      <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
-                    </div>
-                    <div className="h-3 w-20 bg-gray-400 rounded mt-4"></div>
-                  </div>
-                </LayoutBox>
-              </div>
-            ))}
-          </div>
-        </LayoutBox>
-      </div>
 
       {/* Features Section */}
       <div className="px-8 pb-8">
