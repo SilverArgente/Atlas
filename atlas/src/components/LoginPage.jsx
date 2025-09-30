@@ -11,32 +11,6 @@ export default function LoginPage() {
         </div>
       </LayoutBox>
 
-      {/* Main Login Content */}
-        {/* Left Side - Branding/Info */}
-        <div className="hidden lg:flex lg:w-1/2 relative">
-          <LayoutBox label="Branding Section" className="w-full h-full">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-500 rounded-sm"></div>
-            <div className="relative z-10 flex flex-col justify-center h-full p-12 space-y-6">
-              <div className="h-8 w-48 bg-white bg-opacity-90 rounded shadow"></div>
-              <div className="space-y-3">
-                <div className="h-5 w-64 bg-white bg-opacity-80 rounded"></div>
-                <div className="h-4 w-56 bg-white bg-opacity-70 rounded"></div>
-                <div className="h-4 w-48 bg-white bg-opacity-70 rounded"></div>
-              </div>
-              
-              {/* Feature highlights */}
-              <div className="space-y-4 mt-8">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="flex items-center space-x-3">
-                    <div className="w-4 h-4 bg-white bg-opacity-90 rounded-full"></div>
-                    <div className="h-3 w-40 bg-white bg-opacity-80 rounded"></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </LayoutBox>
-        </div>
-
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <LayoutBox label="Login Form" className="w-full max-w-md bg-white">

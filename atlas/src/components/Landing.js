@@ -4,6 +4,7 @@ import { LayoutBox } from './LayoutBox.jsx';
 
 export default function Landing() {
   const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
