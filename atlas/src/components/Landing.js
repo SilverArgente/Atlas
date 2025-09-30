@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutBox } from "./LayoutBox.tsx";
+import { LayoutBox } from './LayoutBox.jsx';
 
 export default function Landing() {
   return (
@@ -48,39 +48,44 @@ export default function Landing() {
       <div className="p-8">
         <LayoutBox label="Services Section" className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {/* Main Service Card */}
-            <div className="md:col-span-1">
-              <LayoutBox label="Primary Service" className="h-48">
-                <div className="space-y-3">
-                  <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
-                  <div className="h-5 w-32 bg-gray-400 rounded"></div>
-                  <div className="h-5 w-24 bg-gray-400 rounded"></div>
-                  <div className="space-y-2 mt-4">
-                    <div className="h-3 w-full bg-gray-300 rounded"></div>
-                    <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
-                    <div className="h-3 w-3/4 bg-gray-300 rounded"></div>
-                  </div>
-                </div>
-              </LayoutBox>
-            </div>
-
-            {/* Service Cards */}
-            {["Personal Banking", "Business Banking", "Private Banking"].map((service, index) => (
-              <div key={index}>
-                <LayoutBox label={service} className="h-48">
-                  <div className="space-y-3">
-                    <div className="h-16 w-full bg-gray-300 rounded"></div>
-                    <div className="h-4 w-3/4 bg-gray-400 rounded"></div>
-                    <div className="space-y-2">
-                      <div className="h-3 w-full bg-gray-300 rounded"></div>
-                      <div className="h-3 w-5/6 bg-gray-300 rounded"></div>
-                      <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
+            {/* Banking/services cards temporarily hidden */}
+            {false && (
+              <>
+                {/* Main Service Card */}
+                <div className="md:col-span-1">
+                  <LayoutBox label="Primary Service" className="h-48">
+                    <div className="space-y-3">
+                      <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
+                      <div className="h-5 w-32 bg-gray-400 rounded"></div>
+                      <div className="h-5 w-24 bg-gray-400 rounded"></div>
+                      <div className="space-y-2 mt-4">
+                        <div className="h-3 w-full bg-gray-300 rounded"></div>
+                        <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
+                        <div className="h-3 w-3/4 bg-gray-300 rounded"></div>
+                      </div>
                     </div>
-                    <div className="h-3 w-20 bg-gray-400 rounded mt-4"></div>
+                  </LayoutBox>
+                </div>
+
+                {/* Service Cards */}
+                {["Personal Banking", "Business Banking", "Private Banking"].map((service, index) => (
+                  <div key={index}>
+                    <LayoutBox label={service} className="h-48">
+                      <div className="space-y-3">
+                        <div className="h-16 w-full bg-gray-300 rounded"></div>
+                        <div className="h-4 w-3/4 bg-gray-400 rounded"></div>
+                        <div className="space-y-2">
+                          <div className="h-3 w-full bg-gray-300 rounded"></div>
+                          <div className="h-3 w-5/6 bg-gray-300 rounded"></div>
+                          <div className="h-3 w-4/5 bg-gray-300 rounded"></div>
+                        </div>
+                        <div className="h-3 w-20 bg-gray-400 rounded mt-4"></div>
+                      </div>
+                    </LayoutBox>
                   </div>
-                </LayoutBox>
-              </div>
-            ))}
+                ))}
+              </>
+            )}
           </div>
         </LayoutBox>
       </div>

@@ -1,10 +1,6 @@
-interface LayoutBoxProps {
-  children: React.ReactNode;
-  className?: string;
-  label?: string;
-}
+import React from 'react';
 
-export function LayoutBox({ children, className = "", label }: LayoutBoxProps) {
+export function LayoutBox({ children, className = "", label }) {
   return (
     <div className={`border-2 border-dashed border-gray-300 bg-gray-50 relative ${className}`}>
       {label && (
