@@ -1,16 +1,10 @@
 import { LayoutBox } from "./LayoutBox.jsx";
+import Header from "./Header";
 
 export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <LayoutBox label="Header" className="h-16 bg-white">
-        <div className="flex items-center justify-between h-full">
-          <div className="h-6 w-32 bg-gray-400 rounded"></div>
-          <div className="h-4 w-20 bg-gray-300 rounded"></div>
-        </div>
-      </LayoutBox>
-
+      <Header />
         {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <LayoutBox label="Login Form" className="w-full max-w-md bg-white">
