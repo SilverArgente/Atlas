@@ -19,15 +19,6 @@ export default function Landing() {
       <LayoutBox className="h-96 relative">
         <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-300 rounded-sm"><img src={njitLogo} alt="NJIT" className="w-full h-full object-cover rounded-sm"/></div>
         <div className="relative z-10 flex h-full">
-          {/* Hero Content */}
-          <div className="flex-1 flex flex-col justify-center px-8 space-y-4">
-            <div className="h-8 w-80 bg-white bg-opacity-90 rounded shadow"></div>
-            <div className="space-y-2">
-              <div className="h-4 w-64 bg-white bg-opacity-80 rounded"></div>
-              <div className="h-4 w-48 bg-white bg-opacity-80 rounded"></div>
-            </div>
-            <div className="h-10 w-32 bg-white bg-opacity-90 rounded shadow mt-4"></div>
-          </div>
           
           {/* Login Form */}
         </div>
