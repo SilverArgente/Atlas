@@ -15,6 +15,13 @@ export class Node {
 
     setTitle(title) {
         this.text = title;
+        this.canvasObj.draw();
+    }
+
+    setColor(color) {
+        this.color = color;
+        document.getElementById("nodeColorPicker").value = color;
+        this.canvasObj.draw();
     }
 
     openInspector() {
@@ -29,7 +36,7 @@ export class Node {
         let titleTextSize = 12;
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
-        ctx.fillStyle = "cornflowerblue";
+        ctx.fillStyle = this.color;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);

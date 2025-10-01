@@ -70,9 +70,10 @@ export default function Sandbox() {
                 <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
                 <div id="nodeInspector" hidden>
                     <h3><strong>Node Inspector</strong></h3>
-                    <label for="nodeColorPicker">Node Color</label>
+                    <label for="nodeColorPicker">Node Color:</label> <br/>
                     <input type="color" name="nodeColorPicker" id="nodeColorPicker" value="cornflowerblue"></input> <br/>
-                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Node Name'></input>
+                    <label for="nodeNameText">Node Name:</label> <br/>
+                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input>
                 </div>
             </div>
         </div>

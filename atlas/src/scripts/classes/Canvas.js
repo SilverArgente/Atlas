@@ -23,6 +23,8 @@ export class Canvas {
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = [];
         this.selectedNode = undefined;
+        this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
+        this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
     }
 
 
@@ -81,8 +83,6 @@ export class Canvas {
 
     addEventListeners()
     {
-        document.getElementById("nodeColorPicker").addEventListener("change", this.changeSelectedNodeColor.bind(this))
-        document.getElementById("nodeNameText").addEventListener("change", this.changeSelectedNodeName.bind(this))
         this.canvas.addEventListener("mouseup", () => this.is_dragging = false);
         this.canvas.addEventListener("mouseleave", () => this.is_dragging = false);
         this.canvas.addEventListener("mousedown", (e) => {
@@ -119,6 +119,11 @@ export class Canvas {
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
+
+        document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
+        document.getElementById("nodeNameText").removeEventListener("change", this.boundChangeSelectedNodeName)
+        document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
+        document.getElementById("nodeNameText").addEventListener("change", this.boundChangeSelectedNodeName)
     }
 
     addNode(){
@@ -128,15 +133,12 @@ export class Canvas {
     }
 
     changeSelectedNodeColor(e) {
-        this.selectedNode.color = e.currentTarget.value;
+        if(!this.selectedNode) return
+        this.selectedNode.setColor(e.currentTarget.value);
     }
 
     changeSelectedNodeName(e) {
-        console.log("Selected node:", this.selectedNode)
-        if(!this.selectedNode) {
-            alert("Node is undefine...");
-            return
-        }
+        if(!this.selectedNode) return
         this.selectedNode.setTitle(e.currentTarget.value);
     }
 
