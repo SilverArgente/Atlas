@@ -1,5 +1,6 @@
 import { LayoutBox } from "./LayoutBox";
 import Header from "./Header";
+import Footer from "./Footer.jsx";
 
 export default function Pricing() {
   return (
@@ -31,9 +32,7 @@ export default function Pricing() {
       </LayoutBox>
 
       {/* Footer */}
-      <LayoutBox label="Footer" className="h-32 mt-8">
-        <p className="text-center text-gray-500">© 2025 Atlas. All rights reserved.</p>
-      </LayoutBox>
+      <Footer />
     </div>
   );
 }

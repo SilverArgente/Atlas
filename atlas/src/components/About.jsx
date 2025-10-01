@@ -1,5 +1,7 @@
 import { LayoutBox } from "./LayoutBox";
 import Header from "./Header";
+import classroom from "../assets/classroom.png"
+import Footer from "./Footer";
 
 export default function About() {
   return (
@@ -7,7 +9,7 @@ export default function About() {
         <Header />
       {/* Hero Section */}
       <LayoutBox label="About Hero" className="h-64 flex items-center justify-center bg-gray-200">
-        <h1 className="text-3xl font-bold">About Us</h1>
+        <img src={classroom} alt="About Us" className="absolute inset-0 w-full h-full object-cover"/>
       </LayoutBox>
 
       {/* Content Section */}
@@ -23,9 +25,7 @@ export default function About() {
       </LayoutBox>
 
       {/* Footer */}
-      <LayoutBox label="Footer" className="h-32 mt-8">
-        <p className="text-center text-gray-500">© 2025 Atlas. All rights reserved.</p>
-      </LayoutBox>
+      <Footer />
     </div>
   );
 }

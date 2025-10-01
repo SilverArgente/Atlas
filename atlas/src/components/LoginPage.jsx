@@ -1,5 +1,6 @@
 import { LayoutBox } from "./LayoutBox.jsx";
 import Header from "./Header";
+import Footer from "./Footer.jsx";
 
 export default function LoginPage() {
   return (
@@ -61,16 +62,7 @@ export default function LoginPage() {
         </div>
 
       {/* Footer */}
-      <LayoutBox className="h-16 bg-white mt-auto">
-        <div className="flex items-center justify-between h-full">
-          <div className="flex space-x-6">
-            <div className="h-3 w-16 bg-gray-300 rounded"></div>
-            <div className="h-3 w-20 bg-gray-300 rounded"></div>
-            <div className="h-3 w-14 bg-gray-300 rounded"></div>
-          </div>
-          <div className="h-3 w-24 bg-gray-300 rounded"></div>
-        </div>
-      </LayoutBox>
+      <Footer />
     </div>
   );
 }
