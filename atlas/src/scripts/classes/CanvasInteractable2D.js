@@ -22,19 +22,21 @@ export class CanvasInteractable2D {
     }
 
     addClickListener(callback) {
-        this.addEventListener("click", ()=>{
-            console.log(`(${this.canvasObject.mousepos_x}, ${this.canvasObject.mousepos_y})`);
-            console.log(`mx: ${this.canvasObject.mousepos_x} bx: ${this.x + this.canvasObject.x_offset}`);
-            console.log(`my: ${this.canvasObject.mousepos_y} by: ${this.y + this.canvasObject.y_offset}`);
-            if(this.canvasObject.mousepos_x < this.x + this.canvasObject.x_offset || 
-                this.canvasObject.mousepos_x > this.x + this.canvasObject.x_offset + this.w || 
-                this.canvasObject.mousepos_y < this.y + this.canvasObject.y_offset || 
-                this.canvasObject.mousepos_y > this.y + this.canvasObject.y_offset + this.h
-            ) {
-                return;
-            }
-            callback();
-        })
+        this.addEventListener("click", this.clickCallback)
+    }
+
+    clickCallback(callback) {
+        console.log(`(${this.canvasObject.mousepos_x}, ${this.canvasObject.mousepos_y})`);
+        console.log(`mx: ${this.canvasObject.mousepos_x} bx: ${this.x + this.canvasObject.x_offset}`);
+        console.log(`my: ${this.canvasObject.mousepos_y} by: ${this.y + this.canvasObject.y_offset}`);
+        if(this.canvasObject.mousepos_x < this.x + this.canvasObject.x_offset || 
+            this.canvasObject.mousepos_x > this.x + this.canvasObject.x_offset + this.w || 
+            this.canvasObject.mousepos_y < this.y + this.canvasObject.y_offset || 
+            this.canvasObject.mousepos_y > this.y + this.canvasObject.y_offset + this.h
+        ) {
+            return;
+        }
+        callback();
     }
 
     activateEventListeners() {

@@ -22,6 +22,7 @@ export class Canvas {
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = [];
+        this.selectedNode = undefined;
     }
 
 
@@ -80,7 +81,8 @@ export class Canvas {
 
     addEventListeners()
     {
-        
+        document.getElementById("nodeColorPicker").addEventListener("change", this.changeSelectedNodeColor.bind(this))
+        document.getElementById("nodeNameText").addEventListener("change", this.changeSelectedNodeName.bind(this))
         this.canvas.addEventListener("mouseup", () => this.is_dragging = false);
         this.canvas.addEventListener("mouseleave", () => this.is_dragging = false);
         this.canvas.addEventListener("mousedown", (e) => {
@@ -123,6 +125,19 @@ export class Canvas {
         let newNode = new Node(this, 400,400,25);
         this.nodes.push(newNode);
         this.draw();
+    }
+
+    changeSelectedNodeColor(e) {
+        this.selectedNode.color = e.currentTarget.value;
+    }
+
+    changeSelectedNodeName(e) {
+        console.log("Selected node:", this.selectedNode)
+        if(!this.selectedNode) {
+            alert("Node is undefine...");
+            return
+        }
+        this.selectedNode.setTitle(e.currentTarget.value);
     }
 
     drawToolbar() 
