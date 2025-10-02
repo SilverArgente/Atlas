@@ -26,3 +26,12 @@ body {
     font-size: 16px;
     cursor: pointer;
 }
+
+#nodeColorPicker {
+    border-radius: 5px;
+    margin: 5px;
+}
+
+#toolbar > h1 {
+    font-size: xx-large;
+}

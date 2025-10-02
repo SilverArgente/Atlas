@@ -68,6 +68,13 @@ export default function Sandbox() {
                 <h1>Atlas Toolbar</h1>
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>
                 <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
+                <div id="nodeInspector" hidden>
+                    <h3><strong>Node Inspector</strong></h3>
+                    <label for="nodeColorPicker">Node Color:</label> <br/>
+                    <input type="color" name="nodeColorPicker" id="nodeColorPicker" value="cornflowerblue"></input> <br/>
+                    <label for="nodeNameText">Node Name:</label> <br/>
+                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input>
+                </div>
             </div>
         </div>
     )
