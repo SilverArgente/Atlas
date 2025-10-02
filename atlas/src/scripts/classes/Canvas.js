@@ -80,9 +80,15 @@ export class Canvas {
         this.drawToolbar();
     }
 
+    resizeWindow(){
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.draw()
+    }
 
     addEventListeners()
     {
+        window.addEventListener('resize', this.resizeWindow.bind(this))
         this.canvas.addEventListener("mouseup", () => this.is_dragging = false);
         this.canvas.addEventListener("mouseleave", () => this.is_dragging = false);
         this.canvas.addEventListener("mousedown", (e) => {
