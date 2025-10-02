@@ -22,6 +22,9 @@ export class Canvas {
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = [];
+        this.selectedNode = undefined;
+        this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
+        this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
     }
 
 
@@ -80,7 +83,6 @@ export class Canvas {
 
     addEventListeners()
     {
-        
         this.canvas.addEventListener("mouseup", () => this.is_dragging = false);
         this.canvas.addEventListener("mouseleave", () => this.is_dragging = false);
         this.canvas.addEventListener("mousedown", (e) => {
@@ -117,12 +119,27 @@ export class Canvas {
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
+
+        document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
+        document.getElementById("nodeNameText").removeEventListener("change", this.boundChangeSelectedNodeName)
+        document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
+        document.getElementById("nodeNameText").addEventListener("change", this.boundChangeSelectedNodeName)
     }
 
     addNode(){
         let newNode = new Node(this, 400,400,25);
         this.nodes.push(newNode);
         this.draw();
+    }
+
+    changeSelectedNodeColor(e) {
+        if(!this.selectedNode) return
+        this.selectedNode.setColor(e.currentTarget.value);
+    }
+
+    changeSelectedNodeName(e) {
+        if(!this.selectedNode) return
+        this.selectedNode.setTitle(e.currentTarget.value);
     }
 
     drawToolbar() 

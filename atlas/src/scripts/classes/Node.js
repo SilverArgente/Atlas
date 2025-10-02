@@ -8,12 +8,27 @@ export class Node {
         this.y = y;
         this.r = r;
         this.text = text;
+        this.color = "cornflowerblue";
         this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
-        this.interaction.addClickListener(()=>{alert(`Clicked on ${this.text}`);});
+        this.interaction.addClickListener(this.openInspector.bind(this));
     }
 
     setTitle(title) {
         this.text = title;
+        this.canvasObj.draw();
+    }
+
+    setColor(color) {
+        this.color = color;
+        document.getElementById("nodeColorPicker").value = color;
+        this.canvasObj.draw();
+    }
+
+    openInspector() {
+        this.canvasObj.selectedNode = this;
+        document.getElementById("nodeInspector").hidden = false;
+        document.getElementById("nodeColorPicker").value = this.color;
+        document.getElementById("nodeNameText").value = this.text; 
     }
 
     drawNode() {
@@ -21,7 +36,7 @@ export class Node {
         let titleTextSize = 12;
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
-        ctx.fillStyle = "cornflowerblue";
+        ctx.fillStyle = this.color;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
