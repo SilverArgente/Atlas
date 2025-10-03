@@ -27,10 +27,10 @@ export class CanvasInteractable2D {
     }
 
     clickCallback(callback) {
-        if(this.canvasObject.mousepos_x < (this.x + this.canvasObject.x_offset)*this.canvasObject.scale_factor || 
-            this.canvasObject.mousepos_x > (this.x + this.canvasObject.x_offset + this.w)*this.canvasObject.scale_factor  || 
-            this.canvasObject.mousepos_y < (this.y + this.canvasObject.y_offset)*this.canvasObject.scale_factor  || 
-            this.canvasObject.mousepos_y > (this.y + this.canvasObject.y_offset + this.h)*this.canvasObject.scale_factor 
+        if(this.canvasObject.mousepos_world_x < this.x || 
+            this.canvasObject.mousepos_world_x > this.x + this.w || 
+            this.canvasObject.mousepos_world_y < this.y || 
+            this.canvasObject.mousepos_world_y > this.y + this.h
         ) {
             return;
         }
