@@ -12,6 +12,8 @@ export class Canvas {
 
         this.mousepos_x = 0;
         this.mousepos_y = 0;
+        this.mousepos_world_x = 0;
+        this.mousepos_world_y = 0;
         this.x_offset = x_offset;
         this.y_offset = y_offset;
         this.prev_x = prev_x;
@@ -25,6 +27,21 @@ export class Canvas {
         this.selectedNode = undefined;
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
+        this.handleCanvasZoom = (e) => {
+            e.preventDefault();
+            let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
+            let mouseCanvasPositionYOld = (this.mousepos_y - this.y_offset)/this.scale_factor;
+            if (e.deltaY < 0) {
+                this.scale_factor *= 1.04; // Zoom in
+            } else {
+                this.scale_factor *= 0.96; // Zoom out
+            }
+            let mouseCanvasPositionXNew = (this.mousepos_x - this.x_offset)/this.scale_factor;
+            let mouseCanvasPositionYNew = (this.mousepos_y - this.y_offset)/this.scale_factor;
+            this.x_offset += (mouseCanvasPositionXNew - mouseCanvasPositionXOld) * this.scale_factor
+            this.y_offset += (mouseCanvasPositionYNew - mouseCanvasPositionYOld) * this.scale_factor
+            this.draw();
+        }
     }
 
 
@@ -58,10 +75,8 @@ export class Canvas {
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
-        
-        this.ctx.scale(this.scale_factor, this.scale_factor);
 
-        this.ctx.translate(this.x_offset, this.y_offset);
+        this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
 
         this.drawWireframe();
 
@@ -100,28 +115,20 @@ export class Canvas {
             const rect = this.canvas.getBoundingClientRect()
             this.mousepos_x = e.clientX - rect.left;
             this.mousepos_y = e.clientY - rect.top;
+            this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
+            this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
             if (!this.is_dragging) 
                 return;
 
-            this.x_offset += (e.clientX - this.prev_x);
-            this.y_offset += (e.clientY - this.prev_y);
+            this.x_offset += (e.clientX - this.prev_x)
+            this.y_offset += (e.clientY - this.prev_y)
 
             this.prev_x = e.clientX;
             this.prev_y = e.clientY;
 
             this.draw();
         });
-        this.canvas.addEventListener("wheel", (e) => {
-            e.preventDefault(); 
-
-            if (e.deltaY < 0) {
-                this.scale_factor *= 1.05; // Zoom in
-            } else {
-                this.scale_factor *= 0.96; // Zoom out
-            }
-
-            this.draw();
-        });
+        this.canvas.addEventListener("wheel", this.handleCanvasZoom);
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
