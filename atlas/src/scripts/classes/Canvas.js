@@ -27,6 +27,7 @@ export class Canvas {
         this.selectedNode = undefined;
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
+        this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -134,9 +135,9 @@ export class Canvas {
         }
 
         document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").removeEventListener("change", this.boundChangeSelectedNodeName)
+        document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
         document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").addEventListener("change", this.boundChangeSelectedNodeName)
+        document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
     }
 
     addNode(){
@@ -152,7 +153,13 @@ export class Canvas {
 
     changeSelectedNodeName(e) {
         if(!this.selectedNode) return
+        document.getElementById("node-content-title").textContent = e.currentTarget.value;
         this.selectedNode.setTitle(e.currentTarget.value);
+    }
+
+    updateNodeContent() {
+        if(!this.selectedNode) return;
+        this.selectedNode.setContent(document.getElementById("node-content-text").value)
     }
 
     drawToolbar() 
