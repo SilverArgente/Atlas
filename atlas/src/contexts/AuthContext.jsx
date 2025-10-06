@@ -74,3 +74,31 @@ export default function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
+
+const signUp = async (email, password) => {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+  return { data, error };
+};
+
+const signIn = async (email, password) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  return { data, error };
+};
+
+const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  return { error };
+};
+
+const resetPassword = async (email) => {
+  const { data, error } = await supabase.auth.resetPasswordWithEmail(email, {
+    redirectTo: `${window.location.origin}/update-password`,
+  });
+  return { data, error };
+  };
