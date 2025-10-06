@@ -13,11 +13,16 @@ export class Node {
         this.color = "cornflowerblue";
         this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
         this.interaction.addClickListener(this.openInspector.bind(this));
+        this.image = null;
     }
 
     setTitle(title) {
         this.title = title;
         this.canvasObj.draw();
+    }
+
+    setImage(image) {
+        this.image = image;
     }
 
     setContent(content) {
@@ -40,12 +45,13 @@ export class Node {
         if(!contentPopup) return;
         contentTextArea.value = this.content;
         contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
+        const nodeImage = document.getElementById("node-image")
+        nodeImage.hidden = !this.image;
+        nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
-        
+        document.getElementById("node-content-image").value = null;
         contentPopup.hidden = false;
     }
-
-
 
     drawNode() {
         const textMargin = 0.25;

@@ -28,6 +28,7 @@ export class Canvas {
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
         this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
+        this._boundHandleImageChange = this.handleImageChange.bind(this);
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -133,15 +134,16 @@ export class Canvas {
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
-
+ 
         document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
         document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
         document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
         document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
+        document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
     }
 
     addNode(){
-        let newNode = new Node(this, 400,400,25);
+        let newNode = new Node(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height,25); // Random for now.
         this.nodes.push(newNode);
         this.draw();
     }
@@ -159,7 +161,25 @@ export class Canvas {
 
     updateNodeContent() {
         if(!this.selectedNode) return;
-        this.selectedNode.setContent(document.getElementById("node-content-text").value)
+        this.selectedNode.setContent(document.getElementById("node-content-text").value);
+    }
+
+    updateNodeImage() {
+        if(!this.selectedNode) return;
+        this.selectedNode.setImage(document.getElementById("node-image").src);
+    }
+
+    handleImageChange(e) {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                document.getElementById("node-image").src = reader.result;
+                document.getElementById("node-image").hidden = false;
+                this.updateNodeImage()
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     drawToolbar() 
