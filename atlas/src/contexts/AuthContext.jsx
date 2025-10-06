@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 const AuthContext = React.createContext();
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if(!context){
+        throw new Error("useAuth must be used within an AuthProvider")
+    }
+    return context;
+}
 
 export default function AuthProvider({ children }) {
   const [session, setSession] = useState()
@@ -37,17 +45,19 @@ export default function AuthProvider({ children }) {
   useEffect(() => {
     const fetchProfile = async () => {
       setIsLoading(true)
-      if (session) {
-        const { data } = await supabase
+      if (session?.user?.id) {
+        const { data, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single()
+        if (error){
+            console.error('Error fetching profile:', error)
+        }
         setProfile(data)
       } else {
         setProfile(null)
       }
-      setIsLoading(false)
     }
     fetchProfile()
   }, [session])
