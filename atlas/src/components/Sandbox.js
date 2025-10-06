@@ -2,6 +2,7 @@ import React from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox.js';
+import NodeContent from './NodeContent.jsx';
 
 export default function Sandbox() {
 
@@ -57,6 +58,7 @@ export default function Sandbox() {
     return (
         <div>
             <canvas 
+                id="appCanvas"
                 ref={canvas_ref}
                 style={{
                     display: "block",
@@ -64,6 +66,7 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
+            <NodeContent title="" content=""></NodeContent>
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>

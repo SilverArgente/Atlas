@@ -35,3 +35,14 @@ body {
 #toolbar > h1 {
     font-size: xx-large;
 }
+
+.node-content > div {
+    position:absolute;
+    background-color: white;
+    border: thin solid black;
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    top: 30%;
+    left: 30%;
+    padding: 10pt;
+}
