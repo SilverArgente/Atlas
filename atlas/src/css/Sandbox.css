@@ -38,15 +38,33 @@ body {
 
 .node-content > div {
     position:absolute;
-    background-color: white;
-    border: thin solid black;
-    width: 20%;
+    background-color: cornflowerblue;
+    border: thick solid black;
+    width: 30%;
     aspect-ratio: 1 / 1;
-    top: 30%;
+    top: 20%;
     left: 30%;
     padding: 10pt;
+    border-radius: 100%;
+}
+
+.node-content > div > h1 {
+    text-align: center;
+    margin: 10pt;
 }
 
 textarea {
     resize: none;
+    display: block;
+    margin: auto;
+}
+
+img {
+    display: block;
+    margin: auto;
+}
+
+input[type="file"] {
+    display: block;
+    margin: auto;
 }
