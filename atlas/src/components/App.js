@@ -7,18 +7,17 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 function App() {
 
   return (
+  <AuthProvider>
     <BrowserRouter>
-
         <Routes>
           <Route path="/" element={<Landing/>}/>
           <Route path="/create" element={<Sandbox/>}/>
           <Route path ="/login" element={<LoginPage/>}/>
-        
         </Routes>
 
       </BrowserRouter>
+    </AuthProvider>
   );
-
 }
 
 export default App;

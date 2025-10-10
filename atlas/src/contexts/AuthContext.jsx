@@ -11,56 +11,25 @@ export function useAuth() {
     return context;
 }
 
-export default function AuthProvider({ children }) {
-  const [session, setSession] = useState()
-  const [profile, setProfile] = useState()
-  const [isLoading, setIsLoading] = useState(true)
-  // Fetch the session once, and subscribe to auth state changes
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const fetchSession = async () => {
-      setIsLoading(true)
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession()
-      if (error) {
-        console.error('Error fetching session:', error)
-      }
-      setSession(session)
-      setIsLoading(false)
-    }
-    fetchSession()
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state changed:', { event: _event, session })
-      setSession(session)
-    })
-    // Cleanup subscription on unmount
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
-  // Fetch the profile when the session changes
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setIsLoading(true)
-      if (session?.user?.id) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        if (error){
-            console.error('Error fetching profile:', error)
-        }
-        setProfile(data)
-      } else {
-        setProfile(null)
-      }
-    }
-    fetchProfile()
-  }, [session])
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signUp = async (email, password) => {
   const { data, error } = await supabase.auth.signUp({
