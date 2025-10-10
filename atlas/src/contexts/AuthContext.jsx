@@ -61,21 +61,8 @@ export default function AuthProvider({ children }) {
     }
     fetchProfile()
   }, [session])
-  return (
-    <AuthContext.Provider
-      value={{
-        session,
-        isLoading,
-        profile,
-        isLoggedIn: session != undefined,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  )
-}
 
-const signUp = async (email, password) => {
+  const signUp = async (email, password) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -98,7 +85,22 @@ const signOut = async () => {
 
 const resetPassword = async (email) => {
   const { data, error } = await supabase.auth.resetPasswordWithEmail(email, {
-    redirectTo: `${window.location.origin}/update-password`,
+    redirectTo: `${window.location.origin}/reset-password`,
   });
   return { data, error };
   };
+  const value = {
+    user,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    resetPassword,
+  };
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+  
