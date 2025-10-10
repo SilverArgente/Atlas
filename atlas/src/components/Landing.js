@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutBox } from './LayoutBox.jsx';
-
+import { Link } from 'react-router-dom';
 import njitLogo from "../assets/njit.jpg";
 import study from "../assets/study.jpg";
 import teach from "../assets/teacher.png";
