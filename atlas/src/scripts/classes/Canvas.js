@@ -74,7 +74,6 @@ export class Canvas {
 
 
     draw() {
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
 
@@ -88,7 +87,7 @@ export class Canvas {
         this.ctx.fillText("Zoom and Pan the canvas!", 150, 150); // This text will also zoom and pan
 
         for(let node of this.nodes) {
-            node.drawNode();
+            if(!node.nodraw) node.drawNode();
         }
 
         this.ctx.restore();
@@ -150,6 +149,7 @@ export class Canvas {
 
     changeSelectedNodeColor(e) {
         if(!this.selectedNode) return
+        document.querySelector(".node-content > div").style.backgroundColor = e.currentTarget.value;
         this.selectedNode.setColor(e.currentTarget.value);
     }
 

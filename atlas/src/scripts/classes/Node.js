@@ -14,6 +14,7 @@ export class Node {
         this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
+        this.nodraw = false;
     }
 
     setTitle(title) {
@@ -50,7 +51,12 @@ export class Node {
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
+        this.canvasObj.x_offset = (-this.x*this.canvasObj.scale_factor)+(this.canvasObj.canvas.width/2.0)-this.r*4; // Magic number, I'm sorry. But I don't know where the offset is coming from
+        this.canvasObj.y_offset = (-this.y*this.canvasObj.scale_factor)+(this.canvasObj.canvas.height/2.0)+this.r;
+        console.log("offset after change: ", this.canvasObj.x_offset, this.canvasObj.y_offset)
+        //this.nodraw = true;
         contentPopup.hidden = false;
+        this.canvasObj.draw()
     }
 
     drawNode() {
