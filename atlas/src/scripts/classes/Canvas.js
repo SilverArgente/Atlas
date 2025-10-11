@@ -76,24 +76,17 @@ export class Canvas {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
-
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
-
         this.drawWireframe();
 
-        // Example text
-        this.ctx.fillStyle = "red";
-        this.ctx.font = "24px Arial";
-        this.ctx.fillText("Zoom and Pan the canvas!", 150, 150); // This text will also zoom and pan
-
-        for(let node of this.nodes) {
-            if(!node.nodraw) node.drawNode();
+        // Draw all nodes
+        for (let node of this.nodes) {
+            if (!node.nodraw) node.drawNode();
         }
 
         this.ctx.restore();
-
-        // stationary elements placed after restore()
         this.drawToolbar();
+
     }
 
     resizeWindow(){
@@ -141,10 +134,10 @@ export class Canvas {
         document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
     }
 
-    addNode(){
-        let newNode = new Node(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height,25); // Random for now.
+    addNode() {
+        let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25);
         this.nodes.push(newNode);
-        this.draw();
+        this.startForceSim();
     }
 
     changeSelectedNodeColor(e) {
@@ -256,6 +249,76 @@ export class Canvas {
         const addEdgeButton = new CanvasInteractable2D(this);
         addNodeButton.addEventListener("")*/ // The inciting incident.
     }
+
+    startForceSim(maxIter = 10000) {
+        if (this.forceSimRunning) return; // prevent multiple loops
+        this.forceSimRunning = true;
+
+        let t = 0;
+
+        const step = () => {
+            const done = this.forceDirectedStep(t);
+            t += 1;
+            this.draw();
+
+            if (!done && t < maxIter) {
+                requestAnimationFrame(step);
+            } else {
+                this.forceSimRunning = false;
+            }
+        };
+
+        requestAnimationFrame(step);
+    }
+
+    forceDirectedStep(t, tol = 0.01) {
+
+        let max_iter = 100000;
+
+        const nodes = this.nodes;
+        
+        if (nodes.length < 2 || t > max_iter) return true;
+
+        // Reset forces
+        for (let node of nodes) node.fx = node.fy = 0;
+
+        // Repulsion
+        const c_rep = 8000.0;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const n1 = nodes[i];
+                const n2 = nodes[j];
+                const dx = n1.x - n2.x;
+                const dy = n1.y - n2.y;
+                const dist = Math.sqrt(dx*dx + dy*dy + 0.001);
+                const force = (c_rep)/(dist*dist);
+                n1.fx += (dx/dist)*force;
+                n1.fy += (dy/dist)*force;
+                n2.fx -= (dx/dist)*force;
+                n2.fy -= (dy/dist)*force;
+            }
+        }
+
+
+        // Update positions
+        let maxForce = 0;
+        for (let node of nodes) {
+            maxForce = Math.max(node.fx, node.fy);
+            node.x += node.fx || 0;
+            node.y += node.fy || 0;
+
+            node.interaction.x += node.fx || 0;
+            node.interaction.y += node.fy || 0;
+        }
+
+        return maxForce < tol; // done if forces small
+    }
+
+    cooling(t) {
+        return 1/t;
+    }
+
 
 
 }
