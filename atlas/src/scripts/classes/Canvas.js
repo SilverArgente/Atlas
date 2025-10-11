@@ -305,18 +305,18 @@ export class Canvas {
         let maxForce = 0;
         for (let node of nodes) {
             maxForce = Math.max(node.fx, node.fy);
-            node.x += node.fx || 0;
-            node.y += node.fy || 0;
+            node.x += node.fx * this.cooling(t) || 0;
+            node.y += node.fy * this.cooling(t) || 0;
 
-            node.interaction.x += node.fx || 0;
-            node.interaction.y += node.fy || 0;
+            node.interaction.x += this.cooling(t) * node.fx || 0;
+            node.interaction.y += this.cooling(t) * node.fy || 0;
         }
 
         return maxForce < tol; // done if forces small
     }
 
-    cooling(t) {
-        return 1/t;
+    cooling(t, max_iter) {
+        return 1;
     }
 
 

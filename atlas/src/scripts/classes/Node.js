@@ -47,6 +47,9 @@ export class Node {
         contentTextArea.value = this.content;
         contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
+
+        document.querySelector(".node-content > div").style.backgroundColor = this.color;
+
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
