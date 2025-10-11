@@ -36,7 +36,7 @@ export class Node {
         this.canvasObj.draw();
     }
 
-    openInspector() {
+    async openInspector() {
         this.canvasObj.selectedNode = this;
         document.getElementById("nodeInspector").hidden = false;
         document.getElementById("nodeColorPicker").value = this.color;
@@ -51,9 +51,7 @@ export class Node {
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
-        this.canvasObj.x_offset = (-this.x*this.canvasObj.scale_factor)+(this.canvasObj.canvas.width/2.0)-this.r*4; // Magic number, I'm sorry. But I don't know where the offset is coming from
-        this.canvasObj.y_offset = (-this.y*this.canvasObj.scale_factor)+(this.canvasObj.canvas.height/2.0)+this.r;
-        console.log("offset after change: ", this.canvasObj.x_offset, this.canvasObj.y_offset)
+        await this.canvasObj.centerOnNode(this, 0.5);
         //this.nodraw = true;
         contentPopup.hidden = false;
         this.canvasObj.draw()

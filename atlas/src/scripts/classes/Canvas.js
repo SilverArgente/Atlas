@@ -182,6 +182,45 @@ export class Canvas {
         }
     }
 
+    async centerOnNode(node, time = 1.0) {
+        if(!node) return;
+        time *= 1000;
+        let current_time = 0;
+        const starting_x_offset = this.x_offset;
+        const starting_y_offset = this.y_offset;
+        const final_x_offset = (-node.x*this.scale_factor)+(this.canvas.width/2.0)-node.r*4; // Magic number, I'm sorry. But I don't know where the offset is coming from
+        const final_y_offset = (-node.y*this.scale_factor)+(this.canvas.height/2.0)+node.r;
+        const frame_time = 16.666666667;    
+        while(current_time <= time) {
+            this.x_offset = this.lerp(starting_x_offset, final_x_offset, this.quadraticEaseInOut(current_time/time));
+            this.y_offset = this.lerp(starting_y_offset, final_y_offset, this.quadraticEaseInOut(current_time/time));
+            //this.x_offset = this.lerp(this.x_offset, final_x_offset, (current_time/time));
+            //this.y_offset = this.lerp(this.y_offset, final_y_offset, (current_time/time));
+            await this.wait(frame_time);
+            current_time += frame_time;
+            this.draw()
+        }
+        this.x_offset = final_x_offset;
+        this.y_offset = final_y_offset;
+    }
+
+    async wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // NOTE: A single 60FPS frame is 16.67ms long.
+    lerp(start, end, t) {
+        return start + (end - start) * t;
+    }
+
+    quadraticEaseOut(t) {
+        return 1 - (1 - t) * (1 - t);
+    }
+
+    quadraticEaseInOut(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
     drawToolbar() 
     {
         // ryan pls implement this :D
