@@ -14,6 +14,11 @@ body {
     top: 0px;
     right: 0px;
     z-index: 10;
+    background-color: aliceblue;
+    padding: 10pt;
+    margin: 5pt;
+    border: thin solid black;
+    border-radius: 3pt;
 }
 
 #toolbar > button {
@@ -45,7 +50,7 @@ body {
     width: 500pt;
     aspect-ratio: 1 / 1;
     top: 15%;
-    left: 25%;
+    left: 32%;
     padding: 10pt;
     border-radius: 100%;
 }
@@ -94,9 +99,9 @@ input[type="file"] {
     border: medium solid black;
     padding: 2pt;
     border-radius: 8pt;
-    position: absolute;
-    bottom: 10pt; 
-    left: 230pt;
+    position: relative;
+    top: 225pt; 
+    left: 220pt;
 }
 
 #node-image {
@@ -105,4 +110,13 @@ input[type="file"] {
     margin: 5pt auto;
     border-radius: 5pt;
     border: medium solid black;
+}
+
+#popup-bg {
+    position:absolute;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(105, 105, 105, 0.329);
 }

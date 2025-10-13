@@ -85,7 +85,6 @@ export class Canvas {
         }
 
         this.ctx.restore();
-        this.drawToolbar();
 
     }
 
@@ -181,7 +180,7 @@ export class Canvas {
         let current_time = 0;
         const starting_x_offset = this.x_offset;
         const starting_y_offset = this.y_offset;
-        const final_x_offset = (-node.x*this.scale_factor)+(this.canvas.width/2.0)-node.r*4; // Magic number, I'm sorry. But I don't know where the offset is coming from
+        const final_x_offset = (-node.x*this.scale_factor)+(this.canvas.width/2.0)-node.r;
         const final_y_offset = (-node.y*this.scale_factor)+(this.canvas.height/2.0)+node.r;
         const frame_time = 16.666666667;    
         while(current_time <= time) {
@@ -212,42 +211,6 @@ export class Canvas {
 
     quadraticEaseInOut(t) {
         return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-    }
-
-    drawToolbar() 
-    {
-        // ryan pls implement this :D
-        // if you say so big dog ~ryan
-        
-        // Draw parameters.
-        const toolbarMargin = 10;
-        const toolbarPadding = 16;
-        const toolbarWidth = window.innerWidth * 0.2;
-        const toolbarHeight = window.innerHeight - toolbarMargin * 2;
-        const toolbarOffsetX = window.innerWidth - toolbarWidth - toolbarMargin;
-        const toolbarOffsetY = toolbarMargin; // Redundant obviously, but here for completion sake.
-        const titleTextSize = 36;
-    
-        // Draw background box.
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
-        this.ctx.strokeRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
-
-        // Draw title text.
-        //this.ctx.fillStyle = "black";
-        //this.ctx.font = `${titleTextSize}px Arial`;
-        //this.ctx.fillText("Atlas Toolbar", toolbarOffsetX + toolbarPadding, toolbarOffsetY + toolbarPadding + titleTextSize);
-
-        //Create buttons.
-
-        // As of this moment, Amogh told me to use HTML elements instead.
-        // Even though, he told me to work in this function. The Canvas class for drawing Canvas Items.
-        // I've commented out the above code, and just left the background of the toolbar.
-        // This is why I stick to backend.
-
-        /*const addNodeButton = new CanvasInteractable2D(this);
-        const addEdgeButton = new CanvasInteractable2D(this);
-        addNodeButton.addEventListener("")*/ // The inciting incident.
     }
 
     startForceSim(maxIter = 10000) {
