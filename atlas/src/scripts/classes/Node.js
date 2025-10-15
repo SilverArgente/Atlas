@@ -14,6 +14,7 @@ export class Node {
         this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
+        this.nodraw = false;
     }
 
     setTitle(title) {
@@ -35,7 +36,7 @@ export class Node {
         this.canvasObj.draw();
     }
 
-    openInspector() {
+    async openInspector() {
         this.canvasObj.selectedNode = this;
         document.getElementById("nodeInspector").hidden = false;
         document.getElementById("nodeColorPicker").value = this.color;
@@ -46,11 +47,17 @@ export class Node {
         contentTextArea.value = this.content;
         contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
+
+        document.querySelector(".node-content > div").style.backgroundColor = this.color;
+
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
+        await this.canvasObj.centerOnNode(this, 0.5);
+        //this.nodraw = true;
         contentPopup.hidden = false;
+        this.canvasObj.draw()
     }
 
     drawNode() {
