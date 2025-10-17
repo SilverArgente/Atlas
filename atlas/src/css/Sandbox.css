@@ -136,3 +136,15 @@ button {
     height: 100%;
     background-color: rgba(105, 105, 105, 0.329);
 }
+
+#RelatedNodeButtons {
+    display: flex;
+    justify-content: center;
+    gap: 10pt;
+    margin: 20pt auto;
+    padding: 0pt 0;
+}
+
+.RelatedNodebutton {
+    text-align: center;
+}

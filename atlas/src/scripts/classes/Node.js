@@ -96,6 +96,7 @@ export class Node {
     refreshRelatedNodesList() {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
+        const buttonList = document.getElementById("RelatedNodeButtons");
         nodeListDropdown.innerHTML = "";
         for(let node of this.canvasObj.nodes) {
             if(node === this) continue;
@@ -105,9 +106,16 @@ export class Node {
             nodeListDropdown.appendChild(newListItem);
         }
         relatedNodesList.innerHTML = "";
+        buttonList.innerHTML = "";
         for(let node of Object.values(this.relatedNodes)) {
             const newListItem = document.createElement("li");
+            const newRelatedButton = document.createElement("button");
+            newRelatedButton.classList.add("RelatedNodebutton");
+            newRelatedButton.value = node.title;
+            newRelatedButton.textContent = node.title;
+            newRelatedButton.addEventListener("click", node.openInspector.bind(node))
             newListItem.textContent = node.title;
+            buttonList.appendChild(newRelatedButton);
             relatedNodesList.appendChild(newListItem);
         }
     }

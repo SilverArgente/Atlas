@@ -77,12 +77,13 @@ export default function Sandbox() {
                     <input type="color" name="nodeColorPicker" id="nodeColorPicker" value="cornflowerblue"></input> <br/>
                     <label for="nodeNameText">Node Name:</label>
                     <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
-                    <label for="relatedNodesList">Related Nodes:</label> <br/>
+                    
                     <select id="relatedNodeSelector">
 
                     </select>
                     <button id="AddRelatedNode">Add</button>
                     <button id="RemoveRelatedNode">Remove</button> <br/>
+                    <label for="relatedNodesList">Related Nodes:</label> <br/>
                     <ul id="relatedNodesList">
 
                     </ul>
