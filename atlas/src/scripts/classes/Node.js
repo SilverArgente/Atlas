@@ -7,6 +7,7 @@ export class Node {
         this.x = x;
         this.y = y;
         this.r = r;
+        //this.id = Object.keys(canvasObj.nodes)[Object.keys(canvasObj.nodes).length-1]+1;
         this.title = text;
         this.content = content;
         this.color = "cornflowerblue";
@@ -19,7 +20,7 @@ export class Node {
 
     addRelatedNode(nodename) {
         let result = null;
-        for(let node of this.canvasObj.nodes) {
+        for(let node of Object.values(this.canvasObj.nodes)) {
             if(node.title === nodename) {
                 result = node;
                 break;
@@ -35,7 +36,7 @@ export class Node {
 
     removeRelatedNode(nodename) {
         let result = null;
-        for(let node of this.canvasObj.nodes) {
+        for(let node of Object.values(this.canvasObj.nodes)) {
             if(node.title === nodename) {
                 result = node;
                 break;
@@ -98,7 +99,7 @@ export class Node {
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
         nodeListDropdown.innerHTML = "";
-        for(let node of this.canvasObj.nodes) {
+        for(let node of Object.values(this.canvasObj.nodes)) {
             if(node === this) continue;
             const newListItem = document.createElement("option");
             newListItem.value = node.title;

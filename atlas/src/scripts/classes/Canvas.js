@@ -23,7 +23,7 @@ export class Canvas {
         this.scale_factor = scale_factor; // Default zoom level
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
-        this.nodes = [];
+        this.nodes = {};
         this.selectedNode = undefined;
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
@@ -82,7 +82,7 @@ export class Canvas {
         this.drawWireframe();
 
         // Draw all nodes
-        for (let node of this.nodes) {
+        for (let node of Object.values(this.nodes)) {
             if (!node.nodraw) node.drawNode();
         }
 
@@ -151,8 +151,9 @@ export class Canvas {
     }
 
     addNode() {
-        let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25);
-        this.nodes.push(newNode);
+        let name = `New Node${(this.nodes["New Node"]) ? ` (${Object.values(this.nodes).length})` : ""}`;
+        let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25, name);
+        this.nodes[name] = newNode;
         this.startForceSim();
     }
 
@@ -164,6 +165,14 @@ export class Canvas {
 
     changeSelectedNodeName(e) {
         if(!this.selectedNode) return
+        if(this.nodes[e.currentTarget.value]) {
+            e.currentTarget.style.borderColor = 'red';
+            e.currentTarget.style.borderWidth = 'medium';
+            return;
+        } else {
+            e.currentTarget.style.borderWidth = '';
+            e.currentTarget.style.borderColor = '';
+        }
         document.getElementById("node-content-title").textContent = e.currentTarget.value;
         this.selectedNode.setTitle(e.currentTarget.value);
     }
@@ -255,7 +264,7 @@ export class Canvas {
 
         let max_iter = 100000;
 
-        const nodes = this.nodes;
+        const nodes = Object.values(this.nodes);
         
         if (nodes.length < 2 || t > max_iter) return true;
 
