@@ -1,6 +1,5 @@
 // Um... am I allowed to call the file this..?
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
-import NodeContent from "../../components/NodeContent";
 
 export class Node {
     constructor(canvasObj, x, y, r, text="New Node", content="") {
@@ -31,6 +30,22 @@ export class Node {
             return;
         }
         this.relatedNodes[nodename] = result;
+        this.refreshRelatedNodesList();
+    }
+
+    removeRelatedNode(nodename) {
+        let result = null;
+        for(let node of this.canvasObj.nodes) {
+            if(node.title === nodename) {
+                result = node;
+                break;
+            }
+        }
+        if(!result) {
+            alert("No node found!"); //DEBUG
+            return;
+        }
+        delete this.relatedNodes[nodename];
         this.refreshRelatedNodesList();
     }
 

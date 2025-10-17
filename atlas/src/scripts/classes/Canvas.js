@@ -30,6 +30,7 @@ export class Canvas {
         this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
         this._boundHandleImageChange = this.handleImageChange.bind(this);
         this._boundaddRelatedNode = this.addRelatedNode.bind(this);
+        this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -136,11 +137,17 @@ export class Canvas {
             document.getElementById("nodeInspector").hidden = true;
         });
         document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
+        document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
     }
 
     addRelatedNode() {
         if(!this.selectedNode) return;
         this.selectedNode.addRelatedNode(document.getElementById("relatedNodeSelector").value);
+    }
+
+    removeRelatedNode() {
+        if(!this.selectedNode) return;
+        this.selectedNode.removeRelatedNode(document.getElementById("relatedNodeSelector").value);
     }
 
     addNode() {
