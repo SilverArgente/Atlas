@@ -29,6 +29,7 @@ export class Canvas {
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
         this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
         this._boundHandleImageChange = this.handleImageChange.bind(this);
+        this._boundaddRelatedNode = this.addRelatedNode.bind(this);
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -133,7 +134,13 @@ export class Canvas {
         document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
         document.getElementById("popup-bg").addEventListener("click", ()=>{
             document.getElementById("nodeInspector").hidden = true;
-        })
+        });
+        document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
+    }
+
+    addRelatedNode() {
+        if(!this.selectedNode) return;
+        this.selectedNode.addRelatedNode(document.getElementById("relatedNodeSelector").value);
     }
 
     addNode() {

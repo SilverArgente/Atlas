@@ -15,6 +15,23 @@ export class Node {
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
         this.nodraw = false;
+        this.relatedNodes = {};
+    }
+
+    addRelatedNode(nodename) {
+        let result = null;
+        for(let node of this.canvasObj.nodes) {
+            if(node.title === nodename) {
+                result = node;
+                break;
+            }
+        }
+        if(!result) {
+            alert("No node found!"); //DEBUG
+            return;
+        }
+        this.relatedNodes[nodename] = result;
+        this.refreshRelatedNodesList();
     }
 
     setTitle(title) {
@@ -53,9 +70,18 @@ export class Node {
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
 
+        this.refreshRelatedNodesList();
+
+        await this.canvasObj.centerOnNode(this, 0.5);
+        //this.nodraw = true;
+        contentPopup.hidden = false;
+        this.canvasObj.draw()
+    }
+
+    refreshRelatedNodesList() {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
-        relatedNodesList.innerHTML = "";
+        nodeListDropdown.innerHTML = "";
         for(let node of this.canvasObj.nodes) {
             if(node === this) continue;
             const newListItem = document.createElement("option");
@@ -63,11 +89,12 @@ export class Node {
             newListItem.textContent = node.title;
             nodeListDropdown.appendChild(newListItem);
         }
-
-        await this.canvasObj.centerOnNode(this, 0.5);
-        //this.nodraw = true;
-        contentPopup.hidden = false;
-        this.canvasObj.draw()
+        relatedNodesList.innerHTML = "";
+        for(let node of Object.values(this.relatedNodes)) {
+            const newListItem = document.createElement("li");
+            newListItem.textContent = node.title;
+            relatedNodesList.appendChild(newListItem);
+        }
     }
 
     drawNode() {
