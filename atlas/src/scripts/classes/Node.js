@@ -47,13 +47,23 @@ export class Node {
         contentTextArea.value = this.content;
         contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
-
         document.querySelector(".node-content > div").style.backgroundColor = this.color;
-
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
+
+        const relatedNodesList = document.getElementById("relatedNodesList");
+        const nodeListDropdown = document.getElementById("relatedNodeSelector");
+        relatedNodesList.innerHTML = "";
+        for(let node of this.canvasObj.nodes) {
+            if(node === this) continue;
+            const newListItem = document.createElement("option");
+            newListItem.value = node.title;
+            newListItem.textContent = node.title;
+            nodeListDropdown.appendChild(newListItem);
+        }
+
         await this.canvasObj.centerOnNode(this, 0.5);
         //this.nodraw = true;
         contentPopup.hidden = false;

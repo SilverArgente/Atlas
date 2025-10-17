@@ -84,6 +84,22 @@ input[type="file"] {
     border-bottom-right-radius: 5pt;
 }
 
+input[type="text"] {
+    background-color:azure;
+    margin: 5pt;
+    border: thin black solid;
+    padding: 0pt 5pt;
+    border-radius: 2pt;
+}
+
+button {
+    background-color:azure;
+    margin: 5pt;
+    border: thin black solid;
+    padding: 0pt 5pt;
+    border-radius: 2pt;
+}
+
 #node-content-image-label {
     display: block;
     padding: 1%;

@@ -131,6 +131,9 @@ export class Canvas {
         document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
         document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
         document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
+        document.getElementById("popup-bg").addEventListener("click", ()=>{
+            document.getElementById("nodeInspector").hidden = true;
+        })
     }
 
     addNode() {
