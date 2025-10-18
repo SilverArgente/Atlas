@@ -24,6 +24,7 @@ export class Canvas {
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = {};
+        this.lines = {};
         this.selectedNode = undefined;
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
@@ -80,12 +81,24 @@ export class Canvas {
         this.ctx.save();
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
         this.drawWireframe();
-
+        // Draw all lines
+        for(let node of Object.values(this.lines)) {
+            for(let line of Object.values(node)) {
+                const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
+                gradient.addColorStop(0, line.node1.color);
+                gradient.addColorStop(1, line.node2.color);
+                this.ctx.beginPath();
+                this.ctx.moveTo(line.node1.x, line.node1.y);
+                this.ctx.lineTo(line.node2.x, line.node2.y);
+                this.ctx.lineWidth = 8;
+                this.ctx.strokeStyle = gradient;
+                this.ctx.stroke();
+            }
+        }
         // Draw all nodes
         for (let node of Object.values(this.nodes)) {
             if (!node.nodraw) node.drawNode();
         }
-
         this.ctx.restore();
 
     }
@@ -136,18 +149,36 @@ export class Canvas {
         document.getElementById("popup-bg").addEventListener("click", ()=>{
             document.getElementById("nodeInspector").hidden = true;
         });
+        document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
+            const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
+            document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
+            document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
+        }).bind(this));
         document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
         document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
     }
 
     addRelatedNode() {
         if(!this.selectedNode) return;
-        this.selectedNode.addRelatedNode(document.getElementById("relatedNodeSelector").value);
+        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
+        if(!this.lines[this.selectedNode.title]) {
+            this.lines[this.selectedNode.title] = {};
+        }
+        this.lines[this.selectedNode.title][relatedNodeName] = {
+            node1: this.selectedNode,
+            node2: this.nodes[relatedNodeName]
+        };
+        this.selectedNode.addRelatedNode(relatedNodeName);
+        this.draw()
     }
 
     removeRelatedNode() {
         if(!this.selectedNode) return;
-        this.selectedNode.removeRelatedNode(document.getElementById("relatedNodeSelector").value);
+        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
+        if(this.lines[this.selectedNode.title])
+            delete this.lines[this.selectedNode.title][relatedNodeName];
+        this.selectedNode.removeRelatedNode(relatedNodeName);
+        this.draw()
     }
 
     addNode() {

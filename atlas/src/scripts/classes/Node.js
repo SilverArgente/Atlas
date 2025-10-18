@@ -98,7 +98,9 @@ export class Node {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
-        nodeListDropdown.innerHTML = "";
+        nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
+        document.getElementById("AddRelatedNode").disabled = true;
+        document.getElementById("RemoveRelatedNode").disabled = true;
         for(let node of Object.values(this.canvasObj.nodes)) {
             if(node === this) continue;
             const newListItem = document.createElement("option");
