@@ -79,7 +79,7 @@ export default function Sandbox() {
                     <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
                     
                     <select id="relatedNodeSelector">
-
+                        <option id='default'>Select a Node.</option>
                     </select>
                     <button id="AddRelatedNode">Add</button>
                     <button id="RemoveRelatedNode">Remove</button> <br/>
