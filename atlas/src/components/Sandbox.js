@@ -75,8 +75,18 @@ export default function Sandbox() {
                     <h3><strong>Node Inspector</strong></h3>
                     <label for="nodeColorPicker">Node Color:</label> <br/>
                     <input type="color" name="nodeColorPicker" id="nodeColorPicker" value="cornflowerblue"></input> <br/>
-                    <label for="nodeNameText">Node Name:</label> <br/>
-                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input>
+                    <label for="nodeNameText">Node Name:</label>
+                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
+                    
+                    <select id="relatedNodeSelector">
+
+                    </select>
+                    <button id="AddRelatedNode">Add</button>
+                    <button id="RemoveRelatedNode">Remove</button> <br/>
+                    <label for="relatedNodesList">Related Nodes:</label> <br/>
+                    <ul id="relatedNodesList">
+
+                    </ul>
                 </div>
             </div>
         </div>

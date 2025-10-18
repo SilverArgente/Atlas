@@ -1,6 +1,5 @@
 // Um... am I allowed to call the file this..?
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
-import NodeContent from "../../components/NodeContent";
 
 export class Node {
     constructor(canvasObj, x, y, r, text="New Node", content="") {
@@ -8,6 +7,7 @@ export class Node {
         this.x = x;
         this.y = y;
         this.r = r;
+        //this.id = Object.keys(canvasObj.nodes)[Object.keys(canvasObj.nodes).length-1]+1;
         this.title = text;
         this.content = content;
         this.color = "cornflowerblue";
@@ -15,6 +15,39 @@ export class Node {
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
         this.nodraw = false;
+        this.relatedNodes = {};
+    }
+
+    addRelatedNode(nodename) {
+        let result = null;
+        for(let node of Object.values(this.canvasObj.nodes)) {
+            if(node.title === nodename) {
+                result = node;
+                break;
+            }
+        }
+        if(!result) {
+            alert("No node found!"); //DEBUG
+            return;
+        }
+        this.relatedNodes[nodename] = result;
+        this.refreshRelatedNodesList();
+    }
+
+    removeRelatedNode(nodename) {
+        let result = null;
+        for(let node of Object.values(this.canvasObj.nodes)) {
+            if(node.title === nodename) {
+                result = node;
+                break;
+            }
+        }
+        if(!result) {
+            alert("No node found!"); //DEBUG
+            return;
+        }
+        delete this.relatedNodes[nodename];
+        this.refreshRelatedNodesList();
     }
 
     setTitle(title) {
@@ -47,17 +80,45 @@ export class Node {
         contentTextArea.value = this.content;
         contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
-
         document.querySelector(".node-content > div").style.backgroundColor = this.color;
-
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
         document.getElementById("node-content-image").value = null;
+
+        this.refreshRelatedNodesList();
+
         await this.canvasObj.centerOnNode(this, 0.5);
         //this.nodraw = true;
         contentPopup.hidden = false;
         this.canvasObj.draw()
+    }
+
+    refreshRelatedNodesList() {
+        const relatedNodesList = document.getElementById("relatedNodesList");
+        const nodeListDropdown = document.getElementById("relatedNodeSelector");
+        const buttonList = document.getElementById("RelatedNodeButtons");
+        nodeListDropdown.innerHTML = "";
+        for(let node of Object.values(this.canvasObj.nodes)) {
+            if(node === this) continue;
+            const newListItem = document.createElement("option");
+            newListItem.value = node.title;
+            newListItem.textContent = node.title;
+            nodeListDropdown.appendChild(newListItem);
+        }
+        relatedNodesList.innerHTML = "";
+        buttonList.innerHTML = "";
+        for(let node of Object.values(this.relatedNodes)) {
+            const newListItem = document.createElement("li");
+            const newRelatedButton = document.createElement("button");
+            newRelatedButton.classList.add("RelatedNodebutton");
+            newRelatedButton.value = node.title;
+            newRelatedButton.textContent = node.title;
+            newRelatedButton.addEventListener("click", node.openInspector.bind(node))
+            newListItem.textContent = node.title;
+            buttonList.appendChild(newRelatedButton);
+            relatedNodesList.appendChild(newListItem);
+        }
     }
 
     drawNode() {
