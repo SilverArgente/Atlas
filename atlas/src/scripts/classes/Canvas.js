@@ -49,6 +49,32 @@ export class Canvas {
         }
     }
 
+    // Returns list of edges.
+    getEdges() {
+        let edges = [];
+        for(let node of Object.values(this.lines)) {
+            for(let child of Object.values(node)) {
+                edges.push(child);
+            }
+        }
+        return edges;
+    }
+
+    // Returns adjacency list.
+    getAdjacencyList() {
+        let adjList = [];
+        let n = 0;
+        for(let node of Object.values(this.lines)) {
+            adjList.push([]);
+            adjList.push([]);
+            n += 2;
+            for(let child of Object.values(node)) {
+                adjList[n-2].push(child.node2);
+                adjList[n-1].push(child.node1);
+            }
+        }
+        return adjList;
+    }
 
     drawWireframe() 
     {
