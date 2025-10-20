@@ -365,6 +365,36 @@ export class Canvas {
         return 1;
     }
 
-
+    export() {
+        
+        for(let node of Object.values(this.nodes)) {
+            /*saveData.nodes.push({
+                x: node.x,
+                y: node.y,
+                r: node.r,
+                title: node.title,
+                content: node.content,
+                color: node.color,
+                image: node.image,
+                relatedNodes: node.relatedNodes,
+            })*/
+           delete node.canvasObj;
+        }
+        let saveData = {
+            nodes: this.nodes,
+            lines: this.lines
+        };
+        
+        let jsonData = JSON.stringify(saveData, null);
+        for(let node of Object.values(this.nodes)) {
+           node.canvasObj = this;
+        }
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'myData.json';
+        console.log(saveData);
+    }
 
 }

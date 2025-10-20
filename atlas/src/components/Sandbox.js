@@ -70,7 +70,7 @@ export default function Sandbox() {
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>
-                <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Add Edge</button>
                 <div id="nodeInspector" hidden>
                     <h3><strong>Node Inspector</strong></h3>
                     <label for="nodeColorPicker">Node Color:</label> <br/>
