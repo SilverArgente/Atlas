@@ -9,6 +9,7 @@ export class Node {
         this.r = r;
         //this.id = Object.keys(canvasObj.nodes)[Object.keys(canvasObj.nodes).length-1]+1;
         this.title = text;
+        this.id = text; // Not really an ID. but just its initial name, which... might be unique... TODO: replace with proper ID system.
         this.content = content;
         this.color = "cornflowerblue";
         this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
@@ -21,7 +22,7 @@ export class Node {
     addRelatedNode(nodename) {
         let result = null;
         for(let node of Object.values(this.canvasObj.nodes)) {
-            if(node.title === nodename) {
+            if(node.id === nodename) {
                 result = node;
                 break;
             }
@@ -37,7 +38,7 @@ export class Node {
     removeRelatedNode(nodename) {
         let result = null;
         for(let node of Object.values(this.canvasObj.nodes)) {
-            if(node.title === nodename) {
+            if(node.id === nodename) {
                 result = node;
                 break;
             }
@@ -104,7 +105,7 @@ export class Node {
         for(let node of Object.values(this.canvasObj.nodes)) {
             if(node === this) continue;
             const newListItem = document.createElement("option");
-            newListItem.value = node.title;
+            newListItem.value = node.id;
             newListItem.textContent = node.title;
             nodeListDropdown.appendChild(newListItem);
         }

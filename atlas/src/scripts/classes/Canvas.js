@@ -180,30 +180,32 @@ export class Canvas {
             document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
             document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
         }).bind(this));
+        document.getElementById("AddRelatedNode").removeEventListener("click", this._boundaddRelatedNode);
+        document.getElementById("RemoveRelatedNode").removeEventListener("click", this._boundRemoveRelatedNode);
         document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
         document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
     }
 
-    addRelatedNode() {
-        if(!this.selectedNode) return;
-        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
-        if(!this.lines[this.selectedNode.title]) {
-            this.lines[this.selectedNode.title] = {};
+    addRelatedNode(nodeTarget = this.selectedNode, relatedId = null) {
+        if(!nodeTarget) return;
+        let relatedNodeId = (relatedId) ? relatedId : document.getElementById("relatedNodeSelector").value;
+        if(!this.lines[nodeTarget.id]) {
+            this.lines[nodeTarget.id] = {};
         }
-        this.lines[this.selectedNode.title][relatedNodeName] = {
-            node1: this.selectedNode,
-            node2: this.nodes[relatedNodeName]
+        this.lines[nodeTarget.id][relatedNodeId] = {
+            node1: nodeTarget,
+            node2: this.nodes[relatedNodeId]
         };
-        this.selectedNode.addRelatedNode(relatedNodeName);
+        nodeTarget.addRelatedNode(relatedNodeId);
         this.draw()
     }
 
     removeRelatedNode() {
         if(!this.selectedNode) return;
-        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
-        if(this.lines[this.selectedNode.title])
-            delete this.lines[this.selectedNode.title][relatedNodeName];
-        this.selectedNode.removeRelatedNode(relatedNodeName);
+        let relatedNodeId = document.getElementById("relatedNodeSelector").value;
+        if(this.lines[this.selectedNode.id])
+            delete this.lines[this.selectedNode.id][relatedNodeId];
+        this.selectedNode.removeRelatedNode(relatedNodeId);
         this.draw()
     }
 
@@ -212,6 +214,7 @@ export class Canvas {
         let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25, name);
         this.nodes[name] = newNode;
         this.startForceSim();
+        return newNode;
     }
 
     changeSelectedNodeColor(e) {
@@ -366,25 +369,27 @@ export class Canvas {
     }
 
     export() {
-        
+        let saveData = {
+            nodes: [],
+            edges: []
+        };
         for(let node of Object.values(this.nodes)) {
-            /*saveData.nodes.push({
+            saveData.nodes.push({
                 x: node.x,
                 y: node.y,
                 r: node.r,
                 title: node.title,
+                id: node.id,
                 content: node.content,
                 color: node.color,
                 image: node.image,
-                relatedNodes: node.relatedNodes,
-            })*/
-           delete node.canvasObj;
+                relatedNodes: Object.keys(node.relatedNodes)
+            });
         }
-        let saveData = {
-            nodes: this.nodes,
-            lines: this.lines
-        };
-        
+        let edges = this.getEdges();
+        for(let edge of edges) {
+            saveData.edges.push({node1: edge.node1.id, node2: edge.node2.id});
+        }
         let jsonData = JSON.stringify(saveData, null);
         for(let node of Object.values(this.nodes)) {
            node.canvasObj = this;
@@ -394,7 +399,55 @@ export class Canvas {
         const a = document.createElement('a');
         a.href = url;
         a.download = 'myData.json';
-        console.log(saveData);
+        a.click();
     }
 
+    async import() {
+        const input = document.createElement('input');
+        input.type = "file";
+        input.accept = ".json";
+        input.click();
+        await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
+        // Cleanup Everything (leave it to the garbage collector)
+        this.nodes = {};
+        this.lines = {}; 
+        const selectedFile = input.files[0];
+        console.log(selectedFile);
+        if(!selectedFile) {
+            console.error("FAILED TO IMPORT FILE!");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e)=>{
+            const content = e.target.result;
+            try {
+                const data = JSON.parse(content);
+                // Fill nodes
+                for(let node of data.nodes) {
+                    let newNode = this.addNode();
+                    newNode.setTitle(node.title);
+                    newNode.setColor(node.color);
+                    newNode.setImage(node.image);
+                    newNode.setContent(node.content);
+                    newNode.id = node.id;
+                    //newNode.x = node.x;
+                    //newNode.y = node.y;
+                    newNode.r = node.r;
+                }
+                // Set related node lists
+                for(let node of data.nodes) {
+                    for(let relatedNodeId of node.relatedNodes) {
+                        this.addRelatedNode(this.nodes[node.id], relatedNodeId);
+                    }
+                }
+                // Fill edges
+                /*for(let edge of data.edges) {
+                    this.lines[edge.node1][edge.node2] = 
+                }*/
+            } catch(e) {
+                console.error("FAILED TO IMPORT FILE!", e);
+            }
+        }
+        reader.readAsText(selectedFile);
+    }
 }
