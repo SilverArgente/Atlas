@@ -412,12 +412,15 @@ export class Canvas {
         a.click();
     }
 
-    async import() {
-        const input = document.createElement('input');
-        input.type = "file";
-        input.accept = ".json";
-        input.click();
-        await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
+    async import(input = undefined) {
+        if(!input) {
+            input = document.createElement('input');
+            input.type = "file";
+            input.accept = ".json";
+            input.click();
+            await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
+        }
+        console.log(input);
         // Cleanup Everything (leave it to the garbage collector)
         this.nodes = {};
         this.lines = {}; 

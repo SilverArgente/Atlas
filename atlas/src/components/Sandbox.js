@@ -50,6 +50,15 @@ export default function Sandbox() {
         )
     }
 
+    function dragImport(){
+        return (
+            <span id="import-bg">
+                <input id="viewer-file-upload" type="file" accept=".json" onChange={(e)=>{canvasObject.import(e.currentTarget); document.getElementById("import-bg").hidden=true;}}></input>
+                <p>Drag in a Concept Map JSON to get started.</p>
+            </span>
+        )
+    }
+
     useEffect(() => {
 
         const canvas = canvas_ref.current;
@@ -57,7 +66,7 @@ export default function Sandbox() {
 
     }, [])
 
-    const toolbarType = (user === "editor") ? EditorContents() : ViewerContents();
+    const toolbarType = (user === "editor") ? EditorContents() : null //ViewerContents();
 
     return (
         <div>
@@ -70,6 +79,7 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
+            {(user !== "editor") ? dragImport() : null}
             <NodeContent title="" content=""></NodeContent>
             {toolbarType}
         </div>
