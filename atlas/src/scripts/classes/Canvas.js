@@ -26,13 +26,15 @@ export class Canvas {
         this.nodes = {};
         this.lines = {};
         this.selectedNode = undefined;
-        this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
-        this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
-        this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
-        this._boundHandleImageChange = this.handleImageChange.bind(this);
-        this._boundaddRelatedNode = this.addRelatedNode.bind(this);
-        this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
         this.user_type = user_type;
+        if(user_type === "editor") {
+            this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
+            this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
+            this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
+            this._boundHandleImageChange = this.handleImageChange.bind(this);
+            this._boundaddRelatedNode = this.addRelatedNode.bind(this);
+            this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
+        }
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -168,23 +170,28 @@ export class Canvas {
             interactable.activateEventListeners();
         }
  
-        document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
-        document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
-        document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
-        document.getElementById("popup-bg").addEventListener("click", ()=>{
-            document.getElementById("nodeInspector").hidden = true;
-        });
-        document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
-            const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
-            document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
-            document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
-        }).bind(this));
-        document.getElementById("AddRelatedNode").removeEventListener("click", this._boundaddRelatedNode);
-        document.getElementById("RemoveRelatedNode").removeEventListener("click", this._boundRemoveRelatedNode);
-        document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
-        document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
+
+        
+        if(this.user_type === "editor") {
+            document.getElementById("popup-bg").addEventListener("click", ()=>{
+                document.getElementById("nodeInspector").hidden = true;
+            });
+            document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
+            document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
+            document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
+            document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
+            document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
+            document.getElementById("node-content-title").addEventListener("click", ()=>{document.getElementById("nodeNameText").focus()})
+            document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
+                const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
+                document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
+                document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
+            }).bind(this));
+            document.getElementById("AddRelatedNode").removeEventListener("click", this._boundaddRelatedNode);
+            document.getElementById("RemoveRelatedNode").removeEventListener("click", this._boundRemoveRelatedNode);
+            document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
+            document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
+        }
     }
 
     addRelatedNode(nodeTarget = this.selectedNode, relatedId = null) {
@@ -415,7 +422,6 @@ export class Canvas {
         this.nodes = {};
         this.lines = {}; 
         const selectedFile = input.files[0];
-        console.log(selectedFile);
         if(!selectedFile) {
             console.error("FAILED TO IMPORT FILE!");
             return;

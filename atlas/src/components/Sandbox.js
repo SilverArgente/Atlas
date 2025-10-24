@@ -40,12 +40,24 @@ export default function Sandbox() {
         )
     }
 
+    function ViewerContents(){
+        return(
+            <div id="toolbar">
+                <h1>Atlas Toolbar</h1>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+            </div>
+        )
+    }
+
     useEffect(() => {
 
         const canvas = canvas_ref.current;
         canvasObject = initializeCanvas(canvas, user);
 
     }, [])
+
+    const toolbarType = (user === "editor") ? EditorContents() : ViewerContents();
 
     return (
         <div>
@@ -59,7 +71,7 @@ export default function Sandbox() {
                 }}
             />
             <NodeContent title="" content=""></NodeContent>
-            <EditorContents/>
+            {toolbarType}
         </div>
     )
 }
