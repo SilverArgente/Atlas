@@ -227,7 +227,8 @@ export class Canvas {
 
     changeSelectedNodeName(e) {
         if(!this.selectedNode) return
-        if(this.nodes[e.currentTarget.value]) {
+        // disabled, as now you can name nodes the same thing.
+        if(false && this.nodes[e.currentTarget.value]) {
             e.currentTarget.style.borderColor = 'red';
             e.currentTarget.style.borderWidth = 'medium';
             return;
