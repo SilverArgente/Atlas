@@ -188,6 +188,7 @@ export class Canvas {
     }
 
     addRelatedNode(nodeTarget = this.selectedNode, relatedId = null) {
+        if(nodeTarget instanceof Event) nodeTarget = this.selectedNode;
         if(!nodeTarget) return;
         let relatedNodeId = (relatedId) ? relatedId : document.getElementById("relatedNodeSelector").value;
         if(!this.lines[nodeTarget.id]) {
