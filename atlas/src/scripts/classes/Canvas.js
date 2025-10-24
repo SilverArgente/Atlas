@@ -5,7 +5,7 @@ import { Node } from "./Node";
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor) {
+    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type) {
         
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");;
@@ -32,6 +32,7 @@ export class Canvas {
         this._boundHandleImageChange = this.handleImageChange.bind(this);
         this._boundaddRelatedNode = this.addRelatedNode.bind(this);
         this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
+        this.user_type = user_type;
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;

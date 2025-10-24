@@ -9,64 +9,11 @@ export default function Sandbox() {
     const canvas_ref = useRef(null);
     let canvasObject;
 
-    const parsed_pdf = {
-        "Quantum Mechanics": {
-            description: "Study of physical phenomena at nanoscopic scales",
-            children: ["Quantum State", "Electric Field", "Hydrogen Atom"]
-        },
-        "Quantum State": {
-            description: "A mathematical description of a quantum system",
-            children: ["Orthogonality", "Different Quantum States", "Wave Function"]
-        },
-        "Electric Field": {
-            description: "A field surrounding charged particles, influencing force",
-            children: ["Dipole", "Laser Interactions"]
-        },
-        "Hydrogen Atom": {
-            description: "The simplest atom with one proton and one electron",
-            children: ["Different Quantum States", "Laser Interactions"]
-        },
-        "Orthogonality": {
-            description: "Property where two functions are orthogonal in inner product space",
-            children: []
-        },
-        "Different Quantum States": {
-            description: "Various possible energy levels of an electron in an atom",
-            children: []
-        },
-        "Wave Function": {
-            description: "Mathematical function describing quantum states",
-            children: []
-        },
-        "Dipole": {
-            description: "A system of two equal and oppositely charged or magnetized poles",
-            children: []
-        },
-        "Laser Interactions": {
-            description: "Interaction of laser fields with atomic or molecular systems",
-            children: []
-        }
-    };
+    const query = new URLSearchParams(window.location.search);
+    const user = query.get("user") || "editor";
 
-    useEffect(() => {
-
-        const canvas = canvas_ref.current;
-        canvasObject = initializeCanvas(canvas, parsed_pdf);
-
-    }, [])
-
-    return (
-        <div>
-            <canvas 
-                id="appCanvas"
-                ref={canvas_ref}
-                style={{
-                    display: "block",
-                    width: "100vw",
-                    height: "100vh",
-                }}
-            />
-            <NodeContent title="" content=""></NodeContent>
+    function EditorContents(){
+        return(
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
@@ -90,6 +37,29 @@ export default function Sandbox() {
                     </ul>
                 </div>
             </div>
+        )
+    }
+
+    useEffect(() => {
+
+        const canvas = canvas_ref.current;
+        canvasObject = initializeCanvas(canvas, user);
+
+    }, [])
+
+    return (
+        <div>
+            <canvas 
+                id="appCanvas"
+                ref={canvas_ref}
+                style={{
+                    display: "block",
+                    width: "100vw",
+                    height: "100vh",
+                }}
+            />
+            <NodeContent title="" content=""></NodeContent>
+            <EditorContents/>
         </div>
     )
 }
