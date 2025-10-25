@@ -80,8 +80,10 @@ export default function Sandbox() {
             <NodeContent title="" content=""></NodeContent>
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
-                <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button>
-                <button id="addEdgeButton" onClick={()=>{alert("Add Edge Clicked!")}}>Add Edge</button>
+
+                <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
                 {user && (
                     <button
                         id="signOutButton"
