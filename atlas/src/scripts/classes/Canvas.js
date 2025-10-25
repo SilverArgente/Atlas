@@ -23,12 +23,15 @@ export class Canvas {
         this.scale_factor = scale_factor; // Default zoom level
         this.show_toolbar = true;
         this.interactables = []; // List of CanvasInteractables2Ds
-        this.nodes = [];
+        this.nodes = {};
+        this.lines = {};
         this.selectedNode = undefined;
         this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
         this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
         this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
         this._boundHandleImageChange = this.handleImageChange.bind(this);
+        this._boundaddRelatedNode = this.addRelatedNode.bind(this);
+        this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -46,6 +49,32 @@ export class Canvas {
         }
     }
 
+    // Returns list of edges.
+    getEdges() {
+        let edges = [];
+        for(let node of Object.values(this.lines)) {
+            for(let child of Object.values(node)) {
+                edges.push(child);
+            }
+        }
+        return edges;
+    }
+
+    // Returns adjacency list.
+    getAdjacencyList() {
+        let adjList = [];
+        let n = 0;
+        for(let node of Object.values(this.lines)) {
+            adjList.push([]);
+            adjList.push([]);
+            n += 2;
+            for(let child of Object.values(node)) {
+                adjList[n-2].push(child.node2);
+                adjList[n-1].push(child.node1);
+            }
+        }
+        return adjList;
+    }
 
     drawWireframe() 
     {
@@ -74,27 +103,30 @@ export class Canvas {
 
 
     draw() {
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.save();
-
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
-
         this.drawWireframe();
-
-        // Example text
-        this.ctx.fillStyle = "red";
-        this.ctx.font = "24px Arial";
-        this.ctx.fillText("Zoom and Pan the canvas!", 150, 150); // This text will also zoom and pan
-
-        for(let node of this.nodes) {
-            node.drawNode();
+        // Draw all lines
+        for(let node of Object.values(this.lines)) {
+            for(let line of Object.values(node)) {
+                const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
+                gradient.addColorStop(0, line.node1.color);
+                gradient.addColorStop(1, line.node2.color);
+                this.ctx.beginPath();
+                this.ctx.moveTo(line.node1.x, line.node1.y);
+                this.ctx.lineTo(line.node2.x, line.node2.y);
+                this.ctx.lineWidth = 8;
+                this.ctx.strokeStyle = gradient;
+                this.ctx.stroke();
+            }
         }
-
+        // Draw all nodes
+        for (let node of Object.values(this.nodes)) {
+            if (!node.nodraw) node.drawNode();
+        }
         this.ctx.restore();
 
-        // stationary elements placed after restore()
-        this.drawToolbar();
     }
 
     resizeWindow(){
@@ -140,21 +172,64 @@ export class Canvas {
         document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
         document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
         document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
+        document.getElementById("popup-bg").addEventListener("click", ()=>{
+            document.getElementById("nodeInspector").hidden = true;
+        });
+        document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
+            const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
+            document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
+            document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
+        }).bind(this));
+        document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
+        document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
     }
 
-    addNode(){
-        let newNode = new Node(this, Math.random() * this.canvas.width, Math.random() * this.canvas.height,25); // Random for now.
-        this.nodes.push(newNode);
-        this.draw();
+    addRelatedNode() {
+        if(!this.selectedNode) return;
+        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
+        if(!this.lines[this.selectedNode.title]) {
+            this.lines[this.selectedNode.title] = {};
+        }
+        this.lines[this.selectedNode.title][relatedNodeName] = {
+            node1: this.selectedNode,
+            node2: this.nodes[relatedNodeName]
+        };
+        this.selectedNode.addRelatedNode(relatedNodeName);
+        this.draw()
+    }
+
+    removeRelatedNode() {
+        if(!this.selectedNode) return;
+        let relatedNodeName = document.getElementById("relatedNodeSelector").value;
+        if(this.lines[this.selectedNode.title])
+            delete this.lines[this.selectedNode.title][relatedNodeName];
+        this.selectedNode.removeRelatedNode(relatedNodeName);
+        this.draw()
+    }
+
+    addNode() {
+        let name = `New Node${(this.nodes["New Node"]) ? ` (${Object.values(this.nodes).length})` : ""}`;
+        let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25, name);
+        this.nodes[name] = newNode;
+        this.startForceSim();
     }
 
     changeSelectedNodeColor(e) {
         if(!this.selectedNode) return
+        document.querySelector(".node-content > div").style.backgroundColor = e.currentTarget.value;
         this.selectedNode.setColor(e.currentTarget.value);
     }
 
     changeSelectedNodeName(e) {
         if(!this.selectedNode) return
+        if(this.nodes[e.currentTarget.value]) {
+            e.currentTarget.style.borderColor = 'red';
+            e.currentTarget.style.borderWidth = 'medium';
+            return;
+        } else {
+            e.currentTarget.style.borderWidth = '';
+            e.currentTarget.style.borderColor = '';
+        }
         document.getElementById("node-content-title").textContent = e.currentTarget.value;
         this.selectedNode.setTitle(e.currentTarget.value);
     }
@@ -182,41 +257,114 @@ export class Canvas {
         }
     }
 
-    drawToolbar() 
-    {
-        // ryan pls implement this :D
-        // if you say so big dog ~ryan
-        
-        // Draw parameters.
-        const toolbarMargin = 10;
-        const toolbarPadding = 16;
-        const toolbarWidth = window.innerWidth * 0.2;
-        const toolbarHeight = window.innerHeight - toolbarMargin * 2;
-        const toolbarOffsetX = window.innerWidth - toolbarWidth - toolbarMargin;
-        const toolbarOffsetY = toolbarMargin; // Redundant obviously, but here for completion sake.
-        const titleTextSize = 36;
-    
-        // Draw background box.
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
-        this.ctx.strokeRect(toolbarOffsetX, toolbarMargin,toolbarWidth,toolbarHeight);
-
-        // Draw title text.
-        //this.ctx.fillStyle = "black";
-        //this.ctx.font = `${titleTextSize}px Arial`;
-        //this.ctx.fillText("Atlas Toolbar", toolbarOffsetX + toolbarPadding, toolbarOffsetY + toolbarPadding + titleTextSize);
-
-        //Create buttons.
-
-        // As of this moment, Amogh told me to use HTML elements instead.
-        // Even though, he told me to work in this function. The Canvas class for drawing Canvas Items.
-        // I've commented out the above code, and just left the background of the toolbar.
-        // This is why I stick to backend.
-
-        /*const addNodeButton = new CanvasInteractable2D(this);
-        const addEdgeButton = new CanvasInteractable2D(this);
-        addNodeButton.addEventListener("")*/ // The inciting incident.
+    async centerOnNode(node, time = 1.0) {
+        if(!node) return;
+        time *= 1000;
+        let current_time = 0;
+        const starting_x_offset = this.x_offset;
+        const starting_y_offset = this.y_offset;
+        const final_x_offset = (-node.x*this.scale_factor)+(this.canvas.width/2.0)-node.r;
+        const final_y_offset = (-node.y*this.scale_factor)+(this.canvas.height/2.0)+node.r;
+        const frame_time = 16.666666667;    
+        while(current_time <= time) {
+            this.x_offset = this.lerp(starting_x_offset, final_x_offset, this.quadraticEaseInOut(current_time/time));
+            this.y_offset = this.lerp(starting_y_offset, final_y_offset, this.quadraticEaseInOut(current_time/time));
+            //this.x_offset = this.lerp(this.x_offset, final_x_offset, (current_time/time));
+            //this.y_offset = this.lerp(this.y_offset, final_y_offset, (current_time/time));
+            await this.wait(frame_time);
+            current_time += frame_time;
+            this.draw()
+        }
+        this.x_offset = final_x_offset;
+        this.y_offset = final_y_offset;
     }
+
+    async wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // NOTE: A single 60FPS frame is 16.67ms long.
+    lerp(start, end, t) {
+        return start + (end - start) * t;
+    }
+
+    quadraticEaseOut(t) {
+        return 1 - (1 - t) * (1 - t);
+    }
+
+    quadraticEaseInOut(t) {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
+    startForceSim(maxIter = 10000) {
+        if (this.forceSimRunning) return; // prevent multiple loops
+        this.forceSimRunning = true;
+
+        let t = 0;
+
+        const step = () => {
+            const done = this.forceDirectedStep(t);
+            t += 1;
+            this.draw();
+
+            if (!done && t < maxIter) {
+                requestAnimationFrame(step);
+            } else {
+                this.forceSimRunning = false;
+            }
+        };
+
+        requestAnimationFrame(step);
+    }
+
+    forceDirectedStep(t, tol = 0.01) {
+
+        let max_iter = 100000;
+
+        const nodes = Object.values(this.nodes);
+        
+        if (nodes.length < 2 || t > max_iter) return true;
+
+        // Reset forces
+        for (let node of nodes) node.fx = node.fy = 0;
+
+        // Repulsion
+        const c_rep = 8000.0;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const n1 = nodes[i];
+                const n2 = nodes[j];
+                const dx = n1.x - n2.x;
+                const dy = n1.y - n2.y;
+                const dist = Math.sqrt(dx*dx + dy*dy + 0.001);
+                const force = (c_rep)/(dist*dist);
+                n1.fx += (dx/dist)*force;
+                n1.fy += (dy/dist)*force;
+                n2.fx -= (dx/dist)*force;
+                n2.fy -= (dy/dist)*force;
+            }
+        }
+
+
+        // Update positions
+        let maxForce = 0;
+        for (let node of nodes) {
+            maxForce = Math.max(node.fx, node.fy);
+            node.x += node.fx * this.cooling(t) || 0;
+            node.y += node.fy * this.cooling(t) || 0;
+
+            node.interaction.x += this.cooling(t) * node.fx || 0;
+            node.interaction.y += this.cooling(t) * node.fy || 0;
+        }
+
+        return maxForce < tol; // done if forces small
+    }
+
+    cooling(t, max_iter) {
+        return 1;
+    }
+
 
 
 }
