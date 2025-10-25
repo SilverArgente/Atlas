@@ -14,7 +14,7 @@ export default function Sandbox() {
     const navigate = useNavigate();
 
     const query = new URLSearchParams(window.location.search);
-    const user_type = query.get("user") || "editor";
+    const user_type = query.get("user") || "viewer";
     const handleSignOut = async () => {
         const { error } = await signOut();
         if (error) {
