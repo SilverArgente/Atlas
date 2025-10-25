@@ -9,10 +9,9 @@ import { useNavigate } from 'react-router-dom';
 export default function Sandbox() {
 
     const canvas_ref = useRef(null);
-    let canvasObject;
+    let [canvasObject, setCanvasObject] = React.useState(null);
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
-
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
     const handleSignOut = async () => {
@@ -23,6 +22,11 @@ export default function Sandbox() {
             navigate('/'); // Redirect to homepage after logout
         }
     };
+    useEffect(() => {
+
+        const canvas = canvas_ref.current;
+        setCanvasObject(initializeCanvas(canvas, user_type));
+    }, [])
     function EditorContents(){
         return(
             <div id="toolbar">
@@ -105,12 +109,6 @@ export default function Sandbox() {
         )
     }
 
-    useEffect(() => {
-
-        const canvas = canvas_ref.current;
-        canvasObject = initializeCanvas(canvas, user_type);
-
-    }, [])
 
     const toolbarType = (user_type === "editor") ? EditorContents() : null //ViewerContents();
 
