@@ -21,7 +21,7 @@ export default function Header() {
 
       {/* Login button */}
       <button 
-        onClick={() => navigate("/login")}
+        onClick={() => navigate("/signin")}
         className="h-8 w-20 bg-gray-400 rounded text-white font-bold"
       >
         Login

@@ -3,11 +3,15 @@ import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox.js';
 import NodeContent from './NodeContent.jsx';
+import { useAuth } from '../contexts/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sandbox() {
 
     const canvas_ref = useRef(null);
     let canvasObject;
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
 
     const parsed_pdf = {
         "Quantum Mechanics": {
@@ -54,7 +58,14 @@ export default function Sandbox() {
         canvasObject = initializeCanvas(canvas, parsed_pdf);
 
     }, [])
-
+    const handleSignOut = async () => {
+        const { error } = await signOut();
+        if (error) {
+            alert('Error signing out: ' + error.message);
+        } else {
+            navigate('/'); // Redirect to homepage after logout
+        }
+    };
     return (
         <div>
             <canvas 
@@ -69,9 +80,27 @@ export default function Sandbox() {
             <NodeContent title="" content=""></NodeContent>
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
+
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                {user && (
+                    <button
+                        id="signOutButton"
+                        onClick={handleSignOut}
+                        style={{
+                            marginTop: '10px',
+                            backgroundColor: '#f87171',
+                            color: 'white',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Sign Out
+                    </button>
+                )}
                 <div id="nodeInspector" hidden>
                     <h3><strong>Node Inspector</strong></h3>
                     <label for="nodeColorPicker">Node Color:</label> <br/>

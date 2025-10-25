@@ -1,6 +1,7 @@
 import { LayoutBox } from "./LayoutBox.jsx";
 import Header from "./Header";
 import Footer from "./Footer.jsx";
+import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
   return (
@@ -55,6 +56,10 @@ export default function LoginPage() {
                 {/* Sign Up Link */}
                 <div className="text-center">
                   <div className="h-3 w-48 bg-gray-300 rounded mx-auto"></div>
+                  Don't have an account?{' '}
+                  <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-semibold">
+                    Sign Up
+                  </Link>
                 </div>
               </div>
             </div>
