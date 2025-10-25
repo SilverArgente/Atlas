@@ -41,7 +41,7 @@ function SignupPage() {
         setMessage('Check your email to confirm your account!');
       } else {
         setMessage('Account created! Redirecting to login...');
-        setTimeout(() => navigate('/login'), 2000);
+        setTimeout(() => navigate('/singin'), 2000);
       }
     } catch (error) {
       setError(error.message || 'Failed to create account');
@@ -139,7 +139,7 @@ function SignupPage() {
               <div className="text-center">
                 <p className="text-gray-600">
                   Already have an account?{' '}
-                  <Link to="/login" className="text-blue-600 hover:text-blue-800 font-semibold">
+                  <Link to="/signin" className="text-blue-600 hover:text-blue-800 font-semibold">
                     Log in
                   </Link>
                 </p>
