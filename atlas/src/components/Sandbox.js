@@ -14,7 +14,7 @@ export default function Sandbox() {
     const navigate = useNavigate();
 
     const query = new URLSearchParams(window.location.search);
-    const user = query.get("user") || "editor";
+    const user_type = query.get("user") || "editor";
     const handleSignOut = async () => {
         const { error } = await signOut();
         if (error) {
@@ -108,11 +108,11 @@ export default function Sandbox() {
     useEffect(() => {
 
         const canvas = canvas_ref.current;
-        canvasObject = initializeCanvas(canvas, user);
+        canvasObject = initializeCanvas(canvas, user_type);
 
     }, [])
 
-    const toolbarType = (user === "editor") ? EditorContents() : null //ViewerContents();
+    const toolbarType = (user_type === "editor") ? EditorContents() : null //ViewerContents();
 
     return (
         <div>
@@ -125,7 +125,7 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
-            {(user !== "editor") ? dragImport() : null}
+            {(user_type !== "editor") ? dragImport() : null}
             <NodeContent title="" content=""></NodeContent>
             {toolbarType}
         </div>
