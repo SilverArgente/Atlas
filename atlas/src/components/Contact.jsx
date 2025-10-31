@@ -6,12 +6,12 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-white">
         <Header />
-      <LayoutBox label="Contact Hero" className="h-64 flex items-center justify-center bg-gray-200">
+      <LayoutBox className="h-64 flex items-center justify-center bg-gray-200">
         <h1 className="text-3xl font-bold">Contact Us</h1>
       </LayoutBox>
 
       {/* Contact Form Section */}
-      <LayoutBox label="Contact Form" className="p-8">
+      <LayoutBox className="p-8">
         <form className="max-w-md mx-auto space-y-4">
           <input 
             type="text" 

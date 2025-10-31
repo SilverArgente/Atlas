@@ -7,12 +7,12 @@ export default function Pricing() {
     <div className="min-h-screen bg-white">
         <Header />
       {/* Hero Section */}
-      <LayoutBox label="Pricing Hero" className="h-64 flex items-center justify-center bg-gray-200">
+      <LayoutBox className="h-64 flex items-center justify-center bg-gray-200">
         <h1 className="text-3xl font-bold">Pricing</h1>
       </LayoutBox>
 
       {/* Pricing Options Section */}
-      <LayoutBox label="Pricing Options" className="p-8">
+      <LayoutBox className="p-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {["Basic", "Pro", "Enterprise"].map((plan, idx) => (
             <div key={idx} className="border rounded p-6 text-center space-y-4">

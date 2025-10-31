@@ -10,5 +10,7 @@ export function initializeCanvas(canvas, parsed_pdf) {
 
     Sandbox.addEventListeners();
     Sandbox.draw();
+    // Sandbox.forceDirectedLayout();
+
     return Sandbox;
 }
