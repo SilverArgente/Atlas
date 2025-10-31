@@ -1,8 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LayoutBox } from './LayoutBox.jsx';
-import { Link } from 'react-router-dom';
-import njitLogo from "../assets/njit.jpg";
+import rocket from "../assets/rocket.png";
 import study from "../assets/study.jpg";
 import teach from "../assets/teacher.png";
 import teach2 from "../assets/teacher2.png";
@@ -14,31 +12,55 @@ export default function Landing() {
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-black">
       <Header />
       {/* Hero Section */}
-      <LayoutBox className="h-96 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-400 to-gray-300 rounded-sm"><img src={njitLogo} alt="NJIT" className="w-full h-full object-cover rounded-sm"/></div>
-        <div className="relative z-10 flex h-full">
-          
-          {/* Login Form */}
-        </div>
-      </LayoutBox>
+      <div className="flex flex-col md:flex-row h-[80vh] items-center justify-center bg-black px-8 md:px-16">
+      {/* Left: Text Content */}
+      <div className="flex-1 space-y-6 max-w-lg">
+        <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-white">
+          Empower Your Learning Journey
+        </h1>
+        <p className="text-gray-300 text-lg leading-relaxed">
+        Discover tools designed to make studying, teaching, and collaboration 
+        effortless. Create your own lessons, track progress, and connect 
+        with a vibrant community of learners and educators.
+      </p>
+      <button
+        onClick={() => navigate("/create")}
+        className="mt-4 px-8 py-3 bg-white text-black font-bold rounded-md shadow-md hover:bg-gray-200 transition"
+      >
+        Try Now
+      </button>
+
+      </div>
+
+      {/* Right: Visual Section */}
+      <div className="flex-1 flex justify-end items-center mt-10 md:mt-0">
+      <img
+        src={rocket}
+        alt="Learning Illustration"
+        className="max-w-[400px] w-full object-cover rounded-lg shadow-lg border border-gray-700"
+      />
+    </div>
+
+    </div>
 
       {/* Features Section */}
       <div className="px-8 pb-8">
-        <LayoutBox className="p-6">
+        <div className="p-6 bg-black">
           <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h1><strong>Testimonials</strong></h1>
+            <div className="text-center space-y-2 font-bold text-white">
+            <h1><strong>-----------------------------------------</strong></h1>
+              <h1><strong>Customer Testimonials</strong></h1>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
             {[
               { id: 1, name: "Alice", text: "This service is amazing!", img: study},
               { id: 2, name: "Bob", text: "I learned so much here.", img: teach },
               { id: 3, name: "Carol", text: "Highly recommend to everyone.", img: teach2 },
             ].map((feature) => (
-              <div key={feature.id} className="text-center space-y-3">
+              <div key={feature.id} className="text-center space-y-3 text-white">
                 {/* Real profile image */}
                 <img
                   src={feature.img}
@@ -55,7 +77,7 @@ export default function Landing() {
             ))}
           </div>
           </div>
-        </LayoutBox>
+        </div>
       </div>
       <Footer />
     </div>
