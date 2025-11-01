@@ -330,52 +330,95 @@ export class Canvas {
         requestAnimationFrame(step);
     }
 
+    cooling(t, max_iter = 10000) {
+        return Math.max(0.01, 1.0 - (t / max_iter));
+    }
+
     forceDirectedStep(t, tol = 0.01) {
-
-        let max_iter = 100000;
-
         const nodes = Object.values(this.nodes);
-        
-        if (nodes.length < 2 || t > max_iter) return true;
+        if (nodes.length < 2) return true;
 
-        // Reset forces
-        for (let node of nodes) node.fx = node.fy = 0;
+        // Initialize velocities if they don't exist
+        for (let node of nodes) {
+            if (node.vx === undefined) node.vx = 0;
+            if (node.vy === undefined) node.vy = 0;
+            node.fx = node.fy = 0;
+        }
 
         // Repulsion
         const c_rep = 8000.0;
-
+        const maxRepulsionDist = 300; // Ideal distance
+        const minForce = 0.001;
+        
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
                 const n1 = nodes[i];
                 const n2 = nodes[j];
                 const dx = n1.x - n2.x;
                 const dy = n1.y - n2.y;
-                const dist = Math.sqrt(dx*dx + dy*dy + 0.001);
-                const force = (c_rep)/(dist*dist);
-                n1.fx += (dx/dist)*force;
-                n1.fy += (dy/dist)*force;
-                n2.fx -= (dx/dist)*force;
-                n2.fy -= (dy/dist)*force;
+                const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
+                
+                if (dist > maxRepulsionDist) continue;
+                
+                const force = c_rep / (dist * dist);
+                if (force < minForce) continue;
+                
+                n1.fx += (dx / dist) * force;
+                n1.fy += (dy / dist) * force;
+                n2.fx -= (dx / dist) * force;
+                n2.fy -= (dy / dist) * force;
             }
         }
 
+        // Attraction
+        const c_attr = 0.01;
+        for (let nodeId in this.lines) {
+            const connections = this.lines[nodeId];
+            for (let relatedId in connections) {
+                const { node1, node2 } = connections[relatedId];
+                const dx = node2.x - node1.x;
+                const dy = node2.y - node1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
 
-        // Update positions
-        let maxForce = 0;
-        for (let node of nodes) {
-            maxForce = Math.max(node.fx, node.fy);
-            node.x += node.fx * this.cooling(t) || 0;
-            node.y += node.fy * this.cooling(t) || 0;
+                const idealLength = 200;
+                const force = c_attr * (dist - idealLength);
 
-            node.interaction.x += this.cooling(t) * node.fx || 0;
-            node.interaction.y += this.cooling(t) * node.fy || 0;
+                const fx = (dx / dist) * force;
+                const fy = (dy / dist) * force;
+
+                node1.fx += fx;
+                node1.fy += fy;
+                node2.fx -= fx;
+                node2.fy -= fy;
+
+            }
         }
 
-        return maxForce < tol; // done if forces small
-    }
+        // Apply forces
+        let maxForce = 0;
+        const coolingFactor = this.cooling(t, 10000);
+        const damping = 0.85; // Velocity damping to prevent drift
+        const velocityThreshold = 0.001;
+        
+        for (let node of nodes) {
+            // Update velocity with damping
+            node.vx = (node.vx + node.fx * coolingFactor) * damping;
+            node.vy = (node.vy + node.fy * coolingFactor) * damping;
+            
+            if (Math.abs(node.vx) < velocityThreshold) node.vx = 0;
+            if (Math.abs(node.vy) < velocityThreshold) node.vy = 0;
+            
+            if (node.vx !== 0 || node.vy !== 0) {
+                node.x += node.vx;
+                node.y += node.vy;
+                node.interaction.x += node.vx;
+                node.interaction.y += node.vy;
+            }
+            
+            maxForce = Math.max(maxForce, Math.abs(node.fx), Math.abs(node.fy));
+        }
 
-    cooling(t, max_iter) {
-        return 1;
+        return maxForce < tol;
     }
 
     export() {
