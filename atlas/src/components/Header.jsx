@@ -6,26 +6,35 @@ export default function Header() {
   const navigate = useNavigate();
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 bg-white shadow">
-      {/* Logo */}
-      <Link to="/" className="flex items-center">
-        <img src={logo} alt="Logo" className="h-10 w-10" />
-      </Link>
+    <header className="relative h-16 flex items-center justify-between px-6 bg-black shadow">
+    {/* Logo */}
+    <Link to="/" className="flex items-center">
+      <img src={logo} alt="Logo" className="h-12 w-12" />
+    </Link>
 
-      {/* Nav */}
-      <nav className="flex space-x-6">
-        <Link to="/about">About</Link>
-        <Link to="/pricing">Pricing</Link>
-        <Link to="/contact">Contact</Link>
-      </nav>
+    {/* Centered Nav */}
+    <nav className="absolute left-1/2 transform -translate-x-1/2 flex space-x-6 text-white">
+      <Link to="/about">About</Link>
+      <Link to="/pricing">Pricing</Link>
+      <Link to="/contact">Contact</Link>
+    </nav>
 
-      {/* Login button */}
+    {/* Login + Signup buttons */}
+    <div className="flex space-x-4">
       <button 
         onClick={() => navigate("/signin")}
-        className="h-8 w-20 bg-gray-400 rounded text-white font-bold"
+        className="h-8 w-20 bg-white rounded text-black font-bold"
       >
         Login
       </button>
-    </header>
+      <button 
+        onClick={() => navigate("/signup")}
+        className="h-8 w-20 bg-white rounded text-black font-bold"
+      >
+        Sign Up
+      </button>
+    </div>
+  </header>
+
   );
 }

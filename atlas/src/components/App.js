@@ -5,6 +5,9 @@ import SignInPage from './SignInPage.jsx';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext.jsx';
 import SignupPage from './SignupPage.jsx';
+import About from './About.jsx';
+import Price from './Pricing.jsx';
+import Contact from './Contact.jsx';
 function App() {
 
   return (
@@ -15,6 +18,9 @@ function App() {
           <Route path="/create" element={<Sandbox/>}/>
           <Route path ="/signin" element={<SignInPage/>}/>
           <Route path ="/signup" element={<SignupPage/>}/>
+          <Route path="/about" element={<About/>}/>
+          <Route path ="/pricing" element={<Price/>}/>
+          <Route path ="/contact" element={<Contact/>}/>
         </Routes>
 
       </BrowserRouter>

@@ -43,7 +43,7 @@ function SignInPage() {
       <Header />
 
       {/* Right Side - Login Form */}
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <LayoutBox className="w-full max-w-md bg-white">
           <div className="space-y-6">
             
