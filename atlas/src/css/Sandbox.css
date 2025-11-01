@@ -133,13 +133,33 @@ button:disabled {
     border: medium solid black;
 }
 
-#popup-bg {
+#popup-bg, #import-bg{
     position:absolute;
     top:0;
     left:0;
     width: 100%;
     height: 100%;
     background-color: rgba(105, 105, 105, 0.329);
+}
+
+#viewer-file-upload {
+    color:transparent;
+    width: 100%;
+    height: 100%;
+}
+
+#viewer-file-upload + p {
+    background-color: azure;
+    display: block;
+    position: absolute;
+    left:auto;
+    top:50vh;
+    left: 40%;
+    font-size: large;
+    padding: 10pt;
+    border: thin solid black;
+    border-radius: 3pt;
+    pointer-events: none;
 }
 
 #RelatedNodeButtons {

@@ -9,55 +9,11 @@ import { useNavigate } from 'react-router-dom';
 export default function Sandbox() {
 
     const canvas_ref = useRef(null);
-    let canvasObject;
+    let [canvasObject, setCanvasObject] = React.useState(null);
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
-
-    const parsed_pdf = {
-        "Quantum Mechanics": {
-            description: "Study of physical phenomena at nanoscopic scales",
-            children: ["Quantum State", "Electric Field", "Hydrogen Atom"]
-        },
-        "Quantum State": {
-            description: "A mathematical description of a quantum system",
-            children: ["Orthogonality", "Different Quantum States", "Wave Function"]
-        },
-        "Electric Field": {
-            description: "A field surrounding charged particles, influencing force",
-            children: ["Dipole", "Laser Interactions"]
-        },
-        "Hydrogen Atom": {
-            description: "The simplest atom with one proton and one electron",
-            children: ["Different Quantum States", "Laser Interactions"]
-        },
-        "Orthogonality": {
-            description: "Property where two functions are orthogonal in inner product space",
-            children: []
-        },
-        "Different Quantum States": {
-            description: "Various possible energy levels of an electron in an atom",
-            children: []
-        },
-        "Wave Function": {
-            description: "Mathematical function describing quantum states",
-            children: []
-        },
-        "Dipole": {
-            description: "A system of two equal and oppositely charged or magnetized poles",
-            children: []
-        },
-        "Laser Interactions": {
-            description: "Interaction of laser fields with atomic or molecular systems",
-            children: []
-        }
-    };
-
-    useEffect(() => {
-
-        const canvas = canvas_ref.current;
-        canvasObject = initializeCanvas(canvas, parsed_pdf);
-
-    }, [])
+    const query = new URLSearchParams(window.location.search);
+    const user_type = query.get("user") || "viewer";
     const handleSignOut = async () => {
         const { error } = await signOut();
         if (error) {
@@ -66,18 +22,13 @@ export default function Sandbox() {
             navigate('/'); // Redirect to homepage after logout
         }
     };
-    return (
-        <div>
-            <canvas 
-                id="appCanvas"
-                ref={canvas_ref}
-                style={{
-                    display: "block",
-                    width: "100vw",
-                    height: "100vh",
-                }}
-            />
-            <NodeContent title="" content=""></NodeContent>
+    useEffect(() => {
+
+        const canvas = canvas_ref.current;
+        setCanvasObject(initializeCanvas(canvas, user_type));
+    }, [])
+    function EditorContents(){
+        return(
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
 
@@ -119,6 +70,62 @@ export default function Sandbox() {
                     </ul>
                 </div>
             </div>
+        )
+    }
+
+    function ViewerContents(){
+        return(
+            <div id="toolbar">
+                <h1>Atlas Toolbar</h1>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                {user && (
+                    <button
+                        id="signOutButton"
+                        onClick={handleSignOut}
+                        style={{
+                            marginTop: '10px',
+                            backgroundColor: '#f87171',
+                            color: 'white',
+                            padding: '8px 12px',
+                            borderRadius: '6px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Sign Out
+                    </button>
+                )}
+            </div>
+        )
+    }
+
+    function dragImport(){
+        return (
+            <span id="import-bg">
+                <input id="viewer-file-upload" type="file" accept=".json" onChange={(e)=>{canvasObject.import(e.currentTarget); document.getElementById("import-bg").hidden=true;}}></input>
+                <p>Drag in a Concept Map JSON to get started.</p>
+            </span>
+        )
+    }
+
+
+    const toolbarType = (user_type === "editor") ? EditorContents() : null //ViewerContents();
+
+    return (
+        <div>
+            <canvas 
+                id="appCanvas"
+                ref={canvas_ref}
+                style={{
+                    display: "block",
+                    width: "100vw",
+                    height: "100vh",
+                }}
+            />
+            {(user_type !== "editor") ? dragImport() : null}
+            <NodeContent title="" content=""></NodeContent>
+            {toolbarType}
         </div>
     )
 }

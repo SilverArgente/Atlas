@@ -66,28 +66,36 @@ export class Node {
 
     setColor(color) {
         this.color = color;
-        document.getElementById("nodeColorPicker").value = color;
+        if(this.canvasObj.user_type === "editor")
+            document.getElementById("nodeColorPicker").value = color;
         this.canvasObj.draw();
     }
 
     async openInspector() {
         this.canvasObj.selectedNode = this;
-        document.getElementById("nodeInspector").hidden = false;
-        document.getElementById("nodeColorPicker").value = this.color;
-        document.getElementById("nodeNameText").value = this.title;
         const contentPopup = document.getElementById("node-content-bubble");
-        const contentTextArea = document.getElementById("node-content-text")
+        const contentTextArea = document.getElementById("node-content-text");
         if(!contentPopup) return;
+        if(this.canvasObj.user_type === "editor") {
+            document.getElementById("nodeInspector").hidden = false;
+            document.getElementById("nodeColorPicker").value = this.color;
+            document.getElementById("nodeNameText").value = this.title;
+            document.getElementById("node-content-image").value = null;
+            contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
+        } else {
+            contentTextArea.readOnly = true;
+            contentTextArea.placeholder = "No content..."
+            document.getElementById("node-content-image").hidden = true;
+            document.getElementById("node-content-image-label").hidden = true;
+            document.getElementById("node-content-header").firstChild.textContent = "";
+        }
+        this.refreshRelatedNodesList();
         contentTextArea.value = this.content;
-        contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
         document.querySelector(".node-content > div").style.backgroundColor = this.color;
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
-        document.getElementById("node-content-image").value = null;
-
-        this.refreshRelatedNodesList();
 
         await this.canvasObj.centerOnNode(this, 0.5);
         //this.nodraw = true;
@@ -99,18 +107,26 @@ export class Node {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
-        nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
-        document.getElementById("AddRelatedNode").disabled = true;
-        document.getElementById("RemoveRelatedNode").disabled = true;
-        for(let node of Object.values(this.canvasObj.nodes)) {
-            if(node === this) continue;
-            const newListItem = document.createElement("option");
-            newListItem.value = node.id;
-            newListItem.textContent = node.title;
-            nodeListDropdown.appendChild(newListItem);
+        if(this.canvasObj.user_type === "editor") {
+            nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
+            document.getElementById("AddRelatedNode").disabled = true;
+            document.getElementById("RemoveRelatedNode").disabled = true;
+            for(let node of Object.values(this.canvasObj.nodes)) {
+                if(node === this) continue;
+                const newListItem = document.createElement("option");
+                newListItem.value = node.id;
+                newListItem.textContent = node.title;
+                nodeListDropdown.appendChild(newListItem);
+            }
+            relatedNodesList.innerHTML = "";
         }
-        relatedNodesList.innerHTML = "";
         buttonList.innerHTML = "";
+        if(Object.values(this.relatedNodes).length == 0) {
+            const newParagraph = document.createElement("p");
+            newParagraph.textContent = "None";
+            buttonList.appendChild(newParagraph);
+            return;
+        }
         for(let node of Object.values(this.relatedNodes)) {
             const newListItem = document.createElement("li");
             const newRelatedButton = document.createElement("button");
@@ -120,7 +136,8 @@ export class Node {
             newRelatedButton.addEventListener("click", node.openInspector.bind(node))
             newListItem.textContent = node.title;
             buttonList.appendChild(newRelatedButton);
-            relatedNodesList.appendChild(newListItem);
+            if(this.canvasObj.user_type === "editor")
+                relatedNodesList.appendChild(newListItem);
         }
     }
 
