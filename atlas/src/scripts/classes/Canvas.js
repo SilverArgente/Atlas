@@ -35,6 +35,7 @@ export class Canvas {
             this._boundaddRelatedNode = this.addRelatedNode.bind(this);
             this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
         }
+        this._boundHandleMouseMove = this.handleMouseMove.bind(this); 
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -50,6 +51,9 @@ export class Canvas {
             this.y_offset += (mouseCanvasPositionYNew - mouseCanvasPositionYOld) * this.scale_factor
             this.draw();
         }
+
+        this.loaded_file = undefined;
+
     }
 
     // Returns list of edges.
@@ -111,6 +115,7 @@ export class Canvas {
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
         this.drawWireframe();
         // Draw all lines
+        console.log(Object.values(this.lines).length)
         for(let node of Object.values(this.lines)) {
             for(let line of Object.values(node)) {
                 const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
@@ -138,6 +143,25 @@ export class Canvas {
         this.draw()
     }
 
+
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect()
+        this.mousepos_x = e.clientX - rect.left;
+        this.mousepos_y = e.clientY - rect.top;
+        this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
+        this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
+        if (!this.is_dragging) 
+            return;
+
+        this.x_offset += (e.clientX - this.prev_x)
+        this.y_offset += (e.clientY - this.prev_y)
+
+        this.prev_x = e.clientX;
+        this.prev_y = e.clientY;
+
+        this.draw();
+    }
+
     addEventListeners()
     {
         window.addEventListener('resize', this.resizeWindow.bind(this))
@@ -148,23 +172,7 @@ export class Canvas {
             this.prev_x = e.clientX;
             this.prev_y = e.clientY;
         });
-        this.canvas.addEventListener("mousemove", (e) => {
-            const rect = this.canvas.getBoundingClientRect()
-            this.mousepos_x = e.clientX - rect.left;
-            this.mousepos_y = e.clientY - rect.top;
-            this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
-            this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
-            if (!this.is_dragging) 
-                return;
-
-            this.x_offset += (e.clientX - this.prev_x)
-            this.y_offset += (e.clientY - this.prev_y)
-
-            this.prev_x = e.clientX;
-            this.prev_y = e.clientY;
-
-            this.draw();
-        });
+        this.canvas.addEventListener("mousemove", this._boundHandleMouseMove);
         this.canvas.addEventListener("wheel", this.handleCanvasZoom);
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
@@ -455,6 +463,11 @@ export class Canvas {
         a.click();
     }
 
+    async restart_simulation() {
+        if(!this.loaded_file) return;
+        this.import(this.loaded_file);
+    }
+
     async import(input = undefined) {
         if(!input) {
             input = document.createElement('input');
@@ -464,9 +477,11 @@ export class Canvas {
             await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
         }
         console.log(input);
-        // Cleanup Everything (leave it to the garbage collector)
+        this.loaded_file = input;
+        // Cleanup Everything (leave it to the garbage collector) (11/11/25 note: DOES HE KNOW?)
         this.nodes = {};
-        this.lines = {}; 
+        this.lines = {};
+        this.interactables = [];
         const selectedFile = input.files[0];
         if(!selectedFile) {
             console.error("FAILED TO IMPORT FILE!");
