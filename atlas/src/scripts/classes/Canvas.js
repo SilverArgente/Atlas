@@ -115,7 +115,6 @@ export class Canvas {
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
         this.drawWireframe();
         // Draw all lines
-        console.log(Object.values(this.lines).length)
         for(let node of Object.values(this.lines)) {
             for(let line of Object.values(node)) {
                 const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
@@ -417,10 +416,7 @@ export class Canvas {
             if (Math.abs(node.vy) < velocityThreshold) node.vy = 0;
             
             if (node.vx !== 0 || node.vy !== 0) {
-                node.x += node.vx;
-                node.y += node.vy;
-                node.interaction.x += node.vx;
-                node.interaction.y += node.vy;
+                node.setPosition(node.x + node.vx, node.y + node.vy);
             }
             
             maxForce = Math.max(maxForce, Math.abs(node.fx), Math.abs(node.fy));
@@ -429,7 +425,7 @@ export class Canvas {
         return maxForce < tol;
     }
 
-    export() {
+    export(localExport = false) {
         let saveData = {
             nodes: [],
             edges: []
@@ -456,6 +452,7 @@ export class Canvas {
            node.canvasObj = this;
         }
         const blob = new Blob([jsonData], { type: 'application/json' });
+        if(localExport) return {files: [blob]};
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -463,10 +460,18 @@ export class Canvas {
         a.click();
     }
 
-    async restart_simulation() {
-        for(let node of Object.values(this.nodes)) {
-            node.setPosition(0,0);
+    restart_simulation() {
+        if(!this.canvas) return;
+        this.import(this.export(true));
+        /*for(let node of Object.values(this.nodes)) {
+            delete node.fx;
+            delete node.fy;
+            delete node.vx;
+            delete node.vy;
+            node.setPosition(0, 0);
         }
+        console.log(this);
+        this.startForceSim();*/
     }
 
     async import(input = undefined) {
@@ -480,6 +485,9 @@ export class Canvas {
         console.log(input);
         this.loaded_file = input;
         // Cleanup Everything (leave it to the garbage collector) (11/11/25 note: DOES HE KNOW?)
+        for(let node of Object.values(this.nodes)) {
+            node.cleanup();
+        }
         this.nodes = {};
         this.lines = {};
         this.interactables = [];
