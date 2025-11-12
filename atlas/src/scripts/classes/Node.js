@@ -35,6 +35,14 @@ export class Node {
         this.refreshRelatedNodesList();
     }
 
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.interaction = x;
+        this.interaction = y;
+        this.canvasObj.draw();
+    }
+
     removeRelatedNode(nodename) {
         let result = null;
         for(let node of Object.values(this.canvasObj.nodes)) {

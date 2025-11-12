@@ -464,8 +464,9 @@ export class Canvas {
     }
 
     async restart_simulation() {
-        if(!this.loaded_file) return;
-        this.import(this.loaded_file);
+        for(let node of Object.values(this.nodes)) {
+            node.setPosition(0,0);
+        }
     }
 
     async import(input = undefined) {

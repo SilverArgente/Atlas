@@ -36,6 +36,9 @@ export default function Sandbox() {
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
+                    Restart Simulation
+                </button>
                 {user && (
                     <button
                         id="signOutButton"
