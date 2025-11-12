@@ -1,5 +1,6 @@
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
 import { Node } from "./Node";
+import { NodeLayer } from "./NodeLayer";
 
 // Global canvas/sandbox display
 
@@ -25,6 +26,7 @@ export class Canvas {
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = {};
         this.lines = {};
+        this.layers = {};
         this.selectedNode = undefined;
         this.user_type = user_type;
         if(user_type === "editor") {

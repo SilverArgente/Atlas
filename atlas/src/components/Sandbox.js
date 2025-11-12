@@ -69,9 +69,27 @@ export default function Sandbox() {
                     <button id="AddRelatedNode">Add</button>
                     <button id="RemoveRelatedNode">Remove</button> <br/>
                     <label for="relatedNodesList">Related Nodes:</label> <br/>
-                    <ul id="relatedNodesList">
+                    <div style={{border: "solid thin black"}}>
+                        <ul id="relatedNodesList">
 
-                    </ul>
+                        </ul>
+                    </div>
+
+                    <label title="The layer this node belongs to." for="layerNameText">Layer Name:</label>
+                    <input title="The layer this node belongs to." type="text" id="layerNameText" placeholder='Enter Layer Name' defaultValue={"Global"}></input>
+
+                    <select id="prereqNodeSelector">
+                        <option id='default'>Select a Node.</option>
+                    </select>
+                    <button id="AddPrereqNode">Add</button>
+                    <button id="RemovePrereqNode">Remove</button> <br/>
+                    <label title='Nodes to be opened before accessing this one.' for="prereqNodesList">Prerequisite Nodes:</label> <br/>
+                    <div title='Nodes to be opened before accessing this one.' style={{border: "solid thin black"}}>
+                        <ul id="prereqNodesList">
+
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         )
