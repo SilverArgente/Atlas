@@ -17,6 +17,16 @@ export class Node {
         this.image = null;
         this.nodraw = false;
         this.relatedNodes = {};
+        
+    }
+
+    setRadius(r) {
+        this.r = r;
+        this.interaction.x = this.x - this.r;
+        this.interaction.y = this.y - this.r;
+        this.interaction.w = this.r * 2;
+        this.interaction.h = this.r * 2;
+        this.canvasObj.draw();
     }
 
     addRelatedNode(nodename) {
@@ -93,6 +103,12 @@ export class Node {
             document.getElementById("nodeInspector").hidden = false;
             document.getElementById("nodeColorPicker").value = this.color;
             document.getElementById("nodeNameText").value = this.title;
+            
+            const nodeRadiusInput = document.getElementById("nodeRadiusInput");
+            if(nodeRadiusInput) {
+                nodeRadiusInput.value = this.r;
+            }
+            
             document.getElementById("node-content-image").value = null;
             contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         } else {
@@ -154,21 +170,31 @@ export class Node {
         }
     }
 
-    drawNode() {
+    setRadius(r) 
+    {
+        this.r = r;
+
+        this.interaction.x = this.x - this.r;
+        this.interaction.y = this.y - this.r;
+        this.interaction.w = this.r * 2;
+        this.interaction.h = this.r * 2;
+        this.canvasObj.draw();
+    }
+
+    drawNode() 
+    {
         const textMargin = 0.25;
         let ctx = this.canvasObj.ctx;
         let titleTextSize = 12;
         ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
+        ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.stroke();
         ctx.fillStyle = "black";
         ctx.font = `${titleTextSize}px Arial`;
-        ctx.fillText(this.title, this.x - this.r*(1-textMargin), this.y, this.r * (2-textMargin*2));
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(this.title, this.x, this.y);
     }
+    
 }

@@ -20,7 +20,7 @@ export default function Sandbox() {
         if (error) {
             alert('Error signing out: ' + error.message);
         } else {
-            navigate('/'); // Redirect to homepage after logout
+            navigate('/');
         }
     };
     useEffect(() => {
@@ -58,17 +58,18 @@ export default function Sandbox() {
                 )}
                 <div id="nodeInspector" hidden>
                     <h3><strong>Node Inspector</strong></h3>
-                    <label for="nodeColorPicker">Node Color:</label> <br/>
-                    <input type="color" name="nodeColorPicker" id="nodeColorPicker" value="cornflowerblue"></input> <br/>
-                    <label for="nodeNameText">Node Name:</label>
+                    <label htmlFor="nodeColorPicker">Node Color:</label> <br/>
+                    <input type="color" name="nodeColorPicker" id="nodeColorPicker" defaultValue="cornflowerblue"></input> <br/>
+                    <label htmlFor="nodeNameText">Node Name:</label> <br/>
                     <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
-                    
+                    <label htmlFor="nodeRadiusInput">Node Radius:</label> <br/>
+                    <input type="number" name="nodeRadiusInput" id="nodeRadiusInput" min="10" max="100" step="1" defaultValue="25"></input> <br/>
                     <select id="relatedNodeSelector">
                         <option id='default'>Select a Node.</option>
                     </select>
                     <button id="AddRelatedNode">Add</button>
                     <button id="RemoveRelatedNode">Remove</button> <br/>
-                    <label for="relatedNodesList">Related Nodes:</label> <br/>
+                    <label htmlFor="relatedNodesList">Related Nodes:</label> <br/>
                     <ul id="relatedNodesList">
 
                     </ul>
