@@ -1,6 +1,5 @@
 // src/components/Header.jsx
 import { Link, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -9,7 +8,7 @@ export default function Header() {
     <header className="relative h-16 flex items-center justify-between px-6 bg-black shadow">
     {/* Logo */}
     <Link to="/" className="flex items-center">
-      <img src={logo} alt="Logo" className="h-12 w-12" />
+      <p className="h-12 w-12 text-white flex items-center justify-center"> ATLAS </p>
     </Link>
 
     {/* Centered Nav */}
