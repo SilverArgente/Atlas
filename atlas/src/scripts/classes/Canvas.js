@@ -37,6 +37,7 @@ export class Canvas {
             this._boundChangeSelectedNodeRadius = this.changeSelectedNodeRadius.bind(this);
 
         }
+        this._boundHandleMouseMove = this.handleMouseMove.bind(this); 
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -52,6 +53,9 @@ export class Canvas {
             this.y_offset += (mouseCanvasPositionYNew - mouseCanvasPositionYOld) * this.scale_factor
             this.draw();
         }
+
+        this.loaded_file = undefined;
+
     }
 
     // Returns list of edges.
@@ -140,6 +144,25 @@ export class Canvas {
         this.draw()
     }
 
+
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect()
+        this.mousepos_x = e.clientX - rect.left;
+        this.mousepos_y = e.clientY - rect.top;
+        this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
+        this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
+        if (!this.is_dragging) 
+            return;
+
+        this.x_offset += (e.clientX - this.prev_x)
+        this.y_offset += (e.clientY - this.prev_y)
+
+        this.prev_x = e.clientX;
+        this.prev_y = e.clientY;
+
+        this.draw();
+    }
+
     addEventListeners()
     {
         window.addEventListener('resize', this.resizeWindow.bind(this))
@@ -150,23 +173,7 @@ export class Canvas {
             this.prev_x = e.clientX;
             this.prev_y = e.clientY;
         });
-        this.canvas.addEventListener("mousemove", (e) => {
-            const rect = this.canvas.getBoundingClientRect()
-            this.mousepos_x = e.clientX - rect.left;
-            this.mousepos_y = e.clientY - rect.top;
-            this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
-            this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
-            if (!this.is_dragging) 
-                return;
-
-            this.x_offset += (e.clientX - this.prev_x)
-            this.y_offset += (e.clientY - this.prev_y)
-
-            this.prev_x = e.clientX;
-            this.prev_y = e.clientY;
-
-            this.draw();
-        });
+        this.canvas.addEventListener("mousemove", this._boundHandleMouseMove);
         this.canvas.addEventListener("wheel", this.handleCanvasZoom);
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
@@ -431,10 +438,7 @@ export class Canvas {
             if (Math.abs(node.vy) < velocityThreshold) node.vy = 0;
             
             if (node.vx !== 0 || node.vy !== 0) {
-                node.x += node.vx;
-                node.y += node.vy;
-                node.interaction.x += node.vx;
-                node.interaction.y += node.vy;
+                node.setPosition(node.x + node.vx, node.y + node.vy);
             }
             
             maxForce = Math.max(maxForce, Math.abs(node.fx), Math.abs(node.fy));
@@ -443,7 +447,7 @@ export class Canvas {
         return maxForce < tol;
     }
 
-    export() {
+    export(localExport = false) {
         let saveData = {
             nodes: [],
             edges: []
@@ -470,11 +474,26 @@ export class Canvas {
            node.canvasObj = this;
         }
         const blob = new Blob([jsonData], { type: 'application/json' });
+        if(localExport) return {files: [blob]};
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'myData.json';
         a.click();
+    }
+
+    restart_simulation() {
+        if(!this.canvas) return;
+        this.import(this.export(true));
+        /*for(let node of Object.values(this.nodes)) {
+            delete node.fx;
+            delete node.fy;
+            delete node.vx;
+            delete node.vy;
+            node.setPosition(0, 0);
+        }
+        console.log(this);
+        this.startForceSim();*/
     }
 
     async import(input = undefined) {
@@ -486,9 +505,14 @@ export class Canvas {
             await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
         }
         console.log(input);
-        // Cleanup Everything (leave it to the garbage collector)
+        this.loaded_file = input;
+        // Cleanup Everything (leave it to the garbage collector) (11/11/25 note: DOES HE KNOW?)
+        for(let node of Object.values(this.nodes)) {
+            node.cleanup();
+        }
         this.nodes = {};
-        this.lines = {}; 
+        this.lines = {};
+        this.interactables = [];
         const selectedFile = input.files[0];
         if(!selectedFile) {
             console.error("FAILED TO IMPORT FILE!");

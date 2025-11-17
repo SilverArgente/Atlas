@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox.js';
@@ -10,6 +10,7 @@ export default function Sandbox() {
 
     const canvas_ref = useRef(null);
     let [canvasObject, setCanvasObject] = React.useState(null);
+    const loadedFile = useCallback(()=>{});
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
     const query = new URLSearchParams(window.location.search);
@@ -35,6 +36,9 @@ export default function Sandbox() {
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
+                    Restart Simulation
+                </button>
                 {user && (
                     <button
                         id="signOutButton"
@@ -76,10 +80,8 @@ export default function Sandbox() {
 
     function ViewerContents(){
         return(
-            <div id="toolbar">
-                <h1>Atlas Toolbar</h1>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+            <div id="toolbar" hidden="true">
+                <h1>Atlas Menu</h1>
                 {user && (
                     <button
                         id="signOutButton"
@@ -97,6 +99,9 @@ export default function Sandbox() {
                         Sign Out
                     </button>
                 )}
+                <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
+                    Restart Simulation
+                </button>
             </div>
         )
     }
@@ -104,14 +109,22 @@ export default function Sandbox() {
     function dragImport(){
         return (
             <span id="import-bg">
-                <input id="viewer-file-upload" type="file" accept=".json" onChange={(e)=>{canvasObject.import(e.currentTarget); document.getElementById("import-bg").hidden=true;}}></input>
+                <input 
+                    id="viewer-file-upload" 
+                    type="file" 
+                    accept=".json" 
+                    onChange={(e)=>{
+                        canvasObject.import(e.currentTarget);
+                        document.getElementById("import-bg").hidden=true;
+                        document.getElementById("toolbar").hidden=false;
+                    }}></input>
                 <p>Drag in a Concept Map JSON to get started.</p>
             </span>
         )
     }
 
 
-    const toolbarType = (user_type === "editor") ? EditorContents() : null
+    const toolbarType = (user_type === "editor") ? EditorContents() : ViewerContents();
 
     return (
         <div>
