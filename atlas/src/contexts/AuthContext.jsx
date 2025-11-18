@@ -58,16 +58,13 @@ export const AuthProvider = ({ children }) => {
     return { data: insertData, error: insertError };
   };
 
-const createPlan = async (jsonText) => {
-
-  const userId = supabase.auth.getUser()?.data?.user?.id;
+const createPlan = async (json) => {
 
   const { data, error } = await supabase
     .from("plan")
     .insert([
       {
-        user_id: userId,
-        json_data: jsonText,
+        data: json,
       }
     ])
     .select();

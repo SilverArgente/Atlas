@@ -10,11 +10,15 @@ export default function Sandbox() {
     const { createPlan } = useAuth();
 
     const handleExport = async () => {
-        const jsonData = canvasObject.export();
+        const jsonData = canvasObject.export(true);
     
-        console.log("Exported JSON:", jsonData);
+        console.log("Exported JSON:", jsonData.files[0]);
     
-        const { data, error } = await createPlan(jsonData);
+        const blob = jsonData.files[0];
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+    
+        const { data, error } = await createPlan(parsed);
     
         if (error) {
             console.error("Error saving plan:", error);
@@ -22,6 +26,7 @@ export default function Sandbox() {
             console.log("Plan saved successfully:", data);
         }
     };
+    
     
     
     const canvas_ref = useRef(null);
@@ -51,7 +56,7 @@ export default function Sandbox() {
 
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                <button id="addEdgeButton" onClick={handleExport}>Export</button>
                 <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
                     Restart Simulation
                 </button>

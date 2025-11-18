@@ -478,7 +478,6 @@ export class Canvas {
         a.href = url;
         a.download = 'myData.json';
         a.click();
-        return jsonData;
     }
 
     restart_simulation() {
