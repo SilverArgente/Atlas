@@ -7,7 +7,23 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 export default function Sandbox() {
+    const { createPlan } = useAuth();
 
+    const handleExport = async () => {
+        const jsonData = canvasObject.export();
+    
+        console.log("Exported JSON:", jsonData);
+    
+        const { data, error } = await createPlan(jsonData);
+    
+        if (error) {
+            console.error("Error saving plan:", error);
+        } else {
+            console.log("Plan saved successfully:", data);
+        }
+    };
+    
+    
     const canvas_ref = useRef(null);
     let canvasObject;
     const { user, signOut } = useAuth();
@@ -63,7 +79,7 @@ export default function Sandbox() {
         if (error) {
             alert('Error signing out: ' + error.message);
         } else {
-            navigate('/'); // Redirect to homepage after logout
+            navigate('/');
         }
     };
     return (
@@ -83,7 +99,7 @@ export default function Sandbox() {
 
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                <button id="addEdgeButton" onClick={handleExport}>Export</button>
                 {user && (
                     <button
                         id="signOutButton"

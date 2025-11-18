@@ -12,7 +12,6 @@ function SignupPage() {
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
   const [error, setError] = useState('');
-  const [type, setType] = useState('student');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -35,7 +34,7 @@ function SignupPage() {
       setMessage('');
       setLoading(true);
       
-      const { data, error } = await signUp(email, password, first, last, type);
+      const { data, error } = await signUp(email, password, first, last);
       
       if (error) throw error;
       
@@ -144,41 +143,6 @@ function SignupPage() {
                   placeholder="Repeat your password"
                   className="w-full h-10 bg-gray-100 rounded border-2 border-dashed border-gray-300 px-3 outline-none disabled:opacity-50"
                 />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block font-semibold text-gray-700">Account Type</label>
-
-                <div className="flex items-center space-x-6">
-
-                  {/* Student (default) */}
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="student"
-                      checked={type === "student"}
-                      onChange={(e) => setType(e.target.value)}
-                      disabled={loading}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-gray-700">Student</span>
-                  </label>
-
-                  {/* Teacher */}
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="accountType"
-                      value="teacher"
-                      checked={type === "teacher"}
-                      onChange={(e) => setType(e.target.value)}
-                      disabled={loading}
-                      className="h-4 w-4 text-blue-600"
-                    />
-                    <span className="text-gray-700">Teacher</span>
-                  </label>
-                </div>
               </div>
 
 
