@@ -16,6 +16,8 @@ export class Node {
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
         this.nodraw = false;
+        this.visited = false;
+        this.locked = false;
         this.relatedNodes = {};
     }
 

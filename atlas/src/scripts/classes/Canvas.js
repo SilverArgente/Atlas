@@ -427,6 +427,13 @@ export class Canvas {
         return maxForce < tol;
     }
 
+    addPrereq(e) {
+        const layer = e.currentTarget.value;
+        if(!this.layers[layer])
+            this.layers[layer] = new NodeLayer(layer);
+        this.layers[layer].addPrereq(document.getElementById("prereqNodeSelector").value);
+    }
+
     export(localExport = false) {
         let saveData = {
             nodes: [],
