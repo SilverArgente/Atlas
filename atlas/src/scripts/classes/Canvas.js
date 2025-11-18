@@ -3,7 +3,7 @@ import { Node } from "./Node";
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor) {
+    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type) {
         
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");;
@@ -24,12 +24,18 @@ export class Canvas {
         this.nodes = {};
         this.lines = {};
         this.selectedNode = undefined;
-        this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
-        this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
-        this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
-        this._boundHandleImageChange = this.handleImageChange.bind(this);
-        this._boundaddRelatedNode = this.addRelatedNode.bind(this);
-        this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
+        this.user_type = user_type;
+        if(user_type === "editor") {
+            this.boundChangeSelectedNodeName = this.changeSelectedNodeName.bind(this);
+            this.boundChangeSelectedNodeColor = this.changeSelectedNodeColor.bind(this);
+            this._boundUpdateNodeContent = this.updateNodeContent.bind(this);
+            this._boundHandleImageChange = this.handleImageChange.bind(this);
+            this._boundaddRelatedNode = this.addRelatedNode.bind(this);
+            this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
+            this._boundChangeSelectedNodeRadius = this.changeSelectedNodeRadius.bind(this);
+
+        }
+        this._boundHandleMouseMove = this.handleMouseMove.bind(this); 
         this.handleCanvasZoom = (e) => {
             e.preventDefault();
             let mouseCanvasPositionXOld = (this.mousepos_x - this.x_offset)/this.scale_factor;
@@ -45,6 +51,9 @@ export class Canvas {
             this.y_offset += (mouseCanvasPositionYNew - mouseCanvasPositionYOld) * this.scale_factor
             this.draw();
         }
+
+        this.loaded_file = undefined;
+
     }
 
     // Returns list of edges.
@@ -133,6 +142,25 @@ export class Canvas {
         this.draw()
     }
 
+
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect()
+        this.mousepos_x = e.clientX - rect.left;
+        this.mousepos_y = e.clientY - rect.top;
+        this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
+        this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
+        if (!this.is_dragging) 
+            return;
+
+        this.x_offset += (e.clientX - this.prev_x)
+        this.y_offset += (e.clientY - this.prev_y)
+
+        this.prev_x = e.clientX;
+        this.prev_y = e.clientY;
+
+        this.draw();
+    }
+
     addEventListeners()
     {
         window.addEventListener('resize', this.resizeWindow.bind(this))
@@ -143,45 +171,45 @@ export class Canvas {
             this.prev_x = e.clientX;
             this.prev_y = e.clientY;
         });
-        this.canvas.addEventListener("mousemove", (e) => {
-            const rect = this.canvas.getBoundingClientRect()
-            this.mousepos_x = e.clientX - rect.left;
-            this.mousepos_y = e.clientY - rect.top;
-            this.mousepos_world_x = (this.mousepos_x - this.x_offset)/this.scale_factor;
-            this.mousepos_world_y = (this.mousepos_y - this.y_offset)/this.scale_factor;
-            if (!this.is_dragging) 
-                return;
-
-            this.x_offset += (e.clientX - this.prev_x)
-            this.y_offset += (e.clientY - this.prev_y)
-
-            this.prev_x = e.clientX;
-            this.prev_y = e.clientY;
-
-            this.draw();
-        });
+        this.canvas.addEventListener("mousemove", this._boundHandleMouseMove);
         this.canvas.addEventListener("wheel", this.handleCanvasZoom);
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
- 
-        document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
-        document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
-        document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
-        document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
-        document.getElementById("popup-bg").addEventListener("click", ()=>{
-            document.getElementById("nodeInspector").hidden = true;
-        });
-        document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
-            const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
-            document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
-            document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
-        }).bind(this));
-        document.getElementById("AddRelatedNode").removeEventListener("click", this._boundaddRelatedNode);
-        document.getElementById("RemoveRelatedNode").removeEventListener("click", this._boundRemoveRelatedNode);
-        document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
-        document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
+    
+
+        
+        if(this.user_type === "editor") {
+            document.getElementById("popup-bg").addEventListener("click", ()=>{
+                document.getElementById("nodeInspector").hidden = true;
+            });
+            document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
+            document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
+            
+            const nodeRadiusInput = document.getElementById("nodeRadiusInput");
+            if(nodeRadiusInput) {
+                nodeRadiusInput.removeEventListener("input", this._boundChangeSelectedNodeRadius);
+            }
+            
+            document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
+            document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
+            
+            if(nodeRadiusInput) {
+                nodeRadiusInput.addEventListener("input", this._boundChangeSelectedNodeRadius);
+            }
+            
+            document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
+            document.getElementById("node-content-title").addEventListener("click", ()=>{document.getElementById("nodeNameText").focus()})
+            document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
+                const selectedOption = e.currentTarget.options[e.currentTarget.selectedIndex];
+                document.getElementById("AddRelatedNode").disabled = (selectedOption.id == 'default');
+                document.getElementById("RemoveRelatedNode").disabled = (selectedOption.id == 'default' || (this.selectedNode && !this.selectedNode.relatedNodes[selectedOption.value]));
+            }).bind(this));
+            document.getElementById("AddRelatedNode").removeEventListener("click", this._boundaddRelatedNode);
+            document.getElementById("RemoveRelatedNode").removeEventListener("click", this._boundRemoveRelatedNode);
+            document.getElementById("AddRelatedNode").addEventListener("click", this._boundaddRelatedNode);
+            document.getElementById("RemoveRelatedNode").addEventListener("click", this._boundRemoveRelatedNode);
+        }
     }
 
     addRelatedNode(nodeTarget = this.selectedNode, relatedId = null) {
@@ -224,7 +252,8 @@ export class Canvas {
 
     changeSelectedNodeName(e) {
         if(!this.selectedNode) return
-        if(this.nodes[e.currentTarget.value]) {
+        // disabled, as now you can name nodes the same thing.
+        if(false && this.nodes[e.currentTarget.value]) {
             e.currentTarget.style.borderColor = 'red';
             e.currentTarget.style.borderWidth = 'medium';
             return;
@@ -245,6 +274,15 @@ export class Canvas {
         if(!this.selectedNode) return;
         this.selectedNode.setImage(document.getElementById("node-image").src);
     }
+
+    changeSelectedNodeRadius(e) {
+        if(!this.selectedNode) return;
+        const newRadius = parseFloat(e.currentTarget.value);
+        if(newRadius > 0) {
+            this.selectedNode.setRadius(newRadius);
+        }
+    }
+
 
     handleImageChange(e) {
         const file = e.target.files[0];
@@ -319,55 +357,95 @@ export class Canvas {
         requestAnimationFrame(step);
     }
 
+    cooling(t, max_iter = 10000) {
+        return Math.max(0.01, 1.0 - (t / max_iter));
+    }
+
     forceDirectedStep(t, tol = 0.01) {
-
-        let max_iter = 100000;
-
         const nodes = Object.values(this.nodes);
-        
-        if (nodes.length < 2 || t > max_iter) return true;
+        if (nodes.length < 2) return true;
 
-        // Reset forces
-        for (let node of nodes) node.fx = node.fy = 0;
+        // Initialize velocities if they don't exist
+        for (let node of nodes) {
+            if (node.vx === undefined) node.vx = 0;
+            if (node.vy === undefined) node.vy = 0;
+            node.fx = node.fy = 0;
+        }
 
         // Repulsion
         const c_rep = 8000.0;
-
+        const maxRepulsionDist = 300; // Ideal distance
+        const minForce = 0.001;
+        
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
                 const n1 = nodes[i];
                 const n2 = nodes[j];
                 const dx = n1.x - n2.x;
                 const dy = n1.y - n2.y;
-                const dist = Math.sqrt(dx*dx + dy*dy + 0.001);
-                const force = (c_rep)/(dist*dist);
-                n1.fx += (dx/dist)*force;
-                n1.fy += (dy/dist)*force;
-                n2.fx -= (dx/dist)*force;
-                n2.fy -= (dy/dist)*force;
+                const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
+                
+                if (dist > maxRepulsionDist) continue;
+                
+                const force = c_rep / (dist * dist);
+                if (force < minForce) continue;
+                
+                n1.fx += (dx / dist) * force;
+                n1.fy += (dy / dist) * force;
+                n2.fx -= (dx / dist) * force;
+                n2.fy -= (dy / dist) * force;
             }
         }
 
+        // Attraction
+        const c_attr = 0.01;
+        for (let nodeId in this.lines) {
+            const connections = this.lines[nodeId];
+            for (let relatedId in connections) {
+                const { node1, node2 } = connections[relatedId];
+                const dx = node2.x - node1.x;
+                const dy = node2.y - node1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
 
-        // Update positions
-        let maxForce = 0;
-        for (let node of nodes) {
-            maxForce = Math.max(node.fx, node.fy);
-            node.x += node.fx * this.cooling(t) || 0;
-            node.y += node.fy * this.cooling(t) || 0;
+                const idealLength = 200;
+                const force = c_attr * (dist - idealLength);
 
-            node.interaction.x += this.cooling(t) * node.fx || 0;
-            node.interaction.y += this.cooling(t) * node.fy || 0;
+                const fx = (dx / dist) * force;
+                const fy = (dy / dist) * force;
+
+                node1.fx += fx;
+                node1.fy += fy;
+                node2.fx -= fx;
+                node2.fy -= fy;
+
+            }
         }
 
-        return maxForce < tol; // done if forces small
+        // Apply forces
+        let maxForce = 0;
+        const coolingFactor = this.cooling(t, 10000);
+        const damping = 0.85; // Velocity damping to prevent drift
+        const velocityThreshold = 0.001;
+        
+        for (let node of nodes) {
+            // Update velocity with damping
+            node.vx = (node.vx + node.fx * coolingFactor) * damping;
+            node.vy = (node.vy + node.fy * coolingFactor) * damping;
+            
+            if (Math.abs(node.vx) < velocityThreshold) node.vx = 0;
+            if (Math.abs(node.vy) < velocityThreshold) node.vy = 0;
+            
+            if (node.vx !== 0 || node.vy !== 0) {
+                node.setPosition(node.x + node.vx, node.y + node.vy);
+            }
+            
+            maxForce = Math.max(maxForce, Math.abs(node.fx), Math.abs(node.fy));
+        }
+
+        return maxForce < tol;
     }
 
-    cooling(t, max_iter) {
-        return 1;
-    }
-    
-    export() {
+    export(localExport = false) {
         let saveData = {
             nodes: [],
             edges: []
@@ -394,6 +472,7 @@ export class Canvas {
            node.canvasObj = this;
         }
         const blob = new Blob([jsonData], { type: 'application/json' });
+        if(localExport) return {files: [blob]};
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -402,17 +481,38 @@ export class Canvas {
         return jsonData;
     }
 
-    async import() {
-        const input = document.createElement('input');
-        input.type = "file";
-        input.accept = ".json";
-        input.click();
-        await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
-        // Cleanup Everything (leave it to the garbage collector)
+    restart_simulation() {
+        if(!this.canvas) return;
+        this.import(this.export(true));
+        /*for(let node of Object.values(this.nodes)) {
+            delete node.fx;
+            delete node.fy;
+            delete node.vx;
+            delete node.vy;
+            node.setPosition(0, 0);
+        }
+        console.log(this);
+        this.startForceSim();*/
+    }
+
+    async import(input = undefined) {
+        if(!input) {
+            input = document.createElement('input');
+            input.type = "file";
+            input.accept = ".json";
+            input.click();
+            await new Promise(resolve => {input.addEventListener("change", resolve, {once: true})});
+        }
+        console.log(input);
+        this.loaded_file = input;
+        // Cleanup Everything (leave it to the garbage collector) (11/11/25 note: DOES HE KNOW?)
+        for(let node of Object.values(this.nodes)) {
+            node.cleanup();
+        }
         this.nodes = {};
-        this.lines = {}; 
+        this.lines = {};
+        this.interactables = [];
         const selectedFile = input.files[0];
-        console.log(selectedFile);
         if(!selectedFile) {
             console.error("FAILED TO IMPORT FILE!");
             return;

@@ -17,6 +17,16 @@ export class Node {
         this.image = null;
         this.nodraw = false;
         this.relatedNodes = {};
+        
+    }
+
+    setRadius(r) {
+        this.r = r;
+        this.interaction.x = this.x - this.r;
+        this.interaction.y = this.y - this.r;
+        this.interaction.w = this.r * 2;
+        this.interaction.h = this.r * 2;
+        this.canvasObj.draw();
     }
 
     addRelatedNode(nodename) {
@@ -33,6 +43,19 @@ export class Node {
         }
         this.relatedNodes[nodename] = result;
         this.refreshRelatedNodesList();
+    }
+
+    cleanup() {
+        // my god.
+        this.interaction.disabled=true;
+    }
+
+    setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.interaction.x = x-this.r;
+        this.interaction.y = y-this.r;
+        this.canvasObj.draw();
     }
 
     removeRelatedNode(nodename) {
@@ -66,28 +89,42 @@ export class Node {
 
     setColor(color) {
         this.color = color;
-        document.getElementById("nodeColorPicker").value = color;
+        if(this.canvasObj.user_type === "editor")
+            document.getElementById("nodeColorPicker").value = color;
         this.canvasObj.draw();
     }
 
     async openInspector() {
         this.canvasObj.selectedNode = this;
-        document.getElementById("nodeInspector").hidden = false;
-        document.getElementById("nodeColorPicker").value = this.color;
-        document.getElementById("nodeNameText").value = this.title;
         const contentPopup = document.getElementById("node-content-bubble");
-        const contentTextArea = document.getElementById("node-content-text")
+        const contentTextArea = document.getElementById("node-content-text");
         if(!contentPopup) return;
+        if(this.canvasObj.user_type === "editor") {
+            document.getElementById("nodeInspector").hidden = false;
+            document.getElementById("nodeColorPicker").value = this.color;
+            document.getElementById("nodeNameText").value = this.title;
+            
+            const nodeRadiusInput = document.getElementById("nodeRadiusInput");
+            if(nodeRadiusInput) {
+                nodeRadiusInput.value = this.r;
+            }
+            
+            document.getElementById("node-content-image").value = null;
+            contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
+        } else {
+            contentTextArea.readOnly = true;
+            contentTextArea.placeholder = "No content..."
+            document.getElementById("node-content-image").hidden = true;
+            document.getElementById("node-content-image-label").hidden = true;
+            document.getElementById("node-content-header").firstChild.textContent = "";
+        }
+        this.refreshRelatedNodesList();
         contentTextArea.value = this.content;
-        contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
         const nodeImage = document.getElementById("node-image")
         document.querySelector(".node-content > div").style.backgroundColor = this.color;
         nodeImage.hidden = !this.image;
         nodeImage.src = this.image;
         document.getElementById("node-content-title").textContent = this.title;
-        document.getElementById("node-content-image").value = null;
-
-        this.refreshRelatedNodesList();
 
         await this.canvasObj.centerOnNode(this, 0.5);
         //this.nodraw = true;
@@ -99,18 +136,26 @@ export class Node {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
-        nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
-        document.getElementById("AddRelatedNode").disabled = true;
-        document.getElementById("RemoveRelatedNode").disabled = true;
-        for(let node of Object.values(this.canvasObj.nodes)) {
-            if(node === this) continue;
-            const newListItem = document.createElement("option");
-            newListItem.value = node.id;
-            newListItem.textContent = node.title;
-            nodeListDropdown.appendChild(newListItem);
+        if(this.canvasObj.user_type === "editor") {
+            nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
+            document.getElementById("AddRelatedNode").disabled = true;
+            document.getElementById("RemoveRelatedNode").disabled = true;
+            for(let node of Object.values(this.canvasObj.nodes)) {
+                if(node === this) continue;
+                const newListItem = document.createElement("option");
+                newListItem.value = node.id;
+                newListItem.textContent = node.title;
+                nodeListDropdown.appendChild(newListItem);
+            }
+            relatedNodesList.innerHTML = "";
         }
-        relatedNodesList.innerHTML = "";
         buttonList.innerHTML = "";
+        if(Object.values(this.relatedNodes).length == 0) {
+            const newParagraph = document.createElement("p");
+            newParagraph.textContent = "None";
+            buttonList.appendChild(newParagraph);
+            return;
+        }
         for(let node of Object.values(this.relatedNodes)) {
             const newListItem = document.createElement("li");
             const newRelatedButton = document.createElement("button");
@@ -120,25 +165,36 @@ export class Node {
             newRelatedButton.addEventListener("click", node.openInspector.bind(node))
             newListItem.textContent = node.title;
             buttonList.appendChild(newRelatedButton);
-            relatedNodesList.appendChild(newListItem);
+            if(this.canvasObj.user_type === "editor")
+                relatedNodesList.appendChild(newListItem);
         }
     }
 
-    drawNode() {
+    setRadius(r) 
+    {
+        this.r = r;
+
+        this.interaction.x = this.x - this.r;
+        this.interaction.y = this.y - this.r;
+        this.interaction.w = this.r * 2;
+        this.interaction.h = this.r * 2;
+        this.canvasObj.draw();
+    }
+
+    drawNode() 
+    {
         const textMargin = 0.25;
         let ctx = this.canvasObj.ctx;
         let titleTextSize = 12;
         ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
+        ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r, 0, 2*Math.PI);
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.stroke();
         ctx.fillStyle = "black";
         ctx.font = `${titleTextSize}px Arial`;
-        ctx.fillText(this.title, this.x - this.r*(1-textMargin), this.y, this.r * (2-textMargin*2));
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(this.title, this.x, this.y);
     }
+    
 }

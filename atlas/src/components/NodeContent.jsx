@@ -6,7 +6,7 @@ export default function NodeContent({title, content}) {
         <span hidden id="node-content-bubble" class="node-content">
             <span id="popup-bg" onClick={()=>{document.getElementById("node-content-bubble").hidden = true}}></span>
             <div>
-                <h1>Edit content for: <strong onClick={()=>{document.getElementById("nodeNameText").focus()}} id="node-content-title"></strong></h1>
+                <h1 id="node-content-header">Editing: <strong id="node-content-title"></strong></h1>
                 <textarea id="node-content-text" onChange={(e)=>{setContentText(e.target.value)}} name="nodeContentBox" rows="4" cols="35" placeholder="Enter node content..." value={contentText}></textarea>
                 <img id="node-image"></img>
                 <label id="node-content-image-label" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="node-content-image">Upload image</label>
