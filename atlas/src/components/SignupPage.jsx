@@ -9,7 +9,10 @@ function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
   const [error, setError] = useState('');
+  const [type, setType] = useState('student');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -32,7 +35,7 @@ function SignupPage() {
       setMessage('');
       setLoading(true);
       
-      const { data, error } = await signUp(email, password);
+      const { data, error } = await signUp(email, password, first, last, type);
       
       if (error) throw error;
       
@@ -41,7 +44,7 @@ function SignupPage() {
         setMessage('Check your email to confirm your account!');
       } else {
         setMessage('Account created! Redirecting to login...');
-        setTimeout(() => navigate('/singin'), 2000);
+        setTimeout(() => navigate('/signin'), 2000);
       }
     } catch (error) {
       setError(error.message || 'Failed to create account');
@@ -77,6 +80,30 @@ function SignupPage() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="block font-semibold text-gray-700">First Name</label>
+                <input
+                  type="first"
+                  value={first}
+                  onChange={(e) => setFirst(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="John"
+                  className="w-full h-10 bg-gray-100 rounded border-2 border-dashed border-gray-300 px-3 outline-none disabled:opacity-50"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block font-semibold text-gray-700">Last Name</label>
+                <input
+                  type="last"
+                  value={last}
+                  onChange={(e) => setLast(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Doe"
+                  className="w-full h-10 bg-gray-100 rounded border-2 border-dashed border-gray-300 px-3 outline-none disabled:opacity-50"
+                />
+              </div>
               {/* Email Field */}
               <div className="space-y-2">
                 <label className="block font-semibold text-gray-700">Email</label>
@@ -118,6 +145,42 @@ function SignupPage() {
                   className="w-full h-10 bg-gray-100 rounded border-2 border-dashed border-gray-300 px-3 outline-none disabled:opacity-50"
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="block font-semibold text-gray-700">Account Type</label>
+
+                <div className="flex items-center space-x-6">
+
+                  {/* Student (default) */}
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="accountType"
+                      value="student"
+                      checked={type === "student"}
+                      onChange={(e) => setType(e.target.value)}
+                      disabled={loading}
+                      className="h-4 w-4 text-blue-600"
+                    />
+                    <span className="text-gray-700">Student</span>
+                  </label>
+
+                  {/* Teacher */}
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="accountType"
+                      value="teacher"
+                      checked={type === "teacher"}
+                      onChange={(e) => setType(e.target.value)}
+                      disabled={loading}
+                      className="h-4 w-4 text-blue-600"
+                    />
+                    <span className="text-gray-700">Teacher</span>
+                  </label>
+                </div>
+              </div>
+
 
               {/* Submit Button */}
               <button

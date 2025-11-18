@@ -31,18 +31,41 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email, password) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
-  return { data, error };
-};
+  const signUp = async (email, password, first, last, type) => {
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password
+    });
+  
+    if (authError) return { data: null, error: authError };
+  
+    const user = authData.user;
+    if (!user) return { data: null, error: new Error("No auth user returned")};
+  
+    const typeBool = type === "teacher";
+  
+    const { data: insertData, error: insertError } = await supabase
+      .from("user")
+      .insert([
+        {
+          auth_id: user.id,
+          email: email,
+          first_name: first,
+          last_name: last,
+          plan_ids: null, 
+          type: typeBool
+        }
+      ])
+      .select();
+  
+    return { data: insertData, error: insertError };
+  };
+  
 
 const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
+    password
   });
   return { data, error };
 };
@@ -51,6 +74,7 @@ const signOut = async () => {
   const { error } = await supabase.auth.signOut();
   return { error };
 };
+
 
 const resetPassword = async (email) => {
   const { data, error } = await supabase.auth.resetPasswordWithEmail(email, {
