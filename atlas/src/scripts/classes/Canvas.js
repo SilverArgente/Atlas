@@ -1,8 +1,6 @@
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
 import { Node } from "./Node";
 
-// Global canvas/sandbox display
-
 export class Canvas {
 
     constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type) {

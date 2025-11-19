@@ -7,7 +7,28 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 export default function Sandbox() {
+    const { createPlan } = useAuth();
 
+    const handleExport = async () => {
+        const jsonData = canvasObject.export(true);
+    
+        console.log("Exported JSON:", jsonData.files[0]);
+    
+        const blob = jsonData.files[0];
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+    
+        const { data, error } = await createPlan(parsed);
+    
+        if (error) {
+            console.error("Error saving plan:", error);
+        } else {
+            console.log("Plan saved successfully:", data);
+        }
+    };
+    
+    
+    
     const canvas_ref = useRef(null);
     let [canvasObject, setCanvasObject] = React.useState(null);
     const loadedFile = useCallback(()=>{});
@@ -35,7 +56,8 @@ export default function Sandbox() {
 
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Export</button>
+                <button id="addEdgeButton" onClick={handleExport}>Export</button>
+                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Save To File</button>
                 <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
                     Restart Simulation
                 </button>

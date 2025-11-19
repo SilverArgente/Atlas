@@ -31,18 +31,51 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email, password) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  const signUp = async (email, password, first, last) => {
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password
+    });
+  
+    if (authError) return { data: null, error: authError };
+  
+    const user = authData.user;
+    if (!user) return { data: null, error: new Error("No auth user returned")};
+  
+  
+    const { data: insertData, error: insertError } = await supabase
+      .from("user")
+      .insert([
+        {
+          auth_id: user.id,
+          email: email,
+          first_name: first,
+          last_name: last
+        }
+      ])
+      .select();
+  
+    return { data: insertData, error: insertError };
+  };
+
+const createPlan = async (json) => {
+
+  const { data, error } = await supabase
+    .from("plan")
+    .insert([
+      {
+        data: json,
+      }
+    ])
+    .select();
+
   return { data, error };
 };
 
 const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
+    password
   });
   return { data, error };
 };
@@ -51,6 +84,7 @@ const signOut = async () => {
   const { error } = await supabase.auth.signOut();
   return { error };
 };
+
 
 const resetPassword = async (email) => {
   const { data, error } = await supabase.auth.resetPasswordWithEmail(email, {
@@ -65,6 +99,7 @@ const resetPassword = async (email) => {
     signIn,
     signOut,
     resetPassword,
+    createPlan
   };
   return (
     <AuthContext.Provider value={value}>
