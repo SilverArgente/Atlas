@@ -36,6 +36,8 @@ export class Canvas {
             this._boundHandleImageChange = this.handleImageChange.bind(this);
             this._boundaddRelatedNode = this.addRelatedNode.bind(this);
             this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
+            this._boundChangeSelectedNodeRadius = this.changeSelectedNodeRadius.bind(this);
+
         }
         this._boundHandleMouseMove = this.handleMouseMove.bind(this); 
         this.handleCanvasZoom = (e) => {
@@ -178,7 +180,7 @@ export class Canvas {
         for(let interactable of this.interactables) {
             interactable.activateEventListeners();
         }
- 
+    
 
         
         if(this.user_type === "editor") {
@@ -187,8 +189,19 @@ export class Canvas {
             });
             document.getElementById("nodeColorPicker").removeEventListener("input", this.boundChangeSelectedNodeColor)
             document.getElementById("nodeNameText").removeEventListener("input", this.boundChangeSelectedNodeName)
+            
+            const nodeRadiusInput = document.getElementById("nodeRadiusInput");
+            if(nodeRadiusInput) {
+                nodeRadiusInput.removeEventListener("input", this._boundChangeSelectedNodeRadius);
+            }
+            
             document.getElementById("nodeColorPicker").addEventListener("input", this.boundChangeSelectedNodeColor)
             document.getElementById("nodeNameText").addEventListener("input", this.boundChangeSelectedNodeName)
+            
+            if(nodeRadiusInput) {
+                nodeRadiusInput.addEventListener("input", this._boundChangeSelectedNodeRadius);
+            }
+            
             document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
             document.getElementById("node-content-title").addEventListener("click", ()=>{document.getElementById("nodeNameText").focus()})
             document.getElementById("relatedNodeSelector").addEventListener("change", ((e)=>{
@@ -265,6 +278,15 @@ export class Canvas {
         if(!this.selectedNode) return;
         this.selectedNode.setImage(document.getElementById("node-image").src);
     }
+
+    changeSelectedNodeRadius(e) {
+        if(!this.selectedNode) return;
+        const newRadius = parseFloat(e.currentTarget.value);
+        if(newRadius > 0) {
+            this.selectedNode.setRadius(newRadius);
+        }
+    }
+
 
     handleImageChange(e) {
         const file = e.target.files[0];
