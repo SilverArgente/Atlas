@@ -107,7 +107,7 @@ export default function Sandbox() {
                     <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
                     <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
                         <ul id="prereqLayerList">
-
+                            {canvasObject ? <li>{canvasObject.selectedNode?.layer.name}</li> : "None"}
                         </ul>
                     </div>
                 </div>
@@ -116,7 +116,7 @@ export default function Sandbox() {
                     <label for="LayerList">Layers: </label>
                     <div title='Layers in this project.' style={{border: "solid thin black"}}>
                         <ul>
-                            {canvasObject ? layers?.map(layer => <li>{layer}</li>) : ""}
+                            {canvasObject ? layers?.map(layer => <li>{layer}</li>) : "None"}
                         </ul>
                 </div>
             </div>

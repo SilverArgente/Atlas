@@ -19,7 +19,7 @@ export class Node {
         this.visited = false;
         this.locked = false;
         this.relatedNodes = {};
-        
+        this.layer = canvasObj.layers["Global"];
     }
 
     setRadius(r) {

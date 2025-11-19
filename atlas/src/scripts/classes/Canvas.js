@@ -455,11 +455,12 @@ export class Canvas {
         if(!this.layers[layer])
             this.layers[layer] = new NodeLayer(layer);
         this.layers[layer].addPrereq(prereqLayer);
-        this.layer[prereqLayer].addTarget(layer);
+        this.layers[prereqLayer].addTarget(layer);
     }
 
     newLayer(){
         const name = prompt("Enter layer name:")
+        if(!name) return;
         this.layers[name] = new NodeLayer(name);
         console.log(`Created node layer ${this.layers[name]}`);
     }
