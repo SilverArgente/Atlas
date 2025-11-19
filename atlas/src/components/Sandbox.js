@@ -7,11 +7,19 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
 export default function Sandbox() {
-    const { createPlan } = useAuth();
+    const { createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
 
     const handleExport = async () => {
         const jsonData = canvasObject.export(true);
-    
+
+        const userRow = await getUserRecord();
+        if (!userRow) {
+            console.error("Could not fetch user row.");
+            return;
+        } else {
+            console.log("Fetched user id:", userRow.id);
+        }
+
         console.log("Exported JSON:", jsonData.files[0]);
     
         const blob = jsonData.files[0];
@@ -24,6 +32,16 @@ export default function Sandbox() {
             console.error("Error saving plan:", error);
         } else {
             console.log("Plan saved successfully:", data);
+        }
+
+        const planID = await getPlanID();
+        console.log("Fetched plan ID:", planID.id);
+
+        const { data2, error2 } = await createRelationship(userRow.id, planID.id, true);
+        if (error2) {
+            console.error("Error saving relationship:", error2);
+        } else {
+            console.log("Relationship saved successfully:", data2);
         }
     };
     

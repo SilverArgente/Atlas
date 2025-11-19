@@ -72,6 +72,65 @@ const createPlan = async (json) => {
   return { data, error };
 };
 
+const getUserRecord = async () => {
+  const { data: authData } = await supabase.auth.getUser();
+
+  if (!authData?.user) return null;
+
+  const authId = authData.user.id;
+
+  const { data, error } = await supabase
+      .from('user')
+      .select('*')
+      .eq('auth_id', authId)
+      .single();
+
+  if (error) {
+      console.error("Error fetching user row:", error);
+      return null;
+  }
+
+  return data;
+};
+
+const getPlanID = async () => {
+
+  const { data, error } = await supabase
+    .from('plan')
+    .select('id')
+    .order('id', { ascending: false })
+    .limit(1)
+    .single();
+
+
+  if (error) {
+      console.error("Error fetching plan:", error);
+      return null;
+  }
+
+  return data;
+};
+
+const createRelationship = async (user, plan, role) => {
+
+  
+const { data, error } = await supabase
+  .from('relationship')
+  .insert([
+    { user: user, plan: plan, relationship: role },
+  ])
+  .select()
+
+
+
+  if (error) {
+      console.error("Error fetching plan:", error);
+      return null;
+  }
+
+  return data;
+};
+
 const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -99,7 +158,10 @@ const resetPassword = async (email) => {
     signIn,
     signOut,
     resetPassword,
-    createPlan
+    createPlan,
+    getUserRecord,
+    getPlanID,
+    createRelationship
   };
   return (
     <AuthContext.Provider value={value}>
