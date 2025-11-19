@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox.js';
@@ -13,6 +13,7 @@ export default function Sandbox() {
     const loadedFile = useCallback(()=>{});
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
+    const [layers, setLayers] = useState(["Global"]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
     const handleSignOut = async () => {
@@ -74,8 +75,7 @@ export default function Sandbox() {
 
                         </ul>
                     </div>
-
-                    <label title="The layer this node belongs to." for="layerNameText">Layer Name:</label>
+                    {/*<label title="The layer this node belongs to." for="layerNameText">Layer Name:</label>
                     <input 
                         title="The layer this node belongs to." 
                         type="text" 
@@ -90,20 +90,33 @@ export default function Sandbox() {
                             }
                             document.getElementById("AddPrereqNode").value = e.currentTarget.value;
                             document.getElementById("RemovePrereqNode").value = e.currentTarget.value;
-                        }}></input>
-
-                    <select id="prereqNodeSelector">
-                        <option id='default'>Select a Node.</option>
+                        }}></input>*/}
+                    <br></br>
+                    <label for="layerSelector">Layer: </label>
+                    <select title="This node's layer" id="layerSelector">
+                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
                     </select>
-                    <button id="AddPrereqNode" onClick={canvasObject.addPrereq.bind(canvasObject)}>Add</button>
+                    <br></br>
+                    <label for="prereqLayerSelector">Prerequisite Layers:</label> <br/>
+                    <select title="This node's layer" id="prereqLayerSelector">
+                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
+                    </select>
+                    <button id="AddPrereqLayer" onClick={canvasObject?.addPrereq.bind(canvasObject)}>Add</button>
                     <button id="RemovePrereqNode">Remove</button> <br/>
-                    <label title='Nodes to be opened before accessing this one.' for="prereqNodesList">Prerequisite Nodes:</label> <br/>
-                    <div title='Nodes to be opened before accessing this one.' style={{border: "solid thin black"}}>
-                        <ul id="prereqNodesList">
+                    <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
+                    <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
+                        <ul id="prereqLayerList">
 
                         </ul>
                     </div>
-
+                </div>
+                <br></br>
+                    <button id="addLayerButton" onClick={()=>{canvasObject?.newLayer(); setLayers(Object.keys(canvasObject?.layers))}}>Add Layer</button> <br></br>
+                    <label for="LayerList">Layers: </label>
+                    <div title='Layers in this project.' style={{border: "solid thin black"}}>
+                        <ul>
+                            {canvasObject ? layers?.map(layer => <li>{layer}</li>) : ""}
+                        </ul>
                 </div>
             </div>
         )
@@ -156,6 +169,11 @@ export default function Sandbox() {
 
 
     const toolbarType = (user_type === "editor") ? EditorContents() : ViewerContents();
+
+
+    useEffect(()=>{
+
+    }, [])
 
     return (
         <div>

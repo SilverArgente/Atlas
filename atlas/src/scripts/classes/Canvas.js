@@ -26,7 +26,7 @@ export class Canvas {
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = {};
         this.lines = {};
-        this.layers = {};
+        this.layers = {"Global": new NodeLayer("Global")};
         this.selectedNode = undefined;
         this.user_type = user_type;
         if(user_type === "editor") {
@@ -429,9 +429,17 @@ export class Canvas {
 
     addPrereq(e) {
         const layer = e.currentTarget.value;
+        const prereqLayer = document.getElementById("prereqLayerSelector").value;
         if(!this.layers[layer])
             this.layers[layer] = new NodeLayer(layer);
-        this.layers[layer].addPrereq(document.getElementById("prereqNodeSelector").value);
+        this.layers[layer].addPrereq(prereqLayer);
+        this.layer[prereqLayer].addTarget(layer);
+    }
+
+    newLayer(){
+        const name = prompt("Enter layer name:")
+        this.layers[name] = new NodeLayer(name);
+        console.log(`Created node layer ${this.layers[name]}`);
     }
 
     export(localExport = false) {
