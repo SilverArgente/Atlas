@@ -12,7 +12,7 @@ export class Node {
         this.id = text; // Not really an ID. but just its initial name, which... might be unique... TODO: replace with proper ID system.
         this.content = content;
         this.color = "cornflowerblue";
-        this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2);
+        this.interaction = new CanvasInteractable2D(canvasObj, this.x-this.r, this.y-this.r, this.r*2, this.r*2, this);
         this.interaction.addClickListener(this.openInspector.bind(this));
         this.image = null;
         this.nodraw = false;
@@ -139,7 +139,7 @@ export class Node {
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
         if(this.canvasObj.user_type === "editor") {
-            nodeListDropdown.innerHTML = "<option id='default'>Select a Node.</option>";
+            nodeListDropdown.innerHTML = "<option disabled id='default'>Select a Node.</option>"; // Future note (11/19/2025), this was dumb
             document.getElementById("AddRelatedNode").disabled = true;
             document.getElementById("RemoveRelatedNode").disabled = true;
             for(let node of Object.values(this.canvasObj.nodes)) {
@@ -186,13 +186,14 @@ export class Node {
     drawNode() 
     {
         const textMargin = 0.25;
+        const disabledColor = "rgba(128,128,128,0.4)";
         let ctx = this.canvasObj.ctx;
         let titleTextSize = 12;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
-        ctx.fillStyle = this.color;
+        ctx.fillStyle = (this.disabled) ? disabledColor : this.color;
         ctx.fill();
-        ctx.fillStyle = "black";
+        ctx.fillStyle = (this.disabled) ? "gray" : "black";
         ctx.font = `${titleTextSize}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";

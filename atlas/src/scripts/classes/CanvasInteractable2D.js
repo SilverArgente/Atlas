@@ -3,14 +3,14 @@
 */
 
 export class CanvasInteractable2D {
-    constructor(canvasObject, x, y, w, h, name=null) {
+    constructor(canvasObject, x, y, w, h, owner) {
         this.canvasObject = canvasObject;
         this._listeners = [];
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
-        this.disabled = false;
+        this.owner = owner;
         canvasObject.interactables.push(this);
     }
 
@@ -28,7 +28,10 @@ export class CanvasInteractable2D {
     }
 
     clickCallback(callback) {
-        if(this.disabled) return;
+        if(this.owner.disabled) {
+            alert("This node is disabled, the prerequisite nodes must be visited first!");
+            return;
+        }
         if(this.canvasObject.mousepos_world_x < this.x || 
             this.canvasObject.mousepos_world_x > this.x + this.w || 
             this.canvasObject.mousepos_world_y < this.y || 

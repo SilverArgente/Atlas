@@ -119,11 +119,12 @@ export class Canvas {
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
         this.drawWireframe();
         // Draw all lines
+        const disabledLine = "rgba(128,128,128,0.4)";
         for(let node of Object.values(this.lines)) {
             for(let line of Object.values(node)) {
                 const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
-                gradient.addColorStop(0, line.node1.color);
-                gradient.addColorStop(1, line.node2.color);
+                gradient.addColorStop(0, (line.node1.disabled) ? disabledLine : line.node1.color);
+                gradient.addColorStop(1, (line.node2.disabled) ? disabledLine : line.node2.color);
                 this.ctx.beginPath();
                 this.ctx.moveTo(line.node1.x, line.node1.y);
                 this.ctx.lineTo(line.node2.x, line.node2.y);
@@ -449,13 +450,20 @@ export class Canvas {
         return maxForce < tol;
     }
 
-    addPrereq(e) {
-        const layer = e.currentTarget.value;
+    addPrereq() {
+        if(!this.selectedNode) return;
+        const layer = this.selectedNode.layer.name;
         const prereqLayer = document.getElementById("prereqLayerSelector").value;
         if(!this.layers[layer])
             this.layers[layer] = new NodeLayer(layer);
-        this.layers[layer].addPrereq(prereqLayer);
-        this.layers[prereqLayer].addTarget(layer);
+        this.layers[layer].addPrereq(this.layers[prereqLayer]);
+        this.layers[prereqLayer].addTarget(this.layers[layer]);
+        console.log(`Added prereq ${prereqLayer} to ${layer}`);
+    }
+
+    SetLayer(e) {
+        if(!this.selectedNode) return;
+        this.selectedNode.layer = this.layers[e.currentTarget.value];
     }
 
     newLayer(){
