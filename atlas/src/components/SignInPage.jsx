@@ -27,7 +27,7 @@ function SignInPage() {
       if (data?.user) {
         console.log("Logged in user:", data.user);
         sessionStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/create");
+        navigate("/dashboard");
       }
 
     } catch (err) {
