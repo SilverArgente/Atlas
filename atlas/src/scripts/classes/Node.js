@@ -20,6 +20,7 @@ export class Node {
         this.locked = false;
         this.relatedNodes = {};
         this.layer = canvasObj.layers["Global"];
+        this.layer.addNode(this);
     }
 
     setRadius(r) {
@@ -97,6 +98,11 @@ export class Node {
     }
 
     async openInspector() {
+        if(this.disabled) {
+            alert("This node is disabled, the prerequisite nodes must be visited first!");
+            return;
+        }
+        this.visited = true;
         this.canvasObj.selectedNode = this;
         const contentPopup = document.getElementById("node-content-bubble");
         const contentTextArea = document.getElementById("node-content-text");
@@ -113,6 +119,20 @@ export class Node {
             
             document.getElementById("node-content-image").value = null;
             contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
+
+            const layerSelector = document.getElementById("layerSelector");
+            layerSelector.options[layerSelector.selectedIndex].selected = false;
+            for(let layerOption of layerSelector.options) {
+                if(layerOption.value === this.layer.name) {
+                    layerOption.selected = true;
+                    break;
+                }
+            }
+            document.getElementById("prereqLayerSelector").selectedIndex = 0;
+
+            this.canvasObj.sharedCallbacks.setPrereqLayers(Object.keys(this.layer.prereqs))
+            //this.refreshPrerequisiteNodesList(); // May need to be moved out of here.
+
         } else {
             contentTextArea.readOnly = true;
             contentTextArea.placeholder = "No content..."
@@ -134,6 +154,16 @@ export class Node {
         this.canvasObj.draw()
     }
 
+    refreshPrerequisiteNodesList() {
+        const list = document.getElementById("prereqLayerList");
+        list.innerHTML = "";
+        for(let prereq in Object.values(this.layer.prereqs)) {
+            const newListItem = document.createElement("li");
+            newListItem.textContent = prereq.name;
+            list.appendChild(newListItem);
+        }
+    }
+
     refreshRelatedNodesList() {
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
@@ -150,6 +180,7 @@ export class Node {
                 nodeListDropdown.appendChild(newListItem);
             }
             relatedNodesList.innerHTML = "";
+            nodeListDropdown.selectedIndex = 0;
         }
         buttonList.innerHTML = "";
         if(Object.values(this.relatedNodes).length == 0) {
@@ -185,6 +216,7 @@ export class Node {
 
     drawNode() 
     {
+        this.disabled = this.canvasObj.user_type === "viewer" && !this.layer.checkPrereqs(); // This should not be done on Draw, it should be done when the node states have changed. (how to detect that, i dont know yet.)
         const textMargin = 0.25;
         const disabledColor = "rgba(128,128,128,0.4)";
         let ctx = this.canvasObj.ctx;
@@ -199,5 +231,5 @@ export class Node {
         ctx.textBaseline = "middle";
         ctx.fillText(this.title, this.x, this.y);
     }
-    
+
 }

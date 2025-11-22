@@ -17,6 +17,11 @@ export default function Sandbox() {
     const [prereqLayers, setPrereqLayers] = useState([]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
+    const sharedCallbacks = {
+        setPrereqLayers,
+        setLayers,
+        //setRelatedNodes,
+    }
     const handleSignOut = async () => {
         const { error } = await signOut();
         if (error) {
@@ -28,7 +33,7 @@ export default function Sandbox() {
     useEffect(() => {
 
         const canvas = canvas_ref.current;
-        setCanvasObject(initializeCanvas(canvas, user_type));
+        setCanvasObject(initializeCanvas(canvas, user_type, sharedCallbacks));
     }, [])
     function EditorContents(){
         return(
@@ -74,7 +79,7 @@ export default function Sandbox() {
                     <label htmlFor="relatedNodesList">Related Nodes:</label> <br/>
                     <div style={{border: "solid thin black"}}>
                         <ul id="relatedNodesList">
-
+                            
                         </ul>
                     </div>
                     {/*<label title="The layer this node belongs to." for="layerNameText">Layer Name:</label>

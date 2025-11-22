@@ -6,10 +6,11 @@ import { NodeLayer } from "./NodeLayer";
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type) {
+    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type, sharedCallbacks) {
         
         this.canvas = canvas;
-        this.ctx = canvas.getContext("2d");;
+        this.ctx = canvas.getContext("2d");
+        this.sharedCallbacks = sharedCallbacks;
 
         this.mousepos_x = 0;
         this.mousepos_y = 0;
@@ -457,13 +458,16 @@ export class Canvas {
         if(!this.layers[layer])
             this.layers[layer] = new NodeLayer(layer);
         this.layers[layer].addPrereq(this.layers[prereqLayer]);
-        this.layers[prereqLayer].addTarget(this.layers[layer]);
+        //this.layers[prereqLayer].addTarget(this.layers[layer]);
         console.log(`Added prereq ${prereqLayer} to ${layer}`);
     }
 
     SetLayer(e) {
         if(!this.selectedNode) return;
+        this.selectedNode.layer.removeNode(this.selectedNode);
         this.selectedNode.layer = this.layers[e.currentTarget.value];
+        this.selectedNode.layer.addNode(this.selectedNode);
+        this.sharedCallbacks.setPrereqLayers(Object.keys(this.selectedNode.layer.prereqs));
     }
 
     newLayer(){
@@ -476,8 +480,10 @@ export class Canvas {
     export(localExport = false) {
         let saveData = {
             nodes: [],
-            edges: []
+            edges: [],
+            layers: []
         };
+
         for(let node of Object.values(this.nodes)) {
             saveData.nodes.push({
                 x: node.x,
@@ -488,13 +494,24 @@ export class Canvas {
                 content: node.content,
                 color: node.color,
                 image: node.image,
+                //layer: node.layer,
                 relatedNodes: Object.keys(node.relatedNodes)
             });
         }
+
         let edges = this.getEdges();
         for(let edge of edges) {
             saveData.edges.push({node1: edge.node1.id, node2: edge.node2.id});
         }
+
+        for(let layer of Object.values(this.layers)) {
+            saveData.layers.push({
+                nodes: Object.keys(layer.nodes),
+                prereqs: Object.keys(layer.prereqs),
+                name: layer.name
+            });
+        }
+
         let jsonData = JSON.stringify(saveData, null);
         for(let node of Object.values(this.nodes)) {
            node.canvasObj = this;
@@ -538,6 +555,7 @@ export class Canvas {
         }
         this.nodes = {};
         this.lines = {};
+        this.layers = {"Global": new NodeLayer("Global")};
         this.interactables = [];
         const selectedFile = input.files[0];
         if(!selectedFile) {
@@ -561,16 +579,30 @@ export class Canvas {
                     //newNode.y = node.y;
                     newNode.r = node.r;
                 }
+
+                // Layers
+                for(let layer of data.layers) {
+                    if(!this.layers[layer.name])
+                        this.layers[layer.name] = new NodeLayer(layer.name);
+                    for(let nodeName of layer.nodes) {
+                        this.nodes[nodeName].layer.removeNode(nodeName);
+                        this.layers[layer.name].addNode(this.nodes[nodeName]);
+                        this.nodes[nodeName].layer = this.layers[layer.name];
+                    }
+                    for(let prereqName of layer.prereqs) {
+                        if(!this.layers[prereqName])
+                            this.layers[prereqName] = new NodeLayer(prereqName);
+                        this.layers[layer.name].addPrereq(this.layers[prereqName]);
+                    }
+                }
+                this.sharedCallbacks.setLayers(Object.keys(this.layers));
+
                 // Set related node lists
                 for(let node of data.nodes) {
                     for(let relatedNodeId of node.relatedNodes) {
                         this.addRelatedNode(this.nodes[node.id], relatedNodeId);
                     }
                 }
-                // Fill edges
-                /*for(let edge of data.edges) {
-                    this.lines[edge.node1][edge.node2] = 
-                }*/
             } catch(e) {
                 console.error("FAILED TO IMPORT FILE!", e);
             }

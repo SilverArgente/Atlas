@@ -28,10 +28,7 @@ export class CanvasInteractable2D {
     }
 
     clickCallback(callback) {
-        if(this.owner.disabled) {
-            alert("This node is disabled, the prerequisite nodes must be visited first!");
-            return;
-        }
+        
         if(this.canvasObject.mousepos_world_x < this.x || 
             this.canvasObject.mousepos_world_x > this.x + this.w || 
             this.canvasObject.mousepos_world_y < this.y || 

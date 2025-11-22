@@ -14,10 +14,7 @@ export class NodeLayer {
     constructor(name, nodes = {}, prereqs = {}, targets = {}) {
         this.name = name;
         this.prereqs = prereqs;
-        this.targets = targets;
         this.nodes = nodes;
-        //this.prereqsSatisfied = false;
-        //this.complete = false;
     }
 
     addPrereq(nodeLayer) {
@@ -36,23 +33,12 @@ export class NodeLayer {
         delete this.nodes[nodeID];
     }
 
-    addTarget(nodeLayer) {
-        this.targets[nodeLayer.name] = nodeLayer;
-    }
-
-    removeTarget(nodeLayer) {
-        delete this.targets[nodeLayer.name];
-    }
-
-    unlock() {
-        for(let target in this.targets)
-            target.locked = false;
-    }
-
     checkPrereqs() {
-        for(let prereq in this.prereqs) {
-            if(!prereq.visited) 
-                return false;
+        for(let prereqLayer of Object.values(this.prereqs)) {
+            for(let prereq of Object.values(prereqLayer.nodes)) {
+                if(!prereq.visited) 
+                    return false;
+            }
         }
         return true;
     }
