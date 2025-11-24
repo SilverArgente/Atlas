@@ -1,12 +1,14 @@
 import { CanvasInteractable2D } from "./CanvasInteractable2D";
 import { Node } from "./Node";
+import { NodeLayer } from "./NodeLayer";
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type) {
+    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type, sharedCallbacks) {
         
         this.canvas = canvas;
-        this.ctx = canvas.getContext("2d");;
+        this.ctx = canvas.getContext("2d");
+        this.sharedCallbacks = sharedCallbacks;
 
         this.mousepos_x = 0;
         this.mousepos_y = 0;
@@ -23,6 +25,7 @@ export class Canvas {
         this.interactables = []; // List of CanvasInteractables2Ds
         this.nodes = {};
         this.lines = {};
+        this.layers = {"Global": new NodeLayer("Global")};
         this.selectedNode = undefined;
         this.user_type = user_type;
         if(user_type === "editor") {
@@ -115,11 +118,12 @@ export class Canvas {
         this.ctx.setTransform(this.scale_factor, 0, 0, this.scale_factor, this.x_offset, this.y_offset);
         this.drawWireframe();
         // Draw all lines
+        const disabledLine = "rgba(128,128,128,0.4)";
         for(let node of Object.values(this.lines)) {
             for(let line of Object.values(node)) {
                 const gradient = this.ctx.createLinearGradient(line.node1.x, line.node1.y, line.node2.x, line.node2.y);
-                gradient.addColorStop(0, line.node1.color);
-                gradient.addColorStop(1, line.node2.color);
+                gradient.addColorStop(0, (line.node1.disabled) ? disabledLine : line.node1.color);
+                gradient.addColorStop(1, (line.node2.disabled) ? disabledLine : line.node2.color);
                 this.ctx.beginPath();
                 this.ctx.moveTo(line.node1.x, line.node1.y);
                 this.ctx.lineTo(line.node2.x, line.node2.y);
@@ -445,11 +449,56 @@ export class Canvas {
         return maxForce < tol;
     }
 
+    PrerequisiteValidation() {
+        for(let layer in Object.values(this.layers)) {
+            if(layer.prereqs && Object.keys(layer.prereqs).length == 0) return;
+        }
+        alert("Warning: Your map has no root nodes without prerequisites. Viewers will not be able to view any of the nodes. Make sure that root nodes have no prerequisites to avoid this.");
+    }
+
+    addPrereq() {
+        if(!this.selectedNode) return;
+        const layer = this.selectedNode.layer.name;
+        const prereqLayer = document.getElementById("prereqLayerSelector").value;
+        if(!this.layers[layer])
+            this.layers[layer] = new NodeLayer(layer);
+        this.layers[layer].addPrereq(this.layers[prereqLayer]);
+        //this.layers[prereqLayer].addTarget(this.layers[layer]);
+        console.log(`Added prereq ${prereqLayer} to ${layer}`);
+        this.PrerequisiteValidation();
+    }
+
+    removePrereq() {
+        if(!this.selectedNode) return;
+        const layer = this.selectedNode.layer.name;
+        const prereqLayer = document.getElementById("prereqLayerSelector").value;
+        if(!this.layers[layer]) return;
+        this.layers[layer].removePrereq(this.layers[prereqLayer]);
+        console.log(`Removed prereq ${prereqLayer} to ${layer}`);
+    }
+
+    SetLayer(e) {
+        if(!this.selectedNode) return;
+        this.selectedNode.layer.removeNode(this.selectedNode);
+        this.selectedNode.layer = this.layers[e.currentTarget.value];
+        this.selectedNode.layer.addNode(this.selectedNode);
+        this.sharedCallbacks.setPrereqLayers(Object.keys(this.selectedNode.layer.prereqs));
+    }
+
+    newLayer(){
+        const name = prompt("Enter layer name:")
+        if(!name) return;
+        this.layers[name] = new NodeLayer(name);
+        console.log(`Created node layer ${this.layers[name]}`);
+    }
+
     export(localExport = false) {
         let saveData = {
             nodes: [],
-            edges: []
+            edges: [],
+            layers: []
         };
+
         for(let node of Object.values(this.nodes)) {
             saveData.nodes.push({
                 x: node.x,
@@ -460,13 +509,24 @@ export class Canvas {
                 content: node.content,
                 color: node.color,
                 image: node.image,
+                //layer: node.layer,
                 relatedNodes: Object.keys(node.relatedNodes)
             });
         }
+
         let edges = this.getEdges();
         for(let edge of edges) {
             saveData.edges.push({node1: edge.node1.id, node2: edge.node2.id});
         }
+
+        for(let layer of Object.values(this.layers)) {
+            saveData.layers.push({
+                nodes: Object.keys(layer.nodes),
+                prereqs: Object.keys(layer.prereqs),
+                name: layer.name
+            });
+        }
+
         let jsonData = JSON.stringify(saveData, null);
         for(let node of Object.values(this.nodes)) {
            node.canvasObj = this;
@@ -510,6 +570,7 @@ export class Canvas {
         }
         this.nodes = {};
         this.lines = {};
+        this.layers = {"Global": new NodeLayer("Global")};
         this.interactables = [];
         const selectedFile = input.files[0];
         if(!selectedFile) {
@@ -533,16 +594,30 @@ export class Canvas {
                     //newNode.y = node.y;
                     newNode.r = node.r;
                 }
+
+                // Layers
+                for(let layer of data.layers) {
+                    if(!this.layers[layer.name])
+                        this.layers[layer.name] = new NodeLayer(layer.name);
+                    for(let nodeName of layer.nodes) {
+                        this.nodes[nodeName].layer.removeNode(nodeName);
+                        this.layers[layer.name].addNode(this.nodes[nodeName]);
+                        this.nodes[nodeName].layer = this.layers[layer.name];
+                    }
+                    for(let prereqName of layer.prereqs) {
+                        if(!this.layers[prereqName])
+                            this.layers[prereqName] = new NodeLayer(prereqName);
+                        this.layers[layer.name].addPrereq(this.layers[prereqName]);
+                    }
+                }
+                this.sharedCallbacks.setLayers(Object.keys(this.layers));
+
                 // Set related node lists
                 for(let node of data.nodes) {
                     for(let relatedNodeId of node.relatedNodes) {
                         this.addRelatedNode(this.nodes[node.id], relatedNodeId);
                     }
                 }
-                // Fill edges
-                /*for(let edge of data.edges) {
-                    this.lines[edge.node1][edge.node2] = 
-                }*/
             } catch(e) {
                 console.error("FAILED TO IMPORT FILE!", e);
             }
