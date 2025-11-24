@@ -451,6 +451,13 @@ export class Canvas {
         return maxForce < tol;
     }
 
+    PrerequisiteValidation() {
+        for(let layer in Object.values(this.layers)) {
+            if(layer.prereqs && Object.keys(layer.prereqs).length == 0) return;
+        }
+        alert("Warning: Your map has no root nodes without prerequisites. Viewers will not be able to view any of the nodes. Make sure that root nodes have no prerequisites to avoid this.");
+    }
+
     addPrereq() {
         if(!this.selectedNode) return;
         const layer = this.selectedNode.layer.name;
@@ -460,6 +467,7 @@ export class Canvas {
         this.layers[layer].addPrereq(this.layers[prereqLayer]);
         //this.layers[prereqLayer].addTarget(this.layers[layer]);
         console.log(`Added prereq ${prereqLayer} to ${layer}`);
+        this.PrerequisiteValidation();
     }
 
     removePrereq() {
