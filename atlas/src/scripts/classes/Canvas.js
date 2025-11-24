@@ -462,6 +462,15 @@ export class Canvas {
         console.log(`Added prereq ${prereqLayer} to ${layer}`);
     }
 
+    removePrereq() {
+        if(!this.selectedNode) return;
+        const layer = this.selectedNode.layer.name;
+        const prereqLayer = document.getElementById("prereqLayerSelector").value;
+        if(!this.layers[layer]) return;
+        this.layers[layer].removePrereq(this.layers[prereqLayer]);
+        console.log(`Removed prereq ${prereqLayer} to ${layer}`);
+    }
+
     SetLayer(e) {
         if(!this.selectedNode) return;
         this.selectedNode.layer.removeNode(this.selectedNode);

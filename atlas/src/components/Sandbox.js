@@ -82,22 +82,6 @@ export default function Sandbox() {
                             
                         </ul>
                     </div>
-                    {/*<label title="The layer this node belongs to." for="layerNameText">Layer Name:</label>
-                    <input 
-                        title="The layer this node belongs to." 
-                        type="text" 
-                        id="layerNameText" 
-                        placeholder='Enter Layer Name' 
-                        defaultValue={"Global"}
-                        onChange={(e)=>{
-                            if(e.currentTarget.value === "") {
-                                e.currentTarget.value = "Global"; // field sanitization >>> field validation
-                                //document.getElementById("AddPrereqNode").disabled = true;
-                                //document.getElementById("RemovePrereqNode").disabled = true;
-                            }
-                            document.getElementById("AddPrereqNode").value = e.currentTarget.value;
-                            document.getElementById("RemovePrereqNode").value = e.currentTarget.value;
-                        }}></input>*/}
                     <br></br>
                     <label for="layerSelector">Layer: </label>
                     <select title="This node's layer" id="layerSelector" onChange={(e)=>{canvasObject.SetLayer(e)}}>
@@ -118,7 +102,7 @@ export default function Sandbox() {
                         onClick={(e)=>{canvasObject?.addPrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Add</button>
                     <button 
                         id="RemovePrereqLayer" 
-                        onClick={()=>{alert("NOT IMPLEMENTED")}}>Remove</button> <br/>
+                        onClick={()=>{canvasObject?.removePrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Remove</button> <br/>
                     <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
                     <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
                         <ul id="prereqLayerList">
