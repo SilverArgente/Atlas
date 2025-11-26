@@ -445,7 +445,7 @@ export class Canvas {
         return maxForce < tol;
     }
 
-    export(localExport = false) {
+    export(localExport = false, fileName = 'myMap') {
         let saveData = {
             nodes: [],
             edges: []
@@ -476,7 +476,7 @@ export class Canvas {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'myData.json';
+        a.download = `${fileName}.json`;
         a.click();
     }
 

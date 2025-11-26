@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  
+  const { createPlan, getUserRecord } =  useAuth();
+
   // Mock data to show UI until backend is connected
-  const [myMaps] = useState([
+  const [myMaps, setMyMaps] = useState([
     {
       id: '1',
       title: 'CS100',
@@ -50,11 +52,37 @@ export default function Dashboard() {
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async() => {
       try {
-        const data = JSON.parse(reader.result);
+        const conceptMapData = JSON.parse(reader.result);
         // Import: needs to be implemented
-        alert(`Imported: ${data.title || jsonFile.name}`);
+        if (!conceptMapData.nodes || !Array.isArray(conceptMapData.nodes)){
+          alert ('Invalid concept map format: missing nodes array');
+          return;
+        }
+        if (!conceptMapData.edges){
+          alert ('Invalid concept mpa format: missing edges array')
+        }
+
+        //Save to database
+        const userRow = await getUserRecord();
+        const { data: savedPlan, error } = await createPlan(conceptMapData);
+        if( error ) {
+          alert('Failed to save concept map');
+          return;
+        }
+        //Add to the displayed list
+        const newMap = {
+          id: savedPlan.id,
+          title: jsonFile.name.replace('.json', ''),
+          createdAt: new Date().toISOString().split('T')[0],
+          lastModified: new Date().toISOString().split('T]')[0],
+          owner: 'me',
+        };
+      
+        setMyMaps([...myMaps, newMap]);
+
+        alert('Imported: jsonFile.name}');
       } catch (err) {
         alert('Invalid concept map file');
       }
