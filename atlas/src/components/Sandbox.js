@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import '../css/Sandbox.css';
 import { useRef, useEffect } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox.js';
@@ -59,8 +59,15 @@ export default function Sandbox() {
     const loadedFile = useCallback(()=>{});
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
+    const [layers, setLayers] = useState(["Global"]);
+    const [prereqLayers, setPrereqLayers] = useState([]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
+    const sharedCallbacks = {
+        setPrereqLayers,
+        setLayers,
+        //setRelatedNodes,
+    }
     const handleSignOut = async () => {
         const { error } = await signOut();
         if (error) {
@@ -72,7 +79,7 @@ export default function Sandbox() {
     useEffect(() => {
 
         const canvas = canvas_ref.current;
-        setCanvasObject(initializeCanvas(canvas, user_type));
+        setCanvasObject(initializeCanvas(canvas, user_type, sharedCallbacks));
     }, [])
     function EditorContents(){
         return(
@@ -116,14 +123,51 @@ export default function Sandbox() {
                     <label htmlFor="nodeRadiusInput">Node Radius:</label> <br/>
                     <input type="number" name="nodeRadiusInput" id="nodeRadiusInput" min="10" max="100" step="1" defaultValue="25"></input> <br/>
                     <select id="relatedNodeSelector">
-                        <option id='default'>Select a Node.</option>
+                        <option disabled id='default'>Select a Node.</option>
                     </select>
                     <button id="AddRelatedNode">Add</button>
                     <button id="RemoveRelatedNode">Remove</button> <br/>
                     <label htmlFor="relatedNodesList">Related Nodes:</label> <br/>
-                    <ul id="relatedNodesList">
-
-                    </ul>
+                    <div style={{border: "solid thin black"}}>
+                        <ul id="relatedNodesList">
+                            
+                        </ul>
+                    </div>
+                    <br></br>
+                    <label for="layerSelector">Layer: </label>
+                    <select title="This node's layer" id="layerSelector" onChange={(e)=>{canvasObject.SetLayer(e)}}>
+                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
+                    </select>
+                    <br></br>
+                    <label for="prereqLayerSelector">Add Prerequisite Layers:</label> <br/>
+                    <select title="This node's layer" id="prereqLayerSelector" onChange={(e)=>{
+                        const isCyclicPrerequisite = (e.currentTarget.value === document.getElementById("layerSelector").value)
+                        document.getElementById("AddPrereqLayer").disabled = isCyclicPrerequisite;
+                        document.getElementById("RemovePrereqLayer").disabled = isCyclicPrerequisite;
+                    }}>
+                        <option disabled selected>Choose a layer.</option>
+                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
+                    </select>
+                    <button 
+                        id="AddPrereqLayer" 
+                        onClick={(e)=>{canvasObject?.addPrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Add</button>
+                    <button 
+                        id="RemovePrereqLayer" 
+                        onClick={()=>{canvasObject?.removePrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Remove</button> <br/>
+                    <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
+                    <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
+                        <ul id="prereqLayerList">
+                            {(canvasObject && prereqLayers.length > 0) ? prereqLayers?.map(layer => <li>{layer}</li>) : <li>None</li>}
+                        </ul>
+                    </div>
+                </div>
+                <br></br>
+                    <button id="addLayerButton" onClick={()=>{canvasObject?.newLayer(); setLayers(Object.keys(canvasObject?.layers))}}>Add Layer</button> <br></br>
+                    <label for="LayerList">Layers: </label>
+                    <div title='Layers in this project.' style={{border: "solid thin black"}}>
+                        <ul>
+                            {(canvasObject && layers.length > 0) ? layers?.map(layer => <li>{layer}</li>) : <li>None</li>}
+                        </ul>
                 </div>
             </div>
         )
@@ -176,6 +220,11 @@ export default function Sandbox() {
 
 
     const toolbarType = (user_type === "editor") ? EditorContents() : ViewerContents();
+
+
+    /*useEffect(()=>{
+        console.log(canvasObject?.selectedNode.layer.prereqs);
+    }, [prereqLayers])*/
 
     return (
         <div>
