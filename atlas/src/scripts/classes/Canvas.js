@@ -248,6 +248,20 @@ export class Canvas {
         return newNode;
     }
 
+    removeNode() {
+        if(!this.selectedNode) return;
+
+        //Find and destroy related node references
+        for(let node of Object.values(this.nodes)) {
+            node.removeRelatedNode(this.selectedNode.id);
+        }
+        this.layers[this.selectedNode.layer.name].removeNode(this.selectedNode.id);
+        document.getElementById("node-content-bubble").hidden = true;
+        document.getElementById("nodeInspector").hidden = true;
+        delete this.nodes[this.selectedNode.id];
+        this.restart_simulation();
+    }
+
     changeSelectedNodeColor(e) {
         if(!this.selectedNode) return
         document.querySelector(".node-content > div").style.backgroundColor = e.currentTarget.value;
@@ -479,7 +493,7 @@ export class Canvas {
 
     SetLayer(e) {
         if(!this.selectedNode) return;
-        this.selectedNode.layer.removeNode(this.selectedNode);
+        this.selectedNode.layer.removeNode(this.selectedNode.id);
         this.selectedNode.layer = this.layers[e.currentTarget.value];
         this.selectedNode.layer.addNode(this.selectedNode);
         this.sharedCallbacks.setPrereqLayers(Object.keys(this.selectedNode.layer.prereqs));
@@ -600,6 +614,7 @@ export class Canvas {
                     if(!this.layers[layer.name])
                         this.layers[layer.name] = new NodeLayer(layer.name);
                     for(let nodeName of layer.nodes) {
+                        if(!this.nodes[nodeName]) continue; //Skip bugged entries.
                         this.nodes[nodeName].layer.removeNode(nodeName);
                         this.layers[layer.name].addNode(this.nodes[nodeName]);
                         this.nodes[nodeName].layer = this.layers[layer.name];
@@ -620,6 +635,7 @@ export class Canvas {
                 }
             } catch(e) {
                 console.error("FAILED TO IMPORT FILE!", e);
+                alert("Failed to load Concept Map. Data may be malformed or corrupt.");
             }
         }
         reader.readAsText(selectedFile);

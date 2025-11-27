@@ -149,6 +149,8 @@ export default function Sandbox() {
                             {(canvasObject && prereqLayers.length > 0) ? prereqLayers?.map(layer => <li>{layer}</li>) : <li>None</li>}
                         </ul>
                     </div>
+                    <br/>
+                    <button id="removeNodeButton" onClick={()=>{canvasObject?.removeNode()}}>Delete Node</button>
                 </div>
                 <br></br>
                     <button id="addLayerButton" onClick={()=>{canvasObject?.newLayer(); setLayers(Object.keys(canvasObject?.layers))}}>Add Layer</button> <br></br>

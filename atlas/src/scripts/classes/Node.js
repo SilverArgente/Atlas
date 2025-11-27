@@ -70,7 +70,7 @@ export class Node {
             }
         }
         if(!result) {
-            alert("No node found!"); //DEBUG
+            //alert("No node found!"); //DEBUG
             return;
         }
         delete this.relatedNodes[nodename];
