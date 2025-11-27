@@ -36,6 +36,7 @@ export class Canvas {
             this._boundaddRelatedNode = this.addRelatedNode.bind(this);
             this._boundRemoveRelatedNode = this.removeRelatedNode.bind(this);
             this._boundChangeSelectedNodeRadius = this.changeSelectedNodeRadius.bind(this);
+            this._boundChangeSelectedNodeFontSize = this.changeSelectedNodeFontSize.bind(this);
 
         }
         this._boundHandleMouseMove = this.handleMouseMove.bind(this); 
@@ -201,6 +202,9 @@ export class Canvas {
             if(nodeRadiusInput) {
                 nodeRadiusInput.addEventListener("input", this._boundChangeSelectedNodeRadius);
             }
+
+            document.getElementById("nodeFontSizeInput").removeEventListener("input", this._boundChangeSelectedNodeFontSize);
+            document.getElementById("nodeFontSizeInput").addEventListener("input", this._boundChangeSelectedNodeFontSize);
             
             document.getElementById("node-content-image").addEventListener("change", this._boundHandleImageChange);
             document.getElementById("node-content-title").addEventListener("click", ()=>{document.getElementById("nodeNameText").focus()})
@@ -301,6 +305,13 @@ export class Canvas {
         }
     }
 
+    changeSelectedNodeFontSize(e) {
+        if(!this.selectedNode) return;
+        const newSize = parseInt(e.currentTarget.value);
+        if(newSize > 0) {
+            this.selectedNode.setFontSize(newSize);
+        }
+    }
 
     handleImageChange(e) {
         const file = e.target.files[0];
@@ -523,7 +534,7 @@ export class Canvas {
                 content: node.content,
                 color: node.color,
                 image: node.image,
-                //layer: node.layer,
+                fontSize: node.fontSize,
                 relatedNodes: Object.keys(node.relatedNodes)
             });
         }
@@ -557,15 +568,6 @@ export class Canvas {
     restart_simulation() {
         if(!this.canvas) return;
         this.import(this.export(true));
-        /*for(let node of Object.values(this.nodes)) {
-            delete node.fx;
-            delete node.fy;
-            delete node.vx;
-            delete node.vy;
-            node.setPosition(0, 0);
-        }
-        console.log(this);
-        this.startForceSim();*/
     }
 
     async import(input = undefined) {
@@ -604,8 +606,7 @@ export class Canvas {
                     newNode.setImage(node.image);
                     newNode.setContent(node.content);
                     newNode.id = node.id;
-                    //newNode.x = node.x;
-                    //newNode.y = node.y;
+                    newNode.fontSize = node.fontSize;
                     newNode.r = node.r;
                 }
 

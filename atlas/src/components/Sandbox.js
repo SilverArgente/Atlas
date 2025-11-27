@@ -111,6 +111,8 @@ export default function Sandbox() {
                     <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
                     <label htmlFor="nodeRadiusInput">Node Radius:</label> <br/>
                     <input type="number" name="nodeRadiusInput" id="nodeRadiusInput" min="10" max="100" step="1" defaultValue="25"></input> <br/>
+                    <label htmlFor="nodeFontSizeInput">Font Size:</label> <br/>
+                    <input type="number" name="nodeFontSizeInput" id="nodeFontSizeInput" min="6" max="128" step="1" defaultValue="12"></input> <br/>
                     <select id="relatedNodeSelector">
                         <option disabled id='default'>Select a Node.</option>
                     </select>
