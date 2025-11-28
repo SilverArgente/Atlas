@@ -526,7 +526,7 @@ export class Canvas {
             edges: [],
             layers: []
         };
-
+        this.title = fileName;
         for(let node of Object.values(this.nodes)) {
             saveData.nodes.push({
                 x: node.x,

@@ -172,7 +172,7 @@ export default function Sandbox() {
                 <div className="toolbar-section">
                     <h3 className="toolbar-section-title">General</h3>
                     <button id="addEdgeButton" onClick={()=>{canvasObject.import()}} className="toolbar-button">Import</button>
-                    <button id="addEdgeButton" onClick={handleExport} className="toolbar-button">Export</button>
+                    {/*<button id="addEdgeButton" onClick={handleExport} className="toolbar-button">Export</button>*/}
                     <button id="addEdgeButton" onClick={()=>{
                         const fileName = prompt('Enter filename:', 'myMap');
                         if(fileName && fileName.trim() !== '') {
@@ -330,7 +330,7 @@ export default function Sandbox() {
                 }}
             />
             {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) ? dragImport() : null}
-            <NodeContent title="" content=""></NodeContent>
+            <NodeContent title="" content="" updateCallback={()=>{handleExport()}}></NodeContent>
 
             {toolbarType}
                         <SaveMapModal 
