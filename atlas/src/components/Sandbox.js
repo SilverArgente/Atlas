@@ -63,6 +63,7 @@ export default function Sandbox() {
     const [prereqLayers, setPrereqLayers] = useState([]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
+    const [isLoadingLiveView, setIsLoadingLiveView] = useState(false);
     const sharedCallbacks = {
         setPrereqLayers,
         setLayers,
@@ -76,104 +77,165 @@ export default function Sandbox() {
             navigate('/');
         }
     };
+
+    const handleLiveView = async () => {
+        if (!canvasObject) return;
+        
+        try {
+            const jsonData = canvasObject.export(true);
+            const blob = jsonData.files[0];
+            const text = await blob.text();
+            
+            const liveViewKey = `liveView_${Date.now()}`;
+            sessionStorage.setItem(liveViewKey, text);
+            
+            const currentUrl = window.location.origin + window.location.pathname;
+            const viewerUrl = `${currentUrl}?user=viewer&liveView=${liveViewKey}`;
+            window.open(viewerUrl, '_blank');
+        } catch (error) {
+            console.error('Error opening live view:', error);
+            alert('Failed to open live view. Please try again.');
+        }
+    };
+
     useEffect(() => {
 
         const canvas = canvas_ref.current;
         setCanvasObject(initializeCanvas(canvas, user_type, sharedCallbacks));
     }, [])
+
+    useEffect(() => {
+        if (!canvasObject || user_type !== "viewer") return;
+
+        const currentQuery = new URLSearchParams(window.location.search);
+        const liveViewKey = currentQuery.get("liveView");
+        if (liveViewKey) {
+            setIsLoadingLiveView(true);
+            const jsonText = sessionStorage.getItem(liveViewKey);
+            if (jsonText) {
+                const blob = new Blob([jsonText], { type: 'application/json' });
+                const file = new File([blob], 'liveView.json', { type: 'application/json' });
+                
+                const mockInput = {
+                    files: [file]
+                };
+                
+                const importBg = document.getElementById("import-bg");
+                const toolbar = document.getElementById("toolbar");
+                if (importBg) importBg.hidden = true;
+                if (toolbar) toolbar.hidden = false;
+                
+                canvasObject.import(mockInput);
+                
+                setIsLoadingLiveView(false);
+                sessionStorage.removeItem(liveViewKey);
+            } else {
+                console.warn('Live view data not found in sessionStorage');
+                setIsLoadingLiveView(false);
+            }
+        }
+    }, [canvasObject, user_type])
     function EditorContents(){
         return(
             <div id="toolbar">
-                <h1>Atlas Toolbar</h1>
-                <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
-                <button id="addEdgeButton" onClick={handleExport}>Export</button>
-                <button id="addEdgeButton" onClick={()=>{
-                    const fileName = prompt('Enter filename:', 'myMap');
-                    if(fileName && fileName.trim() !== '') {
-                        canvasObject.export(false, fileName.trim());
-                    }
-                }}>Save To File</button>
-                <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
-                    Restart Simulation
-                </button>
-                {user && (
-                    <button
-                        id="signOutButton"
-                        onClick={handleSignOut}
-                        style={{
-                            marginTop: '10px',
-                            backgroundColor: '#f87171',
-                            color: 'white',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Sign Out
-                    </button>
-                )}
-                <div id="nodeInspector" hidden>
-                    <h3><strong>Node Inspector</strong></h3>
-                    <label htmlFor="nodeColorPicker">Node Color:</label> <br/>
-                    <input type="color" name="nodeColorPicker" id="nodeColorPicker" defaultValue="cornflowerblue"></input> <br/>
-                    <label htmlFor="nodeNameText">Node Name:</label> <br/>
-                    <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
-                    <label htmlFor="nodeRadiusInput">Node Radius:</label> <br/>
-                    <input type="number" name="nodeRadiusInput" id="nodeRadiusInput" min="10" max="100" step="1" defaultValue="25"></input> <br/>
-                    <label htmlFor="nodeFontSizeInput">Font Size:</label> <br/>
-                    <input type="number" name="nodeFontSizeInput" id="nodeFontSizeInput" min="6" max="128" step="1" defaultValue="12"></input> <br/>
-                    <select id="relatedNodeSelector">
-                        <option disabled id='default'>Select a Node.</option>
-                    </select>
-                    <button id="AddRelatedNode">Add</button>
-                    <button id="RemoveRelatedNode">Remove</button> <br/>
-                    <label htmlFor="relatedNodesList">Related Nodes:</label> <br/>
-                    <div style={{border: "solid thin black"}}>
-                        <ul id="relatedNodesList">
-                            
-                        </ul>
-                    </div>
-                    <br></br>
-                    <label for="layerSelector">Layer: </label>
-                    <select title="This node's layer" id="layerSelector" onChange={(e)=>{canvasObject.SetLayer(e)}}>
-                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
-                    </select>
-                    <br></br>
-                    <label for="prereqLayerSelector">Add Prerequisite Layers:</label> <br/>
-                    <select title="This node's layer" id="prereqLayerSelector" onChange={(e)=>{
-                        const isCyclicPrerequisite = (e.currentTarget.value === document.getElementById("layerSelector").value)
-                        document.getElementById("AddPrereqLayer").disabled = isCyclicPrerequisite;
-                        document.getElementById("RemovePrereqLayer").disabled = isCyclicPrerequisite;
-                    }}>
-                        <option disabled selected>Choose a layer.</option>
-                        {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
-                    </select>
-                    <button 
-                        disabled
-                        id="AddPrereqLayer" 
-                        onClick={(e)=>{canvasObject?.addPrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Add</button>
-                    <button 
-                        disabled
-                        id="RemovePrereqLayer" 
-                        onClick={()=>{canvasObject?.removePrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Remove</button> <br/>
-                    <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
-                    <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
-                        <ul id="prereqLayerList">
-                            {(canvasObject && prereqLayers.length > 0) ? prereqLayers?.map(layer => <li>{layer}</li>) : <li>None</li>}
-                        </ul>
-                    </div>
-                    <br/>
-                    <button id="removeNodeButton" onClick={()=>{canvasObject?.removeNode()}}>Delete Node</button>
+                <h1 className="toolbar-title">Atlas Toolbar</h1>
+                
+                <div className="toolbar-section">
+                    <h3 className="toolbar-section-title">General</h3>
+                    <button id="addEdgeButton" onClick={()=>{canvasObject.import()}} className="toolbar-button">Import</button>
+                    <button id="addEdgeButton" onClick={handleExport} className="toolbar-button">Export</button>
+                    <button id="addEdgeButton" onClick={()=>{
+                        const fileName = prompt('Enter filename:', 'myMap');
+                        if(fileName && fileName.trim() !== '') {
+                            canvasObject.export(false, fileName.trim());
+                        }
+                    }} className="toolbar-button">Save To File</button>
+                    {user && (
+                        <button
+                            id="signOutButton"
+                            onClick={handleSignOut}
+                            className="sign-out-button"
+                        >
+                            Sign Out
+                        </button>
+                    )}
                 </div>
-                <br></br>
-                    <button id="addLayerButton" onClick={()=>{canvasObject?.newLayer(); setLayers(Object.keys(canvasObject?.layers))}}>Add Layer</button> <br></br>
-                    <label for="LayerList">Layers: </label>
-                    <div title='Layers in this project.' style={{border: "solid thin black"}}>
-                        <ul>
-                            {(canvasObject && layers.length > 0) ? layers?.map(layer => <li>{layer}</li>) : <li>None</li>}
-                        </ul>
+
+                <div className="toolbar-section">
+                    <h3 className="toolbar-section-title">Information</h3>
+                    <div id="nodeInspector" hidden className="node-inspector">
+                        <label htmlFor="nodeColorPicker">Node Color:</label> <br/>
+                        <input type="color" name="nodeColorPicker" id="nodeColorPicker" defaultValue="cornflowerblue"></input> <br/>
+                        <label htmlFor="nodeNameText">Node Name:</label> <br/>
+                        <input type="text" name="nodeNameText" id="nodeNameText" placeholder='Enter node name...'></input> <br/>
+                        <label htmlFor="nodeRadiusInput">Node Radius:</label> <br/>
+                        <input type="number" name="nodeRadiusInput" id="nodeRadiusInput" min="10" max="100" step="1" defaultValue="25"></input> <br/>
+                        <label htmlFor="nodeFontSizeInput">Font Size:</label> <br/>
+                        <input type="number" name="nodeFontSizeInput" id="nodeFontSizeInput" min="6" max="128" step="1" defaultValue="12"></input> <br/>
+                        <select id="relatedNodeSelector">
+                            <option disabled id='default'>Select a Node.</option>
+                        </select>
+                        <button id="AddRelatedNode">Add</button>
+                        <button id="RemoveRelatedNode">Remove</button> <br/>
+                        <label htmlFor="relatedNodesList">Related Nodes:</label> <br/>
+                        <div style={{border: "solid thin black"}}>
+                            <ul id="relatedNodesList">
+                                
+                            </ul>
+                        </div>
+                        <br></br>
+                        <label for="layerSelector">Layer: </label>
+                        <select title="This node's layer" id="layerSelector" onChange={(e)=>{canvasObject.SetLayer(e)}}>
+                            {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
+                        </select>
+                        <br></br>
+                        <label for="prereqLayerSelector">Add Prerequisite Layers:</label> <br/>
+                        <select title="This node's layer" id="prereqLayerSelector" onChange={(e)=>{
+                            const isCyclicPrerequisite = (e.currentTarget.value === document.getElementById("layerSelector").value)
+                            document.getElementById("AddPrereqLayer").disabled = isCyclicPrerequisite;
+                            document.getElementById("RemovePrereqLayer").disabled = isCyclicPrerequisite;
+                        }}>
+                            <option disabled selected>Choose a layer.</option>
+                            {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
+                        </select>
+                        <button 
+                            disabled
+                            id="AddPrereqLayer" 
+                            onClick={(e)=>{canvasObject?.addPrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Add</button>
+                        <button 
+                            disabled
+                            id="RemovePrereqLayer" 
+                            onClick={()=>{canvasObject?.removePrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Remove</button> <br/>
+                        <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>
+                        <div title='Layers to be completed before accessing this one.' style={{border: "solid thin black"}}>
+                            <ul id="prereqLayerList">
+                                {(canvasObject && prereqLayers.length > 0) ? prereqLayers?.map(layer => <li>{layer}</li>) : <li>None</li>}
+                            </ul>
+                        </div>
+                        <br/>
+                        <button id="removeNodeButton" onClick={()=>{canvasObject?.removeNode()}} className="toolbar-button-red">Delete Node</button>
+                    </div>
+                </div>
+
+                <div className="toolbar-section">
+                    <h3 className="toolbar-section-title">Graph</h3>
+                    <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}} className="toolbar-button">Add Node</button>
+                    <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}} className="toolbar-button">
+                        Restart Simulation
+                    </button>
+                    <button id="liveViewButton" onClick={handleLiveView} className="toolbar-button-green">
+                        See in Live View
+                    </button>
+                </div>
+
+                <div>
+                    <div className="layers-header">
+                        <h3 className="layers-title">Layers</h3>
+                        <button id="addLayerButton" onClick={()=>{canvasObject?.newLayer(); setLayers(Object.keys(canvasObject?.layers))}} className="layers-button">Add Layer</button>
+                    </div>
+                    <ul className="layers-list">
+                        {(canvasObject && layers.length > 0) ? layers?.map(layer => <li>{layer}</li>) : <li>None</li>}
+                    </ul>
                 </div>
             </div>
         )
@@ -182,27 +244,22 @@ export default function Sandbox() {
     function ViewerContents(){
         return(
             <div id="toolbar" hidden="true">
-                <h1>Atlas Menu</h1>
+                <h1 className="viewer-menu-title">Atlas Menu</h1>
                 {user && (
                     <button
                         id="signOutButton"
                         onClick={handleSignOut}
-                        style={{
-                            marginTop: '10px',
-                            backgroundColor: '#f87171',
-                            color: 'white',
-                            padding: '8px 12px',
-                            borderRadius: '6px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}
+                        className="sign-out-button"
+                        style={{ marginTop: '10px', borderRadius: '6px', padding: '8px 12px' }}
                     >
                         Sign Out
                     </button>
                 )}
-                <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
-                    Restart Simulation
-                </button>
+                <div className="viewer-button-container">
+                    <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}} className="viewer-button">
+                        Restart Simulation
+                    </button>
+                </div>
             </div>
         )
     }
@@ -243,7 +300,7 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
-            {(user_type !== "editor") ? dragImport() : null}
+            {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) ? dragImport() : null}
             <NodeContent title="" content=""></NodeContent>
 
             {toolbarType}
