@@ -10,7 +10,9 @@ body {
 
 #toolbar {
     position: absolute;
+    overflow-y: scroll;
     width: 20%;
+    height: 90%;
     top: 0px;
     right: 0px;
     z-index: 10;

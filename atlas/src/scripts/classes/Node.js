@@ -18,6 +18,7 @@ export class Node {
         this.nodraw = false;
         this.visited = false;
         this.locked = false;
+        this.fontSize = 12;
         this.relatedNodes = {};
         this.layer = canvasObj.layers["Global"];
         this.layer.addNode(this);
@@ -70,7 +71,7 @@ export class Node {
             }
         }
         if(!result) {
-            alert("No node found!"); //DEBUG
+            //alert("No node found!"); //DEBUG
             return;
         }
         delete this.relatedNodes[nodename];
@@ -116,6 +117,7 @@ export class Node {
             if(nodeRadiusInput) {
                 nodeRadiusInput.value = this.r;
             }
+            document.getElementById("nodeFontSizeInput").value = (this.fontSize) ? this.fontSize : 12;
             
             document.getElementById("node-content-image").value = null;
             contentTextArea.addEventListener("change", this.canvasObj._boundUpdateNodeContent)
@@ -214,13 +216,19 @@ export class Node {
         this.canvasObj.draw();
     }
 
+    setFontSize(size) 
+    {
+        this.fontSize = size;
+        this.canvasObj.draw();
+    }
+
     drawNode() 
     {
         this.disabled = this.canvasObj.user_type === "viewer" && !this.layer.checkPrereqs(); // This should not be done on Draw, it should be done when the node states have changed. (how to detect that, i dont know yet.)
         const textMargin = 0.25;
         const disabledColor = "rgba(128,128,128,0.4)";
         let ctx = this.canvasObj.ctx;
-        let titleTextSize = 12;
+        let titleTextSize = this.fontSize ? this.fontSize : 12;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
         ctx.fillStyle = (this.disabled) ? disabledColor : this.color;
