@@ -8,20 +8,24 @@ import { useNavigate } from 'react-router-dom';
 import SaveMapModal from './SaveMapModal';
 
 export default function Sandbox() {
-    const { createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
+    const { updatePlan, createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
+
+    const [currentPlanID, setCurrentPlanID] = useState(null);
 
     const [showSaveModal, setShowSaveModal] = React.useState(false);
 
     const handleExport = () => {
-        setShowSaveModal(true);
+        if(currentPlanID)
+            handleSaveAsUpdate();
+        else
+            setShowSaveModal(true);
     };
 
     const handleSaveWithName = async (mapName) => {
-        const jsonData = canvasObject.export(true);
+        const jsonData = canvasObject.export(true, mapName);
         const blob = jsonData.files[0];
         const text = await blob.text();
         const parsed = JSON.parse(text);
-        parsed.title = mapName;
 
         const userRow = await getUserRecord();
         if (!userRow) {
@@ -43,6 +47,7 @@ export default function Sandbox() {
 
         const planID = await getPlanID();
         console.log("Fetched plan ID:", planID.id);
+        setCurrentPlanID(planID.id);
 
         const { data2, error2 } = await createRelationship(userRow.id, planID.id, true);
         if (error2) {
@@ -50,9 +55,33 @@ export default function Sandbox() {
         } else {
             console.log("Relationship saved successfully:", data2);
         }
+        setShowSaveModal(false);
     };
     
+    const handleSaveAsUpdate = async () => {
+        const jsonData = canvasObject.export(true, canvasObject.title);
+        const blob = jsonData.files[0];
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+
+        const userRow = await getUserRecord();
+        if (!userRow) {
+            console.error("Could not fetch user row.");
+            return;
+        } else {
+            console.log("Fetched user id:", userRow.id);
+        }
+
+        console.log("Exported JSON:", jsonData.files[0]);
     
+        const { error } = await updatePlan(parsed, currentPlanID);
+    
+        if (error) {
+            console.error("Error saving plan:", error);
+        } else {
+            console.log("Plan saved successfully");
+        }
+    }
     
     const canvas_ref = useRef(null);
     let [canvasObject, setCanvasObject] = React.useState(null);

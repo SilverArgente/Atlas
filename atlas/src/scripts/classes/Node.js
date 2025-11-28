@@ -205,6 +205,7 @@ export class Node {
         }
     }
 
+    // Why is there a second identical setRadius() here LOL? 
     setRadius(r) 
     {
         this.r = r;

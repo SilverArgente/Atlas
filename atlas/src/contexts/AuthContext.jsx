@@ -72,6 +72,14 @@ const createPlan = async (json) => {
   return { data, error };
 };
 
+const updatePlan = async (json, id) => {
+  const {error} = await supabase
+    .from("plan")
+    .update({data: json})
+    .eq('id', id)
+  return {error};
+}
+
 const getUserRecord = async () => {
   const { data: authData } = await supabase.auth.getUser();
 
@@ -150,8 +158,9 @@ const resetPassword = async (email) => {
     redirectTo: `${window.location.origin}/reset-password`,
   });
   return { data, error };
-  };
-  const value = {
+};
+
+const value = {
     user,
     loading,
     signUp,
@@ -159,10 +168,12 @@ const resetPassword = async (email) => {
     signOut,
     resetPassword,
     createPlan,
+    updatePlan,
     getUserRecord,
     getPlanID,
     createRelationship
-  };
+};
+  
   return (
     <AuthContext.Provider value={value}>
       {children}
