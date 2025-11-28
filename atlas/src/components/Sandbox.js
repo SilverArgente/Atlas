@@ -102,6 +102,10 @@ export default function Sandbox() {
 
         const canvas = canvas_ref.current;
         setCanvasObject(initializeCanvas(canvas, user_type, sharedCallbacks));
+        if(user_type === "editor" && document.getElementById("prereqLayerSelector").selectedIndex == 0) {
+            document.getElementById("AddPrereqLayer").disabled = true;
+            document.getElementById("RemovePrereqLayer").disabled = true;
+        }
     }, [])
 
     useEffect(() => {
@@ -199,11 +203,9 @@ export default function Sandbox() {
                             {canvasObject ? layers?.map(layer => <option>{layer}</option>) : ""}
                         </select>
                         <button 
-                            disabled
                             id="AddPrereqLayer" 
                             onClick={(e)=>{canvasObject?.addPrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Add</button>
                         <button 
-                            disabled
                             id="RemovePrereqLayer" 
                             onClick={()=>{canvasObject?.removePrereq(); setPrereqLayers(Object.keys(canvasObject?.selectedNode.layer.prereqs))}}>Remove</button> <br/>
                         <label title='Layers to be completed before accessing this one.' for="prereqLayerList">Prerequisite Layers:</label> <br/>

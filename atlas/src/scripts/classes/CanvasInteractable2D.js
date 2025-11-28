@@ -10,6 +10,7 @@ export class CanvasInteractable2D {
         this.y = y;
         this.w = w;
         this.h = h;
+        this.disabled = false;
         this.owner = owner;
         canvasObject.interactables.push(this);
     }
@@ -28,7 +29,7 @@ export class CanvasInteractable2D {
     }
 
     clickCallback(callback) {
-        
+        if(this.disabled) return;
         if(this.canvasObject.mousepos_world_x < this.x || 
             this.canvasObject.mousepos_world_x > this.x + this.w || 
             this.canvasObject.mousepos_world_y < this.y || 
