@@ -15,6 +15,7 @@ export default function Sandbox() {
     const [showSaveModal, setShowSaveModal] = React.useState(false);
 
     const handleExport = () => {
+        if(user_type === "viewer") return;
         if(currentPlanID)
             handleSaveAsUpdate();
         else
