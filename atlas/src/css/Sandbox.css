@@ -16,11 +16,11 @@ body {
     top: 0px;
     right: 0px;
     z-index: 10;
-    background-color: aliceblue;
+    background-color: rgba(248, 249, 250, 0.75);
     padding: 10pt;
     margin: 5pt;
-    border: thin solid black;
-    border-radius: 3pt;
+    border: none;
+    border-radius: 0;
 }
 
 #toolbar > button {
@@ -43,6 +43,134 @@ body {
 
 #toolbar > h1 {
     font-size: xx-large;
+}
+
+.toolbar-title {
+    text-align: center;
+}
+
+.toolbar-section {
+    margin-top: 25px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.toolbar-section-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    padding-left: 15px;
+}
+
+.toolbar-button {
+    margin: 5px 5px 5px 15px;
+    background-color: cornflowerblue;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.toolbar-button-green {
+    margin: 5px 5px 5px 15px;
+    background-color: #10b981;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.toolbar-button-red {
+    margin: 5px 5px 5px 0;
+    background-color: #ef4444;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.sign-out-button {
+    margin-top: 5px;
+    background-color: #f87171;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 0;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.node-inspector {
+    padding-left: 15px;
+}
+
+.layers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.layers-title {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: bold;
+    padding-left: 15px;
+}
+
+.layers-button {
+    margin: 0 15px 0 0;
+    background-color: cornflowerblue;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.layers-list {
+    margin-top: 10px;
+    padding-left: 35px;
+}
+
+.viewer-menu-title {
+    text-align: center;
+}
+
+.viewer-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.viewer-button {
+    margin: 0;
+    background-color: cornflowerblue;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 .node-content > div {
