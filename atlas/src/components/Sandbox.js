@@ -5,12 +5,23 @@ import { initializeCanvas } from '../scripts/view_sandbox.js';
 import NodeContent from './NodeContent.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import SaveMapModal from './SaveMapModal';
 
 export default function Sandbox() {
     const { createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
 
-    const handleExport = async () => {
+    const [showSaveModal, setShowSaveModal] = React.useState(false);
+
+    const handleExport = () => {
+        setShowSaveModal(true);
+    };
+
+    const handleSaveWithName = async (mapName) => {
         const jsonData = canvasObject.export(true);
+        const blob = jsonData.files[0];
+        const text = await blob.text();
+        const parsed = JSON.parse(text);
+        parsed.title = mapName;
 
         const userRow = await getUserRecord();
         if (!userRow) {
@@ -21,10 +32,6 @@ export default function Sandbox() {
         }
 
         console.log("Exported JSON:", jsonData.files[0]);
-    
-        const blob = jsonData.files[0];
-        const text = await blob.text();
-        const parsed = JSON.parse(text);
     
         const { data, error } = await createPlan(parsed);
     
@@ -78,11 +85,15 @@ export default function Sandbox() {
         return(
             <div id="toolbar">
                 <h1>Atlas Toolbar</h1>
-
                 <button id="addNodeButton" onClick={()=>{canvasObject.addNode()}}>Add Node</button> <br/>
                 <button id="addEdgeButton" onClick={()=>{canvasObject.import()}}>Import</button>
                 <button id="addEdgeButton" onClick={handleExport}>Export</button>
-                <button id="addEdgeButton" onClick={()=>{canvasObject.export()}}>Save To File</button>
+                <button id="addEdgeButton" onClick={()=>{
+                    const fileName = prompt('Enter filename:', 'myMap');
+                    if(fileName && fileName.trim() !== '') {
+                        canvasObject.export(false, fileName.trim());
+                    }
+                }}>Save To File</button>
                 <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}}>
                     Restart Simulation
                 </button>
@@ -228,7 +239,13 @@ export default function Sandbox() {
             />
             {(user_type !== "editor") ? dragImport() : null}
             <NodeContent title="" content=""></NodeContent>
+
             {toolbarType}
+                        <SaveMapModal 
+                isOpen={showSaveModal}
+                onClose={() => setShowSaveModal(false)}
+                onSave={handleSaveWithName}
+            />
         </div>
     )
 }

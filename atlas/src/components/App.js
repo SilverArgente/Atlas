@@ -8,6 +8,8 @@ import SignupPage from './SignupPage.jsx';
 import About from './About.jsx';
 import Price from './Pricing.jsx';
 import Contact from './Contact.jsx';
+import Dashboard from './Dashboard';
+
 function App() {
 
   return (
@@ -21,6 +23,7 @@ function App() {
           <Route path="/about" element={<About/>}/>
           <Route path ="/pricing" element={<Price/>}/>
           <Route path ="/contact" element={<Contact/>}/>
+          <Route path = "/dashboard" element={<Dashboard/>}/>
         </Routes>
 
       </BrowserRouter>

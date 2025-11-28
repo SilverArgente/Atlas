@@ -492,8 +492,9 @@ export class Canvas {
         console.log(`Created node layer ${this.layers[name]}`);
     }
 
-    export(localExport = false) {
+    export(localExport = false, fileName = 'myMap') {
         let saveData = {
+            title: fileName,
             nodes: [],
             edges: [],
             layers: []
@@ -536,7 +537,7 @@ export class Canvas {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'myData.json';
+        a.download = `${fileName}.json`;
         a.click();
     }
 
