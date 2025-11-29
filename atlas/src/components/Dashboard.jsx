@@ -41,7 +41,6 @@ useEffect(() => {
   }
 }, [user]);
 
-// Update delete handler
 const handleDelete = async (planId) => {
   const { error } = await deletePlan(planId);
   if (!error) {

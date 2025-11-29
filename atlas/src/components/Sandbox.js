@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import SaveMapModal from './SaveMapModal';
 
 export default function Sandbox() {
-    const { updatePlan, createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
+    const { updatePlan, createPlan, getUserRecord, createRelationship } = useAuth();
 
     const [currentPlanID, setCurrentPlanID] = useState(null);
 
@@ -22,41 +22,41 @@ export default function Sandbox() {
             setShowSaveModal(true);
     };
 
-    const handleSaveWithName = async (mapName) => {
-        const jsonData = canvasObject.export(true, mapName);
-        const blob = jsonData.files[0];
-        const text = await blob.text();
-        const parsed = JSON.parse(text);
+const handleSaveWithName = async (mapName) => {
+    const jsonData = canvasObject.export(true, mapName);
+    const blob = jsonData.files[0];
+    const text = await blob.text();
+    const parsed = JSON.parse(text);
 
-        const userRow = await getUserRecord();
-        if (!userRow) {
-            console.error("Could not fetch user row.");
-            return;
-        } else {
-            console.log("Fetched user id:", userRow.id);
-        }
-
-        console.log("Exported JSON:", jsonData.files[0]);
+    const userRow = await getUserRecord();
+    if (!userRow) {
+        console.error("Could not fetch user row.");
+        return;
+    }
+    const { data: createdPlan, error } = await createPlan(parsed);
     
-        const { data, error } = await createPlan(parsed);
+    if (error) {
+        console.error("Error saving plan:", error);
+        return;
+    }
     
-        if (error) {
-            console.error("Error saving plan:", error);
-        } else {
-            console.log("Plan saved successfully:", data);
-        }
+    console.log("Plan saved successfully:", createdPlan);
+    
+    const planID = createdPlan.id;
+    setCurrentPlanID(planID);
 
-        const planID = await getPlanID();
-        console.log("Fetched plan ID:", planID.id);
-        setCurrentPlanID(planID.id);
-
-        const { data2, error2 } = await createRelationship(userRow.id, planID.id, true);
-        if (error2) {
-            console.error("Error saving relationship:", error2);
-        } else {
-            console.log("Relationship saved successfully:", data2);
-        }
-        setShowSaveModal(false);
+    const { data: relationshipData, error: error2 } = await createRelationship(
+        userRow.id, 
+        planID, 
+        'owner'  
+    );
+    
+    if (error2) {
+        console.error("Error saving relationship:", error2);
+    } else {
+        console.log("Relationship saved successfully:", relationshipData);
+    }
+    setShowSaveModal(false);
     };
     
     const handleSaveAsUpdate = async () => {

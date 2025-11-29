@@ -81,8 +81,20 @@ const updatePlan = async (json, id) => {
 }
 
 const deletePlan = async (id) => {
+  // First delete all relationships pointing to this plan
+  const { error: relError } = await supabase
+    .from('relationship')
+    .delete()
+    .eq('plan', id);
+  
+  if (relError) {
+    console.error('Error deleting relationships:', relError);
+    return { error: relError };
+  }
+
+  // Delete the plan
   const { error } = await supabase
-    .from("plan")
+    .from('plan')
     .delete()
     .eq('id', id);
   
@@ -110,23 +122,23 @@ const getUserRecord = async () => {
   return data;
 };
 
-const getPlanID = async () => {
+  // const getPlanID = async () => {
 
-  const { data, error } = await supabase
-    .from('plan')
-    .select('id')
-    .order('id', { ascending: false })
-    .limit(1)
-    .single();
+  //   const { data, error } = await supabase
+  //     .from('plan')
+  //     .select('id')
+  //     .order('id', { ascending: false })
+  //     .limit(1)
+  //     .single();
 
 
-  if (error) {
-      console.error("Error fetching plan:", error);
-      return null;
-  }
+  //   if (error) {
+  //       console.error("Error fetching plan:", error);
+  //       return null;
+  //   }
 
-  return data;
-};
+  //   return data;
+  // };
 
 const createRelationship = async (user, plan, role) => {
 const { data, error } = await supabase
@@ -150,30 +162,35 @@ const getUserPlans = async () => {
   const userRecord = await getUserRecord();
   if (!userRecord) return { data: null, error: new Error("No user") };
 
-  const { data, error } = await supabase
+  // Get relationships first
+  const { data: relationships, error: relError } = await supabase
     .from('relationship')
-    .select(`
-      plan (
-        id,
-        created_at,
-        data
-      ),
-      relationship
-    `)
+    .select('plan, relationship')
     .eq('user', userRecord.id);
 
-  if (error) return { data: null, error };
-  
-    console.log('Raw relationship data:', data); // Debug: see what's actually in the database
+  if (relError) return { data: null, error: relError };
 
-  const plans = data.map(rel => ({
-    id: rel.plan.id,
-    title: rel.plan.data?.title || 'Untitled',
-    createdAt: rel.plan.created_at,
-    lastModified: rel.plan.created_at,
-    owner: rel.relationship === 'owner' ? 'me' : 'shared',
-    relationship: rel.relationship
-  }));
+  // Get plan details for each relationship
+  const planIds = relationships.map(r => r.plan);
+  const { data: planData, error: planError } = await supabase
+    .from('plan')
+    .select('*')
+    .in('id', planIds);
+
+  if (planError) return { data: null, error: planError };
+
+  // Combine the data
+  const plans = planData.map(plan => {
+    const rel = relationships.find(r => r.plan === plan.id);
+    return {
+      id: plan.id,
+      title: plan.data?.title || 'Untitled',
+      createdAt: plan.created_at,
+      lastModified: plan.created_at,
+      owner: rel.relationship === 'owner' ? 'me' : 'shared',
+      relationship: rel.relationship
+    };
+  });
 
   return { data: plans, error: null };
 };
@@ -211,7 +228,7 @@ const value = {
     updatePlan,
     deletePlan,
     getUserRecord,
-    getPlanID,
+    //getPlanID,
     createRelationship,
     getUserPlans
 };
