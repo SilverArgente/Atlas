@@ -122,10 +122,11 @@ const handleDelete = async (planId) => {
           title: jsonFile.name.replace('.json', ''),
           createdAt: new Date().toISOString().split('T')[0],
           lastModified: new Date().toISOString().split('T')[0],
-          owner: 'me',
+          owner: 'shared',
+          relationship: 'viewer'
         };
       
-        setMyMaps([...myMaps, newMap]);
+        setSharedMaps([...sharedMaps, newMap]);
 
         alert(`Imported: ${jsonFile.name}`);
       } catch (err) {
