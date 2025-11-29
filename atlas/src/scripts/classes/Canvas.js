@@ -10,6 +10,8 @@ export class Canvas {
         this.ctx = canvas.getContext("2d");
         this.sharedCallbacks = sharedCallbacks;
 
+        this.title = "MyMap";
+
         this.mousepos_x = 0;
         this.mousepos_y = 0;
         this.mousepos_world_x = 0;
@@ -524,7 +526,7 @@ export class Canvas {
             edges: [],
             layers: []
         };
-
+        this.title = fileName;
         for(let node of Object.values(this.nodes)) {
             saveData.nodes.push({
                 x: node.x,
@@ -599,6 +601,7 @@ export class Canvas {
             const content = e.target.result;
             try {
                 const data = JSON.parse(content);
+                this.title = data.title;
                 // Fill nodes
                 for(let node of data.nodes) {
                     let newNode = this.addNode();

@@ -1,10 +1,10 @@
 import React, { createContext } from 'react';
 
-export default function NodeContent({title, content}) {
+export default function NodeContent({title, content, updateCallback}) {
     const [contentText, setContentText] = React.useState(content); // Why do I have to add code to make basic HTML features work as intended in React?
     return (
         <span hidden id="node-content-bubble" class="node-content">
-            <span id="popup-bg" onClick={()=>{document.getElementById("node-content-bubble").hidden = true}}></span>
+            <span id="popup-bg" onClick={()=>{updateCallback(); document.getElementById("node-content-bubble").hidden = true}}></span>
             <div>
                 <h1 id="node-content-header">Editing: <strong id="node-content-title"></strong></h1>
                 <textarea id="node-content-text" onChange={(e)=>{setContentText(e.target.value)}} name="nodeContentBox" rows="4" cols="35" placeholder="Enter node content..."></textarea>
