@@ -69,7 +69,7 @@ const createPlan = async (json) => {
     ])
     .select();
 
-  return { data, error };
+  return { data: data[0], error: null };
 };
 
 const updatePlan = async (json, id) => {
@@ -79,6 +79,15 @@ const updatePlan = async (json, id) => {
     .eq('id', id)
   return {error};
 }
+
+const deletePlan = async (id) => {
+  const { error } = await supabase
+    .from("plan")
+    .delete()
+    .eq('id', id);
+  
+  return { error };
+};
 
 const getUserRecord = async () => {
   const { data: authData } = await supabase.auth.getUser();
@@ -120,8 +129,6 @@ const getPlanID = async () => {
 };
 
 const createRelationship = async (user, plan, role) => {
-
-  
 const { data, error } = await supabase
   .from('relationship')
   .insert([
@@ -138,6 +145,39 @@ const { data, error } = await supabase
 
   return data;
 };
+
+const getUserPlans = async () => {
+  const userRecord = await getUserRecord();
+  if (!userRecord) return { data: null, error: new Error("No user") };
+
+  const { data, error } = await supabase
+    .from('relationship')
+    .select(`
+      plan (
+        id,
+        created_at,
+        data
+      ),
+      relationship
+    `)
+    .eq('user', userRecord.id);
+
+  if (error) return { data: null, error };
+  
+    console.log('Raw relationship data:', data); // Debug: see what's actually in the database
+
+  const plans = data.map(rel => ({
+    id: rel.plan.id,
+    title: rel.plan.data?.title || 'Untitled',
+    createdAt: rel.plan.created_at,
+    lastModified: rel.plan.created_at,
+    owner: rel.relationship === 'owner' ? 'me' : 'shared',
+    relationship: rel.relationship
+  }));
+
+  return { data: plans, error: null };
+};
+
 
 const signIn = async (email, password) => {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -169,9 +209,11 @@ const value = {
     resetPassword,
     createPlan,
     updatePlan,
+    deletePlan,
     getUserRecord,
     getPlanID,
-    createRelationship
+    createRelationship,
+    getUserPlans
 };
   
   return (

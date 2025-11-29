@@ -1,31 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { createPlan, getUserRecord } =  useAuth();
+  const { createPlan, getUserRecord, user, getUserPlans, deletePlan } = useAuth();  
+  const [myMaps, setMyMaps] = useState([]);
+  const [sharedMaps, setSharedMaps] = useState([]);
 
-  // Mock data to show UI until backend is connected
-  const [myMaps, setMyMaps] = useState([
-    {
-      id: '1',
-      title: 'CS100',
-      createdAt: '2025-11-20',
-      lastModified: '2025-11-20',
-      owner: 'me',
-    }]);
+  // Fetch plans on mount
+useEffect(() => {
+  const fetchPlans = async () => {
+    const { data, error } = await getUserPlans();
+    if (error) {
+      console.error('Error fetching plans:', error);
+      return;
+    }
+    
+    console.log('Fetched plans:', data); // Debug
+    
+    // Remove duplicates by plan ID
+    const uniquePlans = data.reduce((acc, plan) => {
+      if (!acc.find(p => p.id === plan.id)) {
+        acc.push(plan);
+      }
+      return acc;
+    }, []);
+    
+    // Separate owned vs shared
+    const owned = uniquePlans.filter(p => p.relationship === 'owner');
+    const shared = uniquePlans.filter(p => p.relationship !== 'owner');
+    
+    setMyMaps(owned);
+    setSharedMaps(shared);
+  };
+  
+  if (user) {
+    fetchPlans();
+  }
+}, [user]);
 
-  const [sharedMaps] = useState([
-    {
-      id: '2',
-      title: 'Physics 1',
-      createdAt: '2024-11-20',
-      lastModified: '2024-11-21',
-      owner: 'Dr. Wang',
-    },
-  ]);
+// Update delete handler
+const handleDelete = async (planId) => {
+  const { error } = await deletePlan(planId);
+  if (!error) {
+    setMyMaps(prev => prev.filter(m => m.id !== planId));
+  }
+};
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -106,7 +128,7 @@ export default function Dashboard() {
           <button
             onClick={() => {
               if (window.confirm('Delete this map?')) {
-                //Delete: needs to be implemented
+                handleDelete(map.id);
               }
             }}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm transition"
@@ -121,7 +143,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      
+      {/* Temporary user email display */}
+      {user && <p className="text-sm text-gray-400 px-6 pt-4">Logged in as: {user.email}</p>}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
 
