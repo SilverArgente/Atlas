@@ -45,10 +45,14 @@ useEffect(() => {
     navigate('/create?user=editor');
   };
 
-const handleDelete = async (planId) => {
+const handleDelete = async (planId, isShared = false) => {
   const { error } = await deletePlan(planId);
   if (!error) {
-    setMyMaps(prev => prev.filter(m => m.id !== planId));
+    if (isShared) {
+      setSharedMaps(prev => prev.filter(m => m.id !== planId));
+    } else {
+      setMyMaps(prev => prev.filter(m => m.id !== planId));
+    }
   }
 };
 
@@ -116,6 +120,10 @@ const handleDelete = async (planId) => {
           'viewer'
         );
 
+        if (relError) {
+          console.error('Error creating relationship:', relError);
+        }
+
         //Add to the displayed list
         const newMap = {
           id: savedPlan.id,
@@ -136,33 +144,52 @@ const handleDelete = async (planId) => {
     reader.readAsText(jsonFile);
   };
 
-  const MapCard = ({ map, canDelete }) => (
-    <div className="bg-gray-900 border border-gray-700 rounded-lg p-4 hover:border-gray-500 transition">
-      <h3 className="text-lg font-semibold mb-2">{map.title}</h3>
-      <p className="text-sm text-gray-400 mb-1">Owner: {map.owner}</p>
-      <p className="text-xs text-gray-500 mb-3">Modified: {map.lastModified}</p>
-      <div className="flex gap-2">
-        <button
-          onClick={() => navigate(`/viewer/${map.id}`)}
-          className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm transition"
-        >
-          Open
-        </button>
-        {canDelete && (
-          <button
-            onClick={() => {
-              if (window.confirm('Delete this map?')) {
-                handleDelete(map.id);
-              }
-            }}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm transition"
-          >
-            Delete
-          </button>
-        )}
-      </div>
+const MapCard = ({ map, canDelete, isShared = false }) => (
+  <div className={`border rounded-lg p-4 transition ${
+    isShared 
+      ? 'bg-indigo-950/20 border-indigo-800/50 hover:border-indigo-700' 
+      : 'bg-gray-900 border-gray-700 hover:border-gray-500'
+  }`}>
+    <div className="flex items-start justify-between mb-2">
+      <h3 className="text-lg font-semibold">{map.title}</h3>
+      {isShared && (
+        <span className="px-2 py-0.5 bg-indigo-900/30 border border-indigo-700/50 text-indigo-300 text-xs rounded-full">
+          Shared
+        </span>
+      )}
     </div>
-  );
+    <p className="text-sm text-gray-400 mb-1">Owner: {map.owner}</p>
+    <p className="text-xs text-gray-500 mb-3">Modified: {map.lastModified}</p>
+    <div className="flex gap-2">
+      <button
+        onClick={() => navigate(`/viewer/${map.id}`)}
+        className={`flex-1 px-4 py-2 rounded text-sm transition ${
+          isShared
+            ? 'bg-indigo-700 hover:bg-indigo-600'
+            : 'bg-blue-600 hover:bg-blue-700'
+        }`}
+      >
+        Open
+      </button>
+      {canDelete && (
+        <button
+          onClick={() => {
+            if (window.confirm('Delete this map?')) {
+              handleDelete(map.id, isShared);
+            }
+          }}
+          className={`px-4 py-2 rounded text-sm transition ${
+            isShared
+              ? 'bg-red-950/40 hover:bg-red-900/60 border border-red-800/50'
+              : 'bg-red-600 hover:bg-red-700'
+          }`}
+        >
+          Delete
+        </button>
+      )}
+    </div>
+  </div>
+);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -197,14 +224,14 @@ const handleDelete = async (planId) => {
         </div>
 
         {/* My concept maps */}
-        <section className="mb-10">
+        <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-4">My Concept Maps</h2>
           {myMaps.length === 0 ? (
-            <p className="text-gray-500">No maps yet. Create one to get started!</p>
+            <p className="text-gray-500">No maps created yet.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {myMaps.map(map => (
-                <MapCard key={map.id} map={map} canDelete={true} />
+                <MapCard key={map.id} map={map} canDelete={true} isShared={false} />
               ))}
             </div>
           )}
@@ -218,7 +245,7 @@ const handleDelete = async (planId) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {sharedMaps.map(map => (
-                <MapCard key={map.id} map={map} canDelete={false} />
+                <MapCard key={map.id} map={map} canDelete={true} isShared={true} />
               ))}
             </div>
           )}
