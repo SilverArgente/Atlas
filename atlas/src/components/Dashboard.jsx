@@ -91,14 +91,35 @@ const handleDelete = async (planId, isShared = false) => {
     reader.onload = async() => {
       try {
         const conceptMapData = JSON.parse(reader.result);
+        
+        // Validate the structure
         if (!conceptMapData.nodes || !Array.isArray(conceptMapData.nodes)){
           alert ('Invalid concept map format: missing nodes array');
           return;
         }
         if (!conceptMapData.edges){
-          alert ('Invalid concept mpa format: missing edges array');
+          alert ('Invalid concept map format: missing edges array');
           return;
         }
+        
+        // Ensure all required fields exist with defaults
+        const normalizedData = {
+          title: conceptMapData.title || jsonFile.name.replace('.json', ''),
+          nodes: conceptMapData.nodes.map(node => ({
+            id: node.id,
+            title: node.title || 'Untitled',
+            color: node.color || '#3b82f6',
+            image: node.image || '',
+            content: node.content || '',
+            fontSize: node.fontSize || 16,
+            r: node.r || 50,
+            relatedNodes: node.relatedNodes || [],
+            layer: node.layer || 'Global'
+          })),
+          edges: conceptMapData.edges || [],
+          layers: conceptMapData.layers || [{ name: 'Global', nodes: conceptMapData.nodes.map(n => n.id), prereqs: [] }]
+        };
+
 
         //Save to database
         const userRow = await getUserRecord();

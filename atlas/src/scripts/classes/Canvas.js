@@ -598,53 +598,59 @@ export class Canvas {
             console.error("FAILED TO IMPORT FILE!");
             return;
         }
-        const reader = new FileReader();
-        reader.onload = (e)=>{
-            const content = e.target.result;
-            try {
-                const data = JSON.parse(content);
-                this.title = data.title;
-                // Fill nodes
-                for(let node of data.nodes) {
-                    let newNode = this.addNode();
-                    newNode.setTitle(node.title);
-                    newNode.setColor(node.color);
-                    newNode.setImage(node.image);
-                    newNode.setContent(node.content);
-                    newNode.id = node.id;
-                    newNode.fontSize = node.fontSize;
-                    newNode.r = node.r;
-                }
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e)=>{
+                const content = e.target.result;
+                try {
+                    const data = JSON.parse(content);
+                    this.title = data.title;
+                    // Fill nodes
+                    for(let node of data.nodes) {
+                        let newNode = this.addNode();
+                        newNode.setTitle(node.title);
+                        newNode.setColor(node.color);
+                        newNode.setImage(node.image);
+                        newNode.setContent(node.content);
+                        newNode.id = node.id;
+                        newNode.fontSize = node.fontSize;
+                        newNode.r = node.r;
+                    }
 
-                // Layers
-                for(let layer of data.layers) {
-                    if(!this.layers[layer.name])
-                        this.layers[layer.name] = new NodeLayer(layer.name);
-                    for(let nodeName of layer.nodes) {
-                        if(!this.nodes[nodeName]) continue; //Skip bugged entries.
-                        this.nodes[nodeName].layer.removeNode(nodeName);
-                        this.layers[layer.name].addNode(this.nodes[nodeName]);
-                        this.nodes[nodeName].layer = this.layers[layer.name];
+                    // Layers
+                    for(let layer of data.layers) {
+                        if(!this.layers[layer.name])
+                            this.layers[layer.name] = new NodeLayer(layer.name);
+                        for(let nodeName of layer.nodes) {
+                            if(!this.nodes[nodeName]) continue; //Skip bugged entries.
+                            this.nodes[nodeName].layer.removeNode(nodeName);
+                            this.layers[layer.name].addNode(this.nodes[nodeName]);
+                            this.nodes[nodeName].layer = this.layers[layer.name];
+                        }
+                        for(let prereqName of layer.prereqs) {
+                            if(!this.layers[prereqName])
+                                this.layers[prereqName] = new NodeLayer(prereqName);
+                            this.layers[layer.name].addPrereq(this.layers[prereqName]);
+                        }
                     }
-                    for(let prereqName of layer.prereqs) {
-                        if(!this.layers[prereqName])
-                            this.layers[prereqName] = new NodeLayer(prereqName);
-                        this.layers[layer.name].addPrereq(this.layers[prereqName]);
-                    }
-                }
-                this.sharedCallbacks.setLayers(Object.keys(this.layers));
+                    this.sharedCallbacks.setLayers(Object.keys(this.layers));
 
-                // Set related node lists
-                for(let node of data.nodes) {
-                    for(let relatedNodeId of node.relatedNodes) {
-                        this.addRelatedNode(this.nodes[node.id], relatedNodeId);
+                    // Set related node lists
+                    for(let node of data.nodes) {
+                        for(let relatedNodeId of node.relatedNodes) {
+                            this.addRelatedNode(this.nodes[node.id], relatedNodeId);
+                        }
                     }
+                    resolve();
+                } catch(e) {
+                    console.error("FAILED TO IMPORT FILE!", e);
+                    alert("Failed to load Concept Map. Data may be malformed or corrupt.");
+                    reject(e);
                 }
-            } catch(e) {
-                console.error("FAILED TO IMPORT FILE!", e);
-                alert("Failed to load Concept Map. Data may be malformed or corrupt.");
             }
-        }
-        reader.readAsText(selectedFile);
+            reader.onerror = () => reject(new Error("Failed to read file"));
+            reader.readAsText(selectedFile);
+        });
     }
 }
