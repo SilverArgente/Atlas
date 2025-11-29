@@ -27,7 +27,7 @@ export default function Landing() {
         with a vibrant community of learners and educators.
       </p>
       <button
-        onClick={() => navigate("/create")}
+        onClick={() => navigate("/signup")}
         className="mt-4 px-8 py-3 bg-white text-black font-bold rounded-md shadow-md hover:bg-gray-200 transition"
       >
         Try Now

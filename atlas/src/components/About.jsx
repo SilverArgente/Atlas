@@ -1,30 +1,44 @@
-import { LayoutBox } from "./LayoutBox";
 import Header from "./Header";
-import classroom from "../assets/classroom.png"
 import Footer from "./Footer";
+import { useNavigate } from 'react-router-dom';
 
 export default function About() {
+  const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-white">
-        <Header />
-      {/* Hero Section */}
-      <LayoutBox className="h-64 flex items-center justify-center bg-gray-200">
-        <img src={classroom} alt="About Us" className="absolute inset-0 w-full h-full object-cover"/>
-      </LayoutBox>
+    <div className="min-h-screen bg-black flex flex-col">
+      <Header />
 
       {/* Content Section */}
-      <LayoutBox className="p-8">
-        <div className="space-y-4 text-gray-700">
-          <p>
-            Atlas is a platform dedicated to making things easier for students and professionals.
-          </p>
-          <p>
-            Our mission is to provide powerful yet simple tools to organize, learn, and grow.
-          </p>
-        </div>
-      </LayoutBox>
+      <div className="flex flex-col items-center justify-center px-6 py-16 text-white">
+        <div className="max-w-3xl text-center space-y-6">
+          <h1 className="text-4xl font-extrabold tracking-wide">About Atlas</h1>
 
-      {/* Footer */}
+          <p className="text-lg leading-relaxed">
+            Atlas is a cutting-edge platform designed to make sharing study guides easier between individuals.
+          </p>
+
+          <p className="text-lg leading-relaxed">
+            Study guides are essential tools for students to consolidate learning. They help organize information, identify key ideas, and strengthen understanding.
+          </p>
+
+          <p className="text-lg leading-relaxed">
+            We found it difficult to locate study guides for specific classes, so we built Atlas to solve that problem.
+          </p>
+
+          <p className="text-lg leading-relaxed">
+            Our mission is to empower students with a centralized hub for high-quality materials—fostering collaboration and academic success.
+          </p>
+
+          {/* Centered button */}
+          <button
+            onClick={() => navigate("/signup")}
+            className="mt-6 px-8 py-3 bg-white text-black font-bold rounded-md shadow-md hover:bg-gray-200 transition self-center"
+          >
+            Try Now
+          </button>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
