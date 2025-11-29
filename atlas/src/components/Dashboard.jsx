@@ -41,6 +41,10 @@ useEffect(() => {
   }
 }, [user]);
 
+  const handleCreateNew = () => {
+    navigate('/create?user=editor');
+  };
+
 const handleDelete = async (planId) => {
   const { error } = await deletePlan(planId);
   if (!error) {
@@ -145,7 +149,15 @@ const handleDelete = async (planId) => {
       {/* Temporary user email display */}
       {user && <p className="text-sm text-gray-400 px-6 pt-4">Logged in as: {user.email}</p>}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold">Dashboard</h1>
+          <button
+            onClick={handleCreateNew}
+            className="px-2 py-2 bg-blue-950 hover:bg-blue-700 rounded-lg text-lg font-semibold transition flex items-center gap-1"
+          >
+          Create New Map
+          </button>
+        </div>
 
         {/* Upload */}
         <div
