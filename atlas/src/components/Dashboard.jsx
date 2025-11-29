@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { createPlan, getUserRecord, user, getUserPlans, deletePlan } = useAuth();  
+  const { createPlan, getUserRecord, user, getUserPlans, deletePlan, createRelationship } = useAuth();  
   const [myMaps, setMyMaps] = useState([]);
   const [sharedMaps, setSharedMaps] = useState([]);
 
@@ -59,13 +59,20 @@ const handleDelete = async (planId) => {
     setIsDragging(true);
   };
 
+  const handleDragOver = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  };
+
   const handleDragExit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
   };
 
-  const handleFileDrop = (e) => {
+  const handleFileDrop = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
     
     const files = Array.from(e.dataTransfer.files);
@@ -80,34 +87,47 @@ const handleDelete = async (planId) => {
     reader.onload = async() => {
       try {
         const conceptMapData = JSON.parse(reader.result);
-        // Import: needs to be implemented
         if (!conceptMapData.nodes || !Array.isArray(conceptMapData.nodes)){
           alert ('Invalid concept map format: missing nodes array');
           return;
         }
         if (!conceptMapData.edges){
-          alert ('Invalid concept mpa format: missing edges array')
+          alert ('Invalid concept mpa format: missing edges array');
+          return;
         }
 
         //Save to database
         const userRow = await getUserRecord();
+        if (!userRow){
+          alert('User record not found');
+          return;
+        }
+
         const { data: savedPlan, error } = await createPlan(conceptMapData);
         if( error ) {
           alert('Failed to save concept map');
           return;
         }
+
+        //Create relationship to user
+        const { error: relError } = await createRelationship(
+          userRow.id,
+          savedPlan.id,
+          'viewer'
+        );
+
         //Add to the displayed list
         const newMap = {
           id: savedPlan.id,
           title: jsonFile.name.replace('.json', ''),
           createdAt: new Date().toISOString().split('T')[0],
-          lastModified: new Date().toISOString().split('T]')[0],
+          lastModified: new Date().toISOString().split('T')[0],
           owner: 'me',
         };
       
         setMyMaps([...myMaps, newMap]);
 
-        alert('Imported: jsonFile.name}');
+        alert(`Imported: ${jsonFile.name}`);
       } catch (err) {
         alert('Invalid concept map file');
       }
@@ -161,7 +181,8 @@ const handleDelete = async (planId) => {
 
         {/* Upload */}
         <div
-          onDragOver={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
           onDragLeave={handleDragExit}
           onDrop={handleFileDrop}
           className={`mb-10 border-2 border-dashed rounded-xl p-16 text-center transition-all ${
