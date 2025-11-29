@@ -264,6 +264,7 @@ export class Canvas {
         this.layers[this.selectedNode.layer.name].removeNode(this.selectedNode.id);
         document.getElementById("node-content-bubble").hidden = true;
         document.getElementById("nodeInspector").hidden = true;
+        this.selectedNode.cleanup();
         delete this.nodes[this.selectedNode.id];
         this.restart_simulation();
     }
@@ -477,7 +478,7 @@ export class Canvas {
     }
 
     PrerequisiteValidation() {
-        for(let layer in Object.values(this.layers)) {
+        for(let layer of Object.values(this.layers)) {
             if(layer.prereqs && Object.keys(layer.prereqs).length == 0) return;
         }
         alert("Warning: Your map has no root nodes without prerequisites. Viewers will not be able to view any of the nodes. Make sure that root nodes have no prerequisites to avoid this.");
@@ -571,6 +572,7 @@ export class Canvas {
     restart_simulation() {
         if(!this.canvas) return;
         this.import(this.export(true));
+        this.draw();
     }
 
     async import(input = undefined) {
