@@ -128,8 +128,16 @@ const handleDelete = async (planId, isShared = false) => {
         const newMap = {
           id: savedPlan.id,
           title: jsonFile.name.replace('.json', ''),
-          createdAt: new Date().toISOString().split('T')[0],
-          lastModified: new Date().toISOString().split('T')[0],
+          createdAt: new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+          }),
+          lastModified: new Date().toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+          }),
           owner: 'shared',
           relationship: 'viewer'
         };

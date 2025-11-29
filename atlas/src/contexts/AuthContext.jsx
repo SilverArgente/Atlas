@@ -179,14 +179,21 @@ const getUserPlans = async () => {
 
   if (planError) return { data: null, error: planError };
 
-  // Combine the data
+  // Combine the data with formatted dates
   const plans = planData.map(plan => {
     const rel = relationships.find(r => r.plan === plan.id);
+    const date = new Date(plan.created_at);
+    const formattedDate = date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    
     return {
       id: plan.id,
       title: plan.data?.title || 'Untitled',
-      createdAt: plan.created_at,
-      lastModified: plan.created_at,
+      createdAt: formattedDate,
+      lastModified: formattedDate,
       owner: rel.relationship === 'owner' ? 'me' : 'shared',
       relationship: rel.relationship
     };
