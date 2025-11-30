@@ -60,7 +60,7 @@ const handleSaveWithName = async (mapName) => {
     };
     
     const handleSaveAsUpdate = async () => {
-        const jsonData = canvasObject.export(true, canvasObject.title);
+        const jsonData = canvasObject.export(true);
         const blob = jsonData.files[0];
         const text = await blob.text();
         const parsed = JSON.parse(text);

@@ -520,14 +520,15 @@ export class Canvas {
         console.log(`Created node layer ${this.layers[name]}`);
     }
 
-    export(localExport = false, fileName = 'myMap') {
+    export(localExport = false, fileName = undefined) {
+        if(fileName)
+            this.title = fileName;
         let saveData = {
-            title: fileName,
+            title: this.title,
             nodes: [],
             edges: [],
             layers: []
         };
-        this.title = fileName;
         for(let node of Object.values(this.nodes)) {
             saveData.nodes.push({
                 x: node.x,
