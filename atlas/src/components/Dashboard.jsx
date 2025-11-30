@@ -223,8 +223,6 @@ const MapCard = ({ map, canDelete, isShared = false }) => (
   return (
     <div className="min-h-screen bg-black text-white">
       <Header />
-      {/* Temporary user email display */}
-      {user && <p className="text-sm text-gray-400 px-6 pt-4">Logged in as: {user.email}</p>}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold">Dashboard</h1>
