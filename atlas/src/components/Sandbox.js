@@ -6,9 +6,10 @@ import NodeContent from './NodeContent.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import SaveMapModal from './SaveMapModal';
+import { supabase } from '../services/supabaseClient.js';
 
 export default function Sandbox() {
-    const { updatePlan, createPlan, getUserRecord, getPlanID, createRelationship } = useAuth();
+    const { updatePlan, createPlan, getUserRecord, createRelationship } = useAuth();
 
     const [currentPlanID, setCurrentPlanID] = useState(null);
 
@@ -22,45 +23,45 @@ export default function Sandbox() {
             setShowSaveModal(true);
     };
 
-    const handleSaveWithName = async (mapName) => {
-        const jsonData = canvasObject.export(true, mapName);
-        const blob = jsonData.files[0];
-        const text = await blob.text();
-        const parsed = JSON.parse(text);
+const handleSaveWithName = async (mapName) => {
+    const jsonData = canvasObject.export(true, mapName);
+    const blob = jsonData.files[0];
+    const text = await blob.text();
+    const parsed = JSON.parse(text);
 
-        const userRow = await getUserRecord();
-        if (!userRow) {
-            console.error("Could not fetch user row.");
-            return;
-        } else {
-            console.log("Fetched user id:", userRow.id);
-        }
-
-        console.log("Exported JSON:", jsonData.files[0]);
+    const userRow = await getUserRecord();
+    if (!userRow) {
+        console.error("Could not fetch user row.");
+        return;
+    }
+    const { data: createdPlan, error } = await createPlan(parsed);
     
-        const { data, error } = await createPlan(parsed);
+    if (error) {
+        console.error("Error saving plan:", error);
+        return;
+    }
     
-        if (error) {
-            console.error("Error saving plan:", error);
-        } else {
-            console.log("Plan saved successfully:", data);
-        }
+    console.log("Plan saved successfully:", createdPlan);
+    
+    const planID = createdPlan.id;
+    setCurrentPlanID(planID);
 
-        const planID = await getPlanID();
-        console.log("Fetched plan ID:", planID.id);
-        setCurrentPlanID(planID.id);
-
-        const { data2, error2 } = await createRelationship(userRow.id, planID.id, true);
-        if (error2) {
-            console.error("Error saving relationship:", error2);
-        } else {
-            console.log("Relationship saved successfully:", data2);
-        }
-        setShowSaveModal(false);
+    const { data: relationshipData, error: error2 } = await createRelationship(
+        userRow.id, 
+        planID, 
+        'owner'  
+    );
+    
+    if (error2) {
+        console.error("Error saving relationship:", error2);
+    } else {
+        console.log("Relationship saved successfully:", relationshipData);
+    }
+    setShowSaveModal(false);
     };
     
     const handleSaveAsUpdate = async () => {
-        const jsonData = canvasObject.export(true, canvasObject.title);
+        const jsonData = canvasObject.export(true);
         const blob = jsonData.files[0];
         const text = await blob.text();
         const parsed = JSON.parse(text);
@@ -93,6 +94,7 @@ export default function Sandbox() {
     const [prereqLayers, setPrereqLayers] = useState([]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
+    const map_id = query.get("id");
     const [isLoadingLiveView, setIsLoadingLiveView] = useState(false);
     const sharedCallbacks = {
         setPrereqLayers,
@@ -127,6 +129,39 @@ export default function Sandbox() {
             alert('Failed to open live view. Please try again.');
         }
     };
+
+    const LoadPlanFromSupabase = async () => {
+        const { data, error } = await supabase
+            .from('plan')
+            .select('*')
+            .eq('id', map_id)
+            .single();
+
+        console.log('Fetched data:', data);
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return;
+        }
+
+        if (!data || !data.data) {
+            console.error('Data loading error.');
+            return;
+        }
+        const planData = data.data;
+        const jsonBlob = new Blob([JSON.stringify(planData)], { type: 'application/json' });
+        const file = new File([jsonBlob], 'map.json', { type: 'application/json' });
+        const mapData = { files: [file] };
+
+        canvasObject.import(mapData);
+    }
+
+    useEffect(() => {
+        if(canvasObject && map_id) {
+            setCurrentPlanID(map_id);
+            LoadPlanFromSupabase();
+        }
+    }, [canvasObject, map_id])
 
     useEffect(() => {
 
@@ -275,7 +310,7 @@ export default function Sandbox() {
 
     function ViewerContents(){
         return(
-            <div id="toolbar" hidden="true">
+            <div id="toolbar">
                 <h1 className="viewer-menu-title">Atlas Menu</h1>
                 {user && (
                     <button
@@ -323,6 +358,22 @@ export default function Sandbox() {
 
     return (
         <div>
+            {/*user_type === "editor" && (
+                <button
+                    onClick={() => navigate('/dashboard')}
+                    className="absolute top-6 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
+                >
+                    <span>←</span>
+                    <span>Dashboard</span>
+                </button>
+            )*/}
+            <button
+                    onClick={() => navigate('/dashboard')}
+                    className="absolute top-6 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
+                >
+                    <span>←</span>
+                    <span>Dashboard</span>
+            </button>
             <canvas 
                 id="appCanvas"
                 ref={canvas_ref}
@@ -332,7 +383,7 @@ export default function Sandbox() {
                     height: "100vh",
                 }}
             />
-            {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) ? dragImport() : null}
+            {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) && !map_id ? dragImport() : null}
             <NodeContent title="" content="" updateCallback={()=>{handleExport()}}></NodeContent>
 
             {toolbarType}

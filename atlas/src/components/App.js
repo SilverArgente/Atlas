@@ -9,6 +9,7 @@ import About from './About.jsx';
 import Price from './Pricing.jsx';
 import Contact from './Contact.jsx';
 import Dashboard from './Dashboard';
+import Viewer from './Viewer.jsx';
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
           <Route path ="/pricing" element={<Price/>}/>
           <Route path ="/contact" element={<Contact/>}/>
           <Route path = "/dashboard" element={<Dashboard/>}/>
+          <Route path = "/viewer/:planId" element={<Viewer/>}/>
         </Routes>
 
       </BrowserRouter>
