@@ -323,6 +323,15 @@ const handleSaveWithName = async (mapName) => {
 
     return (
         <div>
+            {user_type === "editor" && (
+                <button
+                    onClick={() => navigate('/dashboard')}
+                    className="absolute top-6 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
+                >
+                    <span>←</span>
+                    <span>Dashboard</span>
+                </button>
+            )}
             <canvas 
                 id="appCanvas"
                 ref={canvas_ref}
