@@ -151,7 +151,7 @@ const { data, error } = await supabase
 
 
   if (error) {
-      console.error("Error fetching plan:", error);
+      console.error("Error Creating Relationship:", error);
       return null;
   }
 
