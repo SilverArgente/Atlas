@@ -1,10 +1,11 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { Canvas } from '../scripts/classes/Canvas';
 import Header from './Header';
 
 export default function Viewer() {
+  const navigate = useNavigate();
   const { planId } = useParams();
   const canvasRef = useRef(null);
   const [canvasObject, setCanvasObject] = useState(null);
@@ -107,10 +108,16 @@ export default function Viewer() {
     );
   }
 
-  return (
-    <div className="min-h-screen">
-      <Header />
-      <canvas ref={canvasRef} className="w-full h-screen" />
-    </div>
-  );
+    return (
+        <div className="min-h-screen">
+            <Header />
+            <button
+                onClick={() => navigate('/dashboard')}
+                className="absolute top-20 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
+            >
+                <span>Dashboard</span>
+            </button>
+            <canvas ref={canvasRef} className="w-full h-screen" />
+        </div>
+    );
 }
