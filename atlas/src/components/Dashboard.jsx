@@ -191,7 +191,7 @@ const MapCard = ({ map, canDelete, isShared = false }) => (
     <p className="text-xs text-gray-500 mb-3">Modified: {map.lastModified}</p>
     <div className="flex gap-2">
       <button
-        onClick={() => navigate(`/viewer/${map.id}`)}
+        onClick={() => navigate(`/create?user=${map.owner === "me" ? "editor" : "viewer"}&id=${map.id}`)}
         className={`flex-1 px-4 py-2 rounded text-sm transition ${
           isShared
             ? 'bg-indigo-700 hover:bg-indigo-600'

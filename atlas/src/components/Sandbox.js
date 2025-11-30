@@ -6,6 +6,7 @@ import NodeContent from './NodeContent.jsx';
 import { useAuth } from '../contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import SaveMapModal from './SaveMapModal';
+import { supabase } from '../services/supabaseClient.js';
 
 export default function Sandbox() {
     const { updatePlan, createPlan, getUserRecord, createRelationship } = useAuth();
@@ -93,6 +94,7 @@ const handleSaveWithName = async (mapName) => {
     const [prereqLayers, setPrereqLayers] = useState([]);
     const query = new URLSearchParams(window.location.search);
     const user_type = query.get("user") || "viewer";
+    const map_id = query.get("id");
     const [isLoadingLiveView, setIsLoadingLiveView] = useState(false);
     const sharedCallbacks = {
         setPrereqLayers,
@@ -127,6 +129,39 @@ const handleSaveWithName = async (mapName) => {
             alert('Failed to open live view. Please try again.');
         }
     };
+
+    const LoadPlanFromSupabase = async () => {
+        const { data, error } = await supabase
+            .from('plan')
+            .select('*')
+            .eq('id', map_id)
+            .single();
+
+        console.log('Fetched data:', data);
+
+        if (error) {
+            console.error('Supabase error:', error);
+            return;
+        }
+
+        if (!data || !data.data) {
+            console.error('Data loading error.');
+            return;
+        }
+        const planData = data.data;
+        const jsonBlob = new Blob([JSON.stringify(planData)], { type: 'application/json' });
+        const file = new File([jsonBlob], 'map.json', { type: 'application/json' });
+        const mapData = { files: [file] };
+
+        canvasObject.import(mapData);
+    }
+
+    useEffect(() => {
+        if(canvasObject && map_id) {
+            setCurrentPlanID(map_id);
+            LoadPlanFromSupabase();
+        }
+    }, [canvasObject, map_id])
 
     useEffect(() => {
 
@@ -275,7 +310,7 @@ const handleSaveWithName = async (mapName) => {
 
     function ViewerContents(){
         return(
-            <div id="toolbar" hidden="true">
+            <div id="toolbar">
                 <h1 className="viewer-menu-title">Atlas Menu</h1>
                 {user && (
                     <button
@@ -323,7 +358,7 @@ const handleSaveWithName = async (mapName) => {
 
     return (
         <div>
-            {user_type === "editor" && (
+            {/*user_type === "editor" && (
                 <button
                     onClick={() => navigate('/dashboard')}
                     className="absolute top-6 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
@@ -331,7 +366,14 @@ const handleSaveWithName = async (mapName) => {
                     <span>←</span>
                     <span>Dashboard</span>
                 </button>
-            )}
+            )*/}
+            <button
+                    onClick={() => navigate('/dashboard')}
+                    className="absolute top-6 left-6 z-50 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg flex items-center gap-2 font-medium"
+                >
+                    <span>←</span>
+                    <span>Dashboard</span>
+            </button>
             <canvas 
                 id="appCanvas"
                 ref={canvas_ref}
@@ -341,7 +383,7 @@ const handleSaveWithName = async (mapName) => {
                     height: "100vh",
                 }}
             />
-            {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) ? dragImport() : null}
+            {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) && !map_id ? dragImport() : null}
             <NodeContent title="" content="" updateCallback={()=>{handleExport()}}></NodeContent>
 
             {toolbarType}
