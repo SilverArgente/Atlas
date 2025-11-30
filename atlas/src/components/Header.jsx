@@ -33,7 +33,7 @@ export default function Header() {
 
     {/* Centered Nav */}
     <nav className="absolute left-1/2 transform -translate-x-1/2 flex space-x-6 text-white">
-      <Link to="/dashboard">Home</Link>
+      <Link to={user ? "/dashboard" : "/"}>Home</Link>
       <Link to="/about">About</Link>
       <Link to="/pricing">Pricing</Link>
       <Link to="/contact">Contact</Link>
