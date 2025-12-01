@@ -48,31 +48,36 @@ useEffect(() => {
   };
 
   const handleImport = async () => {
-    if (!mapCode.trim()) {
-      console.error("No map code entered");
-      return;
+    try {
+      if (!mapCode.trim()) {
+        alert("Please enter a map code.");
+        return;
+      }
+  
+      const userRecord = await getUserRecord();
+      if (!userRecord) {
+        alert("You must be logged in to import a map.");
+        return;
+      }
+  
+      const userId = userRecord.id;
+      const planId = parseInt(mapCode);
+  
+      const { data, error } = await createRelationship(userId, planId, "viewer");
+  
+      if (error) {
+        alert(error.message || "Error importing map.");
+        return;
+      }
+  
+      alert("Successfully imported plan!");
+      setRefreshKey(prev => prev + 1);
+  
+    } catch (err) {
+      alert("Unexpected error: " + (err.message || err));
     }
-  
-    const userRecord = await getUserRecord();
-    if (!userRecord) {
-      console.error("User not logged in.");
-      return;
-    }
-  
-    const userId = userRecord.id;
-    const planId = parseInt(mapCode);
-  
-    const { data, error } = await createRelationship(userId, planId, "viewer");
-  
-    if (error) {
-      console.error("Error importing:", error);
-    } else {
-      console.log("Successfully imported plan:", data);
-    }
-
-    setRefreshKey(prev => prev + 1);
-
   };
+    
   
 
 

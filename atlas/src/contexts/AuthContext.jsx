@@ -147,15 +147,7 @@ const { data, error } = await supabase
     { user: user, plan: plan, relationship: role },
   ])
   .select()
-
-
-
-  if (error) {
-      console.error("Error Creating Relationship:", error);
-      return null;
-  }
-
-  return data;
+  return { data, error };
 };
 
 const getUserPlans = async () => {
