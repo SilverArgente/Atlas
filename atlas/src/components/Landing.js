@@ -22,9 +22,8 @@ export default function Landing() {
           Empower Your Learning Journey
         </h1>
         <p className="text-gray-300 text-lg leading-relaxed">
-        Discover tools designed to make studying, teaching, and collaboration 
-        effortless. Create your own lessons, track progress, and connect 
-        with a vibrant community of learners and educators.
+        Share mind maps with friends, and colleagues. Create, and explore on study guides effortlessly.
+        Learn smarter, not harder—join Atlas today!
       </p>
       <button
         onClick={() => navigate("/signup")}
