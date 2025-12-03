@@ -7,6 +7,6 @@ export const supabase = createClient(url, anonKey, {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        detectSessionInUrl: true,
     },
 });

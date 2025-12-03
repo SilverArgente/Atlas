@@ -34,7 +34,10 @@ export const AuthProvider = ({ children }) => {
   const signUp = async (email, password, first, last) => {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`
+      }
     });
   
     if (authError) return { data: null, error: authError };
