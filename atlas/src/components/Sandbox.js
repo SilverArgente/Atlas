@@ -14,7 +14,17 @@ export default function Sandbox() {
     const [currentPlanID, setCurrentPlanID] = useState(null);
 
     const [showSaveModal, setShowSaveModal] = React.useState(false);
-
+    
+    const handleSaveButton = () => {
+        if (user_type === "viewer") return;
+    
+        if (!currentPlanID) {
+            setShowSaveModal(true);
+        } else {
+            alert(`Plan saved!\n\nPlan ID: ${currentPlanID}\n\nShare this ID or URL with collaborators.`);
+        }
+    };
+    
     const handleExport = () => {
         if(user_type === "viewer") return;
         if(currentPlanID)
@@ -228,6 +238,12 @@ const handleSaveWithName = async (mapName) => {
                             Sign Out
                         </button>
                     )}
+                    <button 
+                        className="toolbar-button" 
+                        onClick={handleSaveButton}
+                    >
+                        Save Plan
+                    </button>
                 </div>
 
                 <div className="toolbar-section">
@@ -384,7 +400,7 @@ const handleSaveWithName = async (mapName) => {
                 }}
             />
             {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) && !map_id ? dragImport() : null}
-            <NodeContent title="" content="" updateCallback={()=>{handleExport()}}></NodeContent>
+            <NodeContent title="" content="" updateCallback={()=>{handleSaveButton()}}></NodeContent>
 
             {toolbarType}
                         <SaveMapModal 

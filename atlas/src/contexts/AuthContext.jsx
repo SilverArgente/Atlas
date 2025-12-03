@@ -150,15 +150,7 @@ const { data, error } = await supabase
     { user: user, plan: plan, relationship: role },
   ])
   .select()
-
-
-
-  if (error) {
-      console.error("Error fetching plan:", error);
-      return null;
-  }
-
-  return data;
+  return { data, error };
 };
 
 const getUserPlans = async () => {

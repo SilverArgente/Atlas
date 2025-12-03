@@ -8,6 +8,8 @@ export default function Dashboard() {
   const { createPlan, getUserRecord, user, getUserPlans, deletePlan, createRelationship } = useAuth();  
   const [myMaps, setMyMaps] = useState([]);
   const [sharedMaps, setSharedMaps] = useState([]);
+  const [mapCode, setMapCode] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Fetch plans on mount
 useEffect(() => {
@@ -39,11 +41,45 @@ useEffect(() => {
   if (user) {
     fetchPlans();
   }
-}, [user]);
+}, [user, refreshKey]);
 
   const handleCreateNew = () => {
     navigate('/create?user=editor');
   };
+
+  const handleImport = async () => {
+    try {
+      if (!mapCode.trim()) {
+        alert("Please enter a map code.");
+        return;
+      }
+  
+      const userRecord = await getUserRecord();
+      if (!userRecord) {
+        alert("You must be logged in to import a map.");
+        return;
+      }
+  
+      const userId = userRecord.id;
+      const planId = parseInt(mapCode);
+  
+      const { data, error } = await createRelationship(userId, planId, "viewer");
+  
+      if (error) {
+        alert(error.message || "Error importing map.");
+        return;
+      }
+  
+      alert("Successfully imported plan!");
+      setRefreshKey(prev => prev + 1);
+  
+    } catch (err) {
+      alert("Unexpected error: " + (err.message || err));
+    }
+  };
+    
+  
+
 
 const handleDelete = async (planId, isShared = false) => {
   const { error } = await deletePlan(planId);
@@ -226,6 +262,24 @@ const MapCard = ({ map, canDelete, isShared = false }) => (
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-3">
+          <input
+            type="text"
+            placeholder="Paste Map Code"
+            value={mapCode}
+            onChange={(e) => setMapCode(e.target.value)}
+            className="w-64 bg-neutral-900 border border-neutral-700 text-black rounded-lg px-4 py-2
+                      focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+                      transition placeholder-neutral-500"/>
+          <button
+            onClick={handleImport}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700
+                      rounded-lg text-white font-semibold transition shadow
+                      hover:shadow-blue-900/40">
+            Import
+          </button>
+        </div>
+
           <button
             onClick={handleCreateNew}
             className="px-2 py-2 bg-blue-950 hover:bg-blue-700 rounded-lg text-lg font-semibold transition flex items-center gap-1"
