@@ -22,9 +22,9 @@ export default function Landing() {
           Empower Your Learning Journey
         </h1>
         <p className="text-gray-300 text-lg leading-relaxed">
-        Share mind maps with friends, and colleagues. Create, and explore on study guides effortlessly.
-        Learn smarter, not harder—join Atlas today!
-      </p>
+          Share concept maps with friends, and colleagues. Create, and explore on study guides effortlessly.
+          Learn smarter, not harder—join Atlas today!
+        </p>
       <button
         onClick={() => navigate("/signup")}
         className="mt-4 px-8 py-3 bg-white text-black font-bold rounded-md shadow-md hover:bg-gray-200 transition"

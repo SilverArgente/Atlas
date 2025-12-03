@@ -10,7 +10,7 @@ export default function Pricing() {
       name: "Free",
       price: "$0",
       features: [
-        "✔ Up to 5 Mind Maps Saved",
+        "✔ Up to 5 Concept Maps Saved",
         "✔ Up to 1GB Map Size",
         "✔ Basic Export Options",
       ],
@@ -21,7 +21,7 @@ export default function Pricing() {
       name: "Premium",
       price: "$10",
       features: [
-        "✔ Unlimited Mind Maps",
+        "✔ Unlimited Concept Maps",
         "✔ Unlimited Map Size",
         "✔ Priority Support",
       ],

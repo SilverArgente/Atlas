@@ -14,15 +14,15 @@ export default function About() {
           <h1 className="text-4xl font-extrabold tracking-wide">About Atlas</h1>
 
           <p className="text-lg leading-relaxed">
-            Atlas is a cutting-edge platform designed to make sharing study guides easier between individuals.
+            Atlas is a cutting-edge platform designed to make sharing concept maps easier between individuals.
           </p>
 
           <p className="text-lg leading-relaxed">
-            Study guides are essential tools for students to consolidate learning. They help organize information, identify key ideas, and strengthen understanding.
+            Concept maps are essential tools for students to consolidate learning. They help organize information, identify key ideas, and strengthen understanding.
           </p>
 
           <p className="text-lg leading-relaxed">
-            We found it difficult to locate study guides for specific classes, so we built Atlas to solve that problem.
+            We found it difficult to share concept maps for specific classes or topics, so we built Atlas to solve that problem.
           </p>
 
           <p className="text-lg leading-relaxed">
