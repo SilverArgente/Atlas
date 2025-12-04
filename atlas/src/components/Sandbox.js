@@ -21,8 +21,19 @@ export default function Sandbox() {
         if (!currentPlanID) {
             setShowSaveModal(true);
         } else {
-            alert(`Plan saved!\n\nPlan ID: ${currentPlanID}\n\nShare this ID or URL with collaborators.`);
+            handleSaveAsUpdate();
         }
+    };
+
+    const handleAutoSave = () => {
+        if (user_type === "viewer") return;
+        if (!canvasObject) return;
+    
+        // Only auto-save if plan already exists (silent save)
+        if (currentPlanID) {
+            handleSaveAsUpdate();
+        }
+        // If no planID, user needs to use "Save Plan" button or modal will show on init
     };
     
     const handleExport = () => {
@@ -172,6 +183,12 @@ const handleSaveWithName = async (mapName) => {
             LoadPlanFromSupabase();
         }
     }, [canvasObject, map_id])
+
+    useEffect(() => {
+        if(canvasObject && !map_id && user_type === "editor" && !currentPlanID) {
+            setShowSaveModal(true);
+        }
+    }, [canvasObject, map_id, user_type, currentPlanID])
 
     useEffect(() => {
 
@@ -400,7 +417,7 @@ const handleSaveWithName = async (mapName) => {
                 }}
             />
             {(user_type !== "editor" && !isLoadingLiveView && !query.get("liveView")) && !map_id ? dragImport() : null}
-            <NodeContent title="" content="" updateCallback={()=>{handleSaveButton()}}></NodeContent>
+            <NodeContent title="" content="" updateCallback={()=>{handleAutoSave()}}></NodeContent>
 
             {toolbarType}
                         <SaveMapModal 

@@ -183,11 +183,19 @@ body {
     left: 32%;
     padding: 10pt;
     border-radius: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .node-content > div > h1 {
     text-align: center;
-    margin: 10pt;
+    margin: 10pt auto 0 auto;
+    max-width: calc(100% - 40pt);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 0 20pt;
+    box-sizing: border-box;
+    width: fit-content;
 }
 
 textarea {
