@@ -181,19 +181,61 @@ body {
     aspect-ratio: 1 / 1;
     top: 15%;
     left: 32%;
-    padding: 10pt;
+    padding: 15pt;
     border-radius: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .node-content > div > h1 {
     text-align: center;
-    margin: 10pt;
+    margin: 20pt 0 0 0;
+    max-width: calc(100% - 40pt);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    padding: 0 20pt;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* Editor mode - different margins */
+.node-content > div.editor-mode > h1 {
+    margin: 20pt 0 0 0;
+}
+
+.node-content > div.editor-mode textarea {
+    margin: 30pt auto 0 auto;
+}
+
+.node-content > div.editor-mode img {
+    margin: 30pt auto 0 auto;
+}
+
+/* Viewer mode - keep default margins */
+.node-content > div.viewer-mode > h1 {
+    margin: 20pt 0 0 0;
+}
+
+.node-content > div.viewer-mode textarea {
+    margin: 25pt auto 0 auto;
+}
+
+.node-content > div.viewer-mode img {
+    margin: 0 auto;
 }
 
 textarea {
     resize: none;
     display: block;
-    margin: auto;
+    margin: 25pt auto 0 auto;
+    width: 50%;
+    max-width: 200pt;
+    box-sizing: border-box;
 }
 
 textarea::placeholder {
@@ -202,16 +244,23 @@ textarea::placeholder {
 
 img {
     display: block;
-    margin: auto;
+    margin: 0 auto;
 }
 
 input[type="file"] {
     display: block;
     padding: 2%;
-    width: 70%;
-    margin: auto;
+    width: 50%;
+    max-width: 200pt;
+    margin: 0 auto;
     border-bottom-left-radius: 5pt;
     border-bottom-right-radius: 5pt;
+}
+
+#node-content-image {
+    width: 50% !important;
+    max-width: 200pt !important;
+    margin: 0 auto !important;
 }
 
 input[type="text"] {
@@ -239,7 +288,7 @@ button:disabled {
     display: block;
     padding: 1%;
     width:70%;
-    margin: auto;
+    margin: 0 auto;
     background-color: rgb(58, 61, 73);
     border-top-right-radius: 5pt;
     border-top-left-radius: 5pt;
@@ -256,8 +305,8 @@ button:disabled {
 }
 
 #node-image {
-    max-width: 200pt; 
-    max-height: 200pt;
+    max-width: 150pt; 
+    max-height: 150pt;
     margin: 5pt auto;
     border-radius: 5pt;
     border: medium solid black;
@@ -292,14 +341,27 @@ button:disabled {
     pointer-events: none;
 }
 
+label[for="RelatedNodeButtons"] {
+    margin: 20pt 0 10pt 0;
+    text-align: center;
+    display: block;
+}
+
 #RelatedNodeButtons {
     display: flex;
     justify-content: center;
-    gap: 10pt;
-    margin: 20pt auto;
-    padding: 0pt 0;
+    flex-wrap: wrap;
+    gap: 8pt;
+    margin: 0 auto 15pt auto;
+    padding: 0;
+    max-width: 90%;
 }
 
 .RelatedNodebutton {
     text-align: center;
+    padding: 5pt 10pt;
+    font-size: 12pt;
+    max-width: 150pt;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
