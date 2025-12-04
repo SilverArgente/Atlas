@@ -167,9 +167,6 @@ export class Node {
     }
 
     refreshRelatedNodesList() {
-        if (this.canvasObj.user_type === 'viewer'){
-            return;
-        }
         const relatedNodesList = document.getElementById("relatedNodesList");
         const nodeListDropdown = document.getElementById("relatedNodeSelector");
         const buttonList = document.getElementById("RelatedNodeButtons");
