@@ -193,7 +193,7 @@ body {
 
 .node-content > div > h1 {
     text-align: center;
-    margin: 0;
+    margin: 20pt 0 0 0;
     max-width: calc(100% - 40pt);
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -205,7 +205,7 @@ body {
 textarea {
     resize: none;
     display: block;
-    margin: 15pt auto 0 auto;
+    margin: 25pt auto 0 auto;
     width: 50%;
     max-width: 200pt;
     box-sizing: border-box;
