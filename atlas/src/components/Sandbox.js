@@ -337,6 +337,12 @@ const handleSaveWithName = async (mapName) => {
                         {(canvasObject && layers.length > 0) ? layers?.map(layer => <li>{layer}</li>) : <li>None</li>}
                     </ul>
                 </div>
+
+                {currentPlanID && (
+                    <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '12px', color: '#666' }}>
+                        Share Code: {currentPlanID}
+                    </div>
+                )}
             </div>
         )
     }
@@ -345,17 +351,17 @@ const handleSaveWithName = async (mapName) => {
         return(
             <div id="toolbar">
                 <h1 className="viewer-menu-title">Atlas Menu</h1>
-                {user && (
-                    <button
-                        id="signOutButton"
-                        onClick={handleSignOut}
-                        className="sign-out-button"
-                        style={{ marginTop: '10px', borderRadius: '6px', padding: '8px 12px' }}
-                    >
-                        Sign Out
-                    </button>
-                )}
                 <div className="viewer-button-container">
+                    {user && (
+                        <button
+                            id="signOutButton"
+                            onClick={handleSignOut}
+                            className="sign-out-button"
+                            style={{ marginTop: '10px', borderRadius: '6px', padding: '8px 12px' }}
+                        >
+                            Sign Out
+                        </button>
+                    )}
                     <button id="refreshSimulationButton" onClick={()=>{canvasObject.restart_simulation()}} className="viewer-button">
                         Restart Simulation
                     </button>
