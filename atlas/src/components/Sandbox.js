@@ -337,6 +337,12 @@ const handleSaveWithName = async (mapName) => {
                         {(canvasObject && layers.length > 0) ? layers?.map(layer => <li>{layer}</li>) : <li>None</li>}
                     </ul>
                 </div>
+
+                {currentPlanID && (
+                    <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '12px', color: '#666' }}>
+                        Share Code: {currentPlanID}
+                    </div>
+                )}
             </div>
         )
     }
