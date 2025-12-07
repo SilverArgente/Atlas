@@ -4,7 +4,7 @@ import { NodeLayer } from "./NodeLayer";
 
 export class Canvas {
 
-    constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type, sharedCallbacks) {
+    /*constructor(canvas, x_offset, y_offset, prev_x, prev_y, is_dragging, scale_factor, user_type, sharedCallbacks) {
         
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
@@ -60,6 +60,10 @@ export class Canvas {
 
         this.loaded_file = undefined;
 
+    }*/
+
+    constructor(canvas) {
+        this.canvas = canvas;
     }
 
     // Returns list of edges.
@@ -247,11 +251,40 @@ export class Canvas {
     }
 
     addNode() {
-        let name = `New Node${(this.nodes["New Node"]) ? ` (${Object.values(this.nodes).length})` : ""}`;
+        /*let name = `New Node${(this.nodes["New Node"]) ? ` (${Object.values(this.nodes).length})` : ""}`;
         let newNode = new Node(this, Math.random() * this.canvas.width/10, Math.random() * this.canvas.height/10,25, name);
         this.nodes[name] = newNode;
         this.startForceSim();
+        return newNode;*/
+        let name = `New Node${(this.canvas.filter('[id = "New Node"]')) ? ` (${Object.values(this.canvas.nodes()).length})` : ""}`;
+        this.canvas.add({
+            group: 'nodes',
+            data: {id: name},
+            position: {x: Math.random() * this.canvas.width()/2, y: Math.random() * this.canvas.height()/2 },
+            style: {
+                'width': 50,
+                'height': 50
+            }
+            
+        });
+        let newNode = this.canvas.filter(`[id = ${name}]`);
+        newNode.atlasNodeMetadata = {
+            title: name,
+            content: "",
+            color: "cornflowerblue",
+            image: null,
+            relatedNodes: {}
+        }
+        newNode.on('drag', ()=>{
+            this.startForceSim();
+        });
+        newNode.on('click', ()=>{this.OpenInspector(newNode)});
+        this.startForceSim();
         return newNode;
+    }
+
+    OpenInspector(node) {
+
     }
 
     removeNode() {
@@ -377,7 +410,7 @@ export class Canvas {
         const step = () => {
             const done = this.forceDirectedStep(t);
             t += 1;
-            this.draw();
+            //this.draw();
 
             if (!done && t < maxIter) {
                 requestAnimationFrame(step);
@@ -394,7 +427,8 @@ export class Canvas {
     }
 
     forceDirectedStep(t, tol = 0.01) {
-        const nodes = Object.values(this.nodes);
+        //const nodes = Object.values(this.nodes);
+        const nodes = this.canvas.nodes();
         if (nodes.length < 2) return true;
 
         // Initialize velocities if they don't exist
@@ -413,8 +447,8 @@ export class Canvas {
             for (let j = i + 1; j < nodes.length; j++) {
                 const n1 = nodes[i];
                 const n2 = nodes[j];
-                const dx = n1.x - n2.x;
-                const dy = n1.y - n2.y;
+                const dx = n1.position('x') - n2.position('x');
+                const dy = n1.position('y') - n2.position('y');
                 const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
                 
                 if (dist > maxRepulsionDist) continue;
@@ -432,11 +466,12 @@ export class Canvas {
         // Attraction
         const c_attr = 0.01;
         for (let nodeId in this.lines) {
-            const connections = this.lines[nodeId];
+            //const connections = this.lines[nodeId];
+            const connections = this.canvas.edges();
             for (let relatedId in connections) {
                 const { node1, node2 } = connections[relatedId];
-                const dx = node2.x - node1.x;
-                const dy = node2.y - node1.y;
+                const dx = node2.position('x') - node1.position('x');
+                const dy = node2.position('y') - node1.position('y');
                 const dist = Math.sqrt(dx * dx + dy * dy + 0.001);
 
                 const idealLength = 200;
@@ -467,8 +502,8 @@ export class Canvas {
             if (Math.abs(node.vx) < velocityThreshold) node.vx = 0;
             if (Math.abs(node.vy) < velocityThreshold) node.vy = 0;
             
-            if (node.vx !== 0 || node.vy !== 0) {
-                node.setPosition(node.x + node.vx, node.y + node.vy);
+            if (!node.grabbed() && (node.vx !== 0 || node.vy !== 0)) {
+                node.position({x: (node.position('x') + node.vx), y: (node.position('y') + node.vy)})
             }
             
             maxForce = Math.max(maxForce, Math.abs(node.fx), Math.abs(node.fy));
