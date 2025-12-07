@@ -263,28 +263,39 @@ export class Canvas {
             position: {x: Math.random() * this.canvas.width()/2, y: Math.random() * this.canvas.height()/2 },
             style: {
                 'width': 50,
-                'height': 50
+                'height': 50,
+                "background-color": "cornflowerblue",
+                'text-valign': 'center'
             }
             
         });
-        let newNode = this.canvas.filter(`[id = ${name}]`);
+        let nodeId = `[id = "${name}"]`;
+        let newNode = this.canvas.filter(nodeId);
         newNode.atlasNodeMetadata = {
             title: name,
             content: "",
-            color: "cornflowerblue",
+            //color: "cornflowerblue",
             image: null,
             relatedNodes: {}
         }
-        newNode.on('drag', ()=>{
+        this.canvas.on('drag', nodeId, ()=>{
             this.startForceSim();
         });
-        newNode.on('click', ()=>{this.OpenInspector(newNode)});
+        this.canvas.on('tap', nodeId, ()=>{this.OpenInspector(newNode)});
         this.startForceSim();
         return newNode;
     }
 
-    OpenInspector(node) {
+    async OpenInspector(node) {
+        const contentPopup = document.getElementById("node-content-bubble");
+        const contentTextArea = document.getElementById("node-content-text");
 
+        document.getElementById("nodeInspector").hidden = false;
+        document.getElementById("nodeColorPicker").value = node.style('background-color');
+        document.getElementById("nodeNameText").value = node.atlasNodeMetadata.title;
+
+        await this.centerOnNode(node, 0.5);
+        contentPopup.hidden = false;
     }
 
     removeNode() {
@@ -363,42 +374,16 @@ export class Canvas {
     }
 
     async centerOnNode(node, time = 1.0) {
-        if(!node) return;
-        time *= 1000;
-        let current_time = 0;
-        const starting_x_offset = this.x_offset;
-        const starting_y_offset = this.y_offset;
-        const final_x_offset = (-node.x*this.scale_factor)+(this.canvas.width/2.0)-node.r;
-        const final_y_offset = (-node.y*this.scale_factor)+(this.canvas.height/2.0)+node.r;
-        const frame_time = 16.666666667;    
-        while(current_time <= time) {
-            this.x_offset = this.lerp(starting_x_offset, final_x_offset, this.quadraticEaseInOut(current_time/time));
-            this.y_offset = this.lerp(starting_y_offset, final_y_offset, this.quadraticEaseInOut(current_time/time));
-            //this.x_offset = this.lerp(this.x_offset, final_x_offset, (current_time/time));
-            //this.y_offset = this.lerp(this.y_offset, final_y_offset, (current_time/time));
-            await this.wait(frame_time);
-            current_time += frame_time;
-            this.draw()
-        }
-        this.x_offset = final_x_offset;
-        this.y_offset = final_y_offset;
+        this.canvas.animate({
+            center: {eles: node},
+            easing: "ease-in-out-quad",
+            duration: time * 1000
+        })
+        await this.wait(time * 1000);
     }
 
     async wait(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // NOTE: A single 60FPS frame is 16.67ms long.
-    lerp(start, end, t) {
-        return start + (end - start) * t;
-    }
-
-    quadraticEaseOut(t) {
-        return 1 - (1 - t) * (1 - t);
-    }
-
-    quadraticEaseInOut(t) {
-        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     }
 
     startForceSim(maxIter = 10000) {

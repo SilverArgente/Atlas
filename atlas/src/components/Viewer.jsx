@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { initializeCanvas } from '../scripts/view_sandbox';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import NodeContent from './NodeContent';
 
 export default function Viewer() {
   const { updatePlan, createPlan, getUserRecord, createRelationship } = useAuth();
@@ -366,6 +367,7 @@ const handleSaveWithName = async (mapName) => {
   return (
     <>
       <div ref={canvasRef} style={{width: "100vw", height: "100vh"}}></div>
+      <NodeContent title="" content="" updateCallback={()=>{handleAutoSave()}}></NodeContent>
       <EditorContents/>
     </>
   );
